@@ -5,7 +5,7 @@
 
 
 \title{Unwrangled Data to Normalized SQL}
-\subtitle{A Proposal}
+\subtitle{Project Proposal}
 
 \numberofauthors{1} 
 \author{
@@ -23,14 +23,21 @@ Eden Zik and Kahlil Oppenheimer\\
 
 \begin{abstract}
 
-The widespread use of data analysis tools follows in parallel to the ever increasing amount of data readily available. Data analysis tools vary in sophistication and design, with the latter often leading to staggering inconsistencies in the formatting of a data source. It is known analysts spend a significant amount of time conforming data to a desired format while checking and rechecking it for consistency and integrity. This manipulation requires manual transformations of columns and rows, correcting individual values, and aggregating data from multiple sources with different layout. Stanford's Data Wrangler project was created in response to the inordinate amount of effort analysts spend manipulating and assessing data. Wrangler ``combines direct manipulation of visualized data with automatic inference of relevant transforms, enabling analysts to iteratively explore the space of applicable operations and preview their effects'' \cite{2011-wrangler}. Wrangler is analogous in its purpose to Open Refine, which is a Google Project aimed at cleaning up inconsistent spreadsheets \cite{Refine}. Although both projects have been developed with a similar goal, they fall short of achieving a persistent solution to the problem of messy and inconsistent data. Both Data Wrangler and Open Refine export a cleaned ``wrangled'' result as a CSV, which fails to prevent future messiness as database ``bloat'' continues. We aim to incorporate the power of referential integrity, consistency, and normalization of ANSI SQL with the current state of the art (Data Wrangler and Open Refine) to provide data analysts with the ultimate tool for normalization of semi-structured data.
+Data analysis tools are extremely high in demand. However, one known issue with data analysis is an inconsistency in formatting between different data sources. Is my data compatible with the analysis tool I'm trying to use? This problem is only exacerbated when data is represented inconsistently between various mediums. Take for example a team of two, each trying to represent the same structured data. Let's say that one person decided to create an Excel spreadsheet while the other wrote a Python script to populate a CSV file. What if they chose inconsistent names of attributes for enumerated types (i.e. ``female'' vs. ``f'' vs. ``Female'')? What if one person decided to leave some cells blank, while the other didn't? What if the person entering into Excel had typos that were corrupting various aggregation results? Suddenly, the team's simple task of trying to merge and aggregate their data with some analysis tool becomes much more complicated.
+
+To deal with this, many analysts spend a significant amount writing various scripts to transform multiple data sources into one standard. This ``data wrangling'' often requires manual transformations of columns and rows, correcting individual values, and aggregating data from multiple sources with different layout. Fortunately, two applications were created to aid this process along: Stanford's Data Wrangler and Google's Open Refine. Although both projects have been developed with a similar goal of a visual and intuitive interface for data wrangling, they create a short-term but not scalable solution. Both Data Wrangler and Open Refine export their ``wrangled'' result as one massive CSV file. This is fine for small-scale individual tasks, but this does not scale in the way that the modern world demands that data scale. Our project will take this output CSV and transform it into a specifiably normalized SQL relational database. This transformation will allow the user all of the well-known benefits of a relational database management system, such as referential integrity, data consistency, and easier compatibility with analysis tools. Our project aims to provide data analysts with the ultimate tool for normalization of structured but unwrangled data.
+
 \end{abstract}
 
 
-\section{Introduction}
+
+
+\section{Who are we?}
 
 We (the authors of this proposal) are both undergraduate students studying Computer Science at Brandeis University. We've worked together extensively on many projects and have a great familiarity with one another's work habits. Because of this, there was no question in my mind that Eden's strengths would compliment my own in a way that would make this project possible.
+
 Eden Zik is a double major in Computer Science and Biology. Eden has extensive experience with the open-source DBMS, PostgreSQL, and has written everything from queries and triggers to custom functions. Eden has also worked with many research groups (such as the Klausen Group) who struggle to effectively manage their data, which formed much of the inspiration for this project.
+
 Kahlil Oppenheimer is a double major in Computer Science and Math. Kahlil has done work on the query optimizer team at HP Vertica, the company responsible for a commercial implementation of a Column Store (C-Store) analytics DBMS. Kahlil also wields a constructive skepticism that continues to whittle this project into its final (and hopefully best) stages.
 
 
@@ -49,20 +56,27 @@ Data Wrangler is a similar tool implemented by The Stanford Visualization Group.
 The program helps users ``reformat data values or layout, correct erroneous or missing values, and integrate multiple data sources'' with an intuitive and visual interface. \cite{2011-wrangler}. For instance, users may have structured data with typos, missing fields, or just poor formatting. Data Wrangler suggests ways for the user to easily and intuitively correct these errors and ``wrangle'' their data into a structured and usable form. Data Wrangler also records the history of data transformations and allows users to preserve, analyze, and edit that history. The end result is that a user can take some structured, but not yet wrangled data, and manipulate it in an intuitive and reusable way, to one structured and wrangled data in a spreadsheet format.
 The DataWrengler project itself is based on Potter's Wheel, an interactive data cleaning system described in a 2001 paper by Raman and Hellerstein \cite{raman2001potter}.
 
-\section{Our Enhancement}
+\section{Our Project}
 Our project will take the spreadsheet format, normalize it into logical tables, and provide the ANSI SQL compliant set of transactions to populate a SQL database (SQL dump) with that data. Our project will use Data Wrangler to allow the user to ``wrangle'' their data into this one structured table of information, create a specifiably normalized schema based on that table to balance reduction of redundancy with query efficiency, and finally output the ANSI SQL compliant equivalent. In other words, users can go from structured but unwrangled data to a running SQL database with minimum difficulty.
 
-\section{This as a database Project}
+\section{project relevance to databases}
 We get to focus strictly on the logic of normalizing and generating database schemata, while still providing an application with practical use.
 We get to focus strictly on the abstract logic because much of the low-level ``grunt work'' is done for us by Data Wrangler. In Data Wrangler's own words, we can spend our time ``exercising our specialty'', though through extending Data Wrangler rather than through using it.
-We get to provide an application with practical use because each stage of our project will be a functional application. The end result of our project will encompass a functionality that would have otherwise been impossible without the use of the Data Wrangler framework. With Data Wrangler covering the user interface and actual data wrangling, we can focus on powerful algorithms for normalization, while still providing an application that provides all of the aforementioned services. The end result is a final project that is interesting, usable, and directly relevant to database research.
+
+
+Additionally, using an existing framework as base allows each stage of our project to be a functional application. The end result of our project will encompass a functionality that would have otherwise been impossible without the use of the Data Wrangler framework. With Data Wrangler covering the user interface and actual data wrangling, we can focus on powerful algorithms for normalization, while still providing an application that provides all of the aforementioned services. The end result is a final project that is interesting, usable, and directly relevant to database research.
 
 \section{Technical Implementation}
 While there are many ways to go about implementing our solution, we think we have come up with one that is both scalable and achievable within our time frame.
+
 We will begin by forking the source code for Data Wrangler. Data Wrangler's licensing allows us to use and modify their code, so long as we meet minimal criteria (such as not associating our project with the name Stanford University).
+
 We will initially preserve Data Wrangler's setup of being run entirely as front-end JavaScript code. While this has the disadvantage of not utilizing the full force of a back end, it has the advantage of a much lesser startup time, and lets us focus more on the actual database normalization component of the project. One future upgrade we'd like to implement, if time allows, is to move much of the service of the application to the server-side via NodeJS, a back-end JavaScript framework.
+
 Using JavaScript for the entire application has the advantage of being extremely portable. JavaScript can be run in a browser (of course), but with recent technology from GitHub's Atom text editor, JavaScript can also be run on the desktop in a Windows, Mac OS, or Linux environment. This allows for portability unparalleled by most other programming languages.
+
 Our project will also be extremely portable in regards to databases. For that reason, we're going to have our final result (a list of SQL transactions as a dump file) be compliant with the American National Standards Institute's (ANSI) SQL standard. This will allow for easier compatibility with any given DBMS (PostgreSQL, Oracle, SQL Server, etc.) with only minor translation for implementations that break the standard--but such translations probably already exist anyways.
+
 With the project written entirely in Javascript and on top of Data Wrangler, we will be able to work at a high level of abstraction, maintain extreme portability, and work within an acceptable timeframe.
 
 
