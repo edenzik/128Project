@@ -6,17 +6,20 @@
 <body>
     <form id="formoid" action="http://0.0.0.0:8000/test" title="" method="post">
         <div>
-            <label class="title">First Name</label>
+            <label class="title">Name</label>
             <input type="text" id="name" name="name" >
         </div>
         <div>
-            <label class="title">Name</label>
+            <label class="title">Age</label>
             <input type="text" id="name2" name="name2" >
         </div>
         <div>
             <input type="submit" id="submitButton"  name="submitButton" value="Submit">
         </div>
  </form>
+ <textarea id="largeform" rows="4" cols="50">
+At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies. 
+</textarea>
 <script type='text/javascript'>
     /* attach a submit handler to the form */
     $("#formoid").submit(function(event) {
@@ -29,8 +32,8 @@
           url = $form.attr( 'action' );
 
       /* Send the data using post */
-      var posting = $.post( url, { name: $('#name').val(), name2: $('#name2').val() } );
-
+      //var posting = $.post( url, { name: $('#name').val(), name2: $('#name2').val() } );
+	   var posting = $.post( url, { name: "John", time: "2pm" } );
       /* Alerts the results */
       posting.done(function( data ) {});
     });
