@@ -34,8 +34,6 @@ public class ServerTest {
         	BufferedReader br = new BufferedReader(new InputStreamReader(t.getRequestBody()));
         	String nextLine = null;
         	while((nextLine = br.readLine()) != null) {
-        		String[] args = nextLine.split("&");
-        		System.out.println(args);
         		System.out.println(nextLine);
         	}
         	System.out.println();
