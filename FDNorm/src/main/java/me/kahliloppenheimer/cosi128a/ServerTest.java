@@ -22,12 +22,13 @@ public class ServerTest {
 
     static class MyHandler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
-        	System.out.println("t.getRequestHeaders():\n" + t.getRequestHeaders().entrySet());
+        	System.out.println("POST REQUEST BODY:\n");
         	BufferedReader br = new BufferedReader(new InputStreamReader(t.getRequestBody()));
         	String nextLine = null;
         	while((nextLine = br.readLine()) != null) {
         		System.out.println(nextLine);
         	}
+        	System.out.println();
             String response = "This is the response";
          
             t.sendResponseHeaders(200, response.length());
