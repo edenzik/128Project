@@ -1,6 +1,8 @@
 package me.kahliloppenheimer.cosi128a;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
@@ -20,7 +22,14 @@ public class ServerTest {
 
     static class MyHandler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
+        	System.out.println("t.getRequestHeaders():\n" + t.getRequestHeaders().entrySet());
+        	BufferedReader br = new BufferedReader(new InputStreamReader(t.getRequestBody()));
+        	String nextLine = null;
+        	while((nextLine = br.readLine()) != null) {
+        		System.out.println(nextLine);
+        	}
             String response = "This is the response";
+         
             t.sendResponseHeaders(200, response.length());
             OutputStream os = t.getResponseBody();
             os.write(response.getBytes());
