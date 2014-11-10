@@ -23,7 +23,7 @@ At w3schools.com you will learn how to make a website. We offer free tutorials i
 
 <script type='text/javascript'>
     /* attach a submit handler to the form */
-    $("#formoid").submit(function(event) {
+    $("#submitButton").submit(function(event) {
 
       /* stop form from submitting normally */
       event.preventDefault();
@@ -33,8 +33,8 @@ At w3schools.com you will learn how to make a website. We offer free tutorials i
           url = $form.attr( 'action' );
 
       /* Send the data using post */
-      var posting = $.post( url, { name: $('#name').val(), age: $('#age').val() } );
-	    //var posting = $.post( url, $('largeform').val());
+      //var posting = $.post( url, { name: $('#name').val(), age: $('#age').val() } );
+	    var posting = $.post( url, $('textarea#largeform').val());
       /* Alerts the results */
       posting.done(function( data ) {});
     });

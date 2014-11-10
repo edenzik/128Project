@@ -8171,25 +8171,13 @@ dw.wrangler = function(options){
 		editor = dw.editor(editorContainer, suggestions, {onpromote:promote_transform, onhighlight:highlight_suggestion, onselect:execute_transform, onedit:interaction, table:table}).draw()
 	}
 
-	
-
-
 	function exportTable(){
 		var select = dw.jq('select').addClass('exportOptions');
 
 		var buttons = jQuery('<form>\
 		<input type="radio" name="exportType" value="data" checked="checked"/> Data<br />\
 		<input type="radio" name="exportType" value="script" /> Script\
-		<input type="submit" id="submitButton"  name="submitButton" value="Submit">\
 		</form>')
-
-		buttons.find(':submit').height(100).width(100).click(function(e){
-			//alert(inputArea.val())
-			e.preventDefault();
-			var url = 'http://0.0.0.0:8000/test';
-			$.post( url, inputArea.val());
-		})
-
 
 		buttons.find(':radio').height(15).width(15).click(function(e){
 			select.empty()
