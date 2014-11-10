@@ -13,8 +13,15 @@ import com.sun.net.httpserver.HttpServer;
 
 @SuppressWarnings("restriction")
 public class ServerTest {
+	
+	private static String hostIP = "104.236.17.70";
+	private static String dbName = "cosi128a";
+	private static String user = "kahlil";
+	private static String pass = "psswd";
+	private static DBHelper dbHelper; 
 
     public static void main(String[] args) throws Exception {
+    	dbHelper = new DBHelper(hostIP, dbName, user, pass);
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.createContext("/test", new MyHandler());
         server.setExecutor(null); // creates a default executor
@@ -27,6 +34,8 @@ public class ServerTest {
         	BufferedReader br = new BufferedReader(new InputStreamReader(t.getRequestBody()));
         	String nextLine = null;
         	while((nextLine = br.readLine()) != null) {
+        		String[] args = nextLine.split("&");
+        		System.out.println(args);
         		System.out.println(nextLine);
         	}
         	System.out.println();
