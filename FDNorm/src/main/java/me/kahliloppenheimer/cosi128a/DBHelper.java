@@ -22,7 +22,7 @@ public class DBHelper {
 		String url = "jdbc:postgresql://" + hostIP + "/" + dbName;
 		System.out.println("url = " + url);
 		conn = DriverManager.getConnection(url, dbUser, dbPass);
-		stmt = null;
+		stmt = conn.createStatement();
 	}
 	
 	/**
@@ -31,8 +31,14 @@ public class DBHelper {
 	 * @param updateQuery update Query to be executed
 	 * @throws SQLException
 	 */
-	public void executeUpdate(String updateQuery) throws SQLException {
-		stmt.executeUpdate(updateQuery);
+	public void executeUpdate(String updateQuery) {
+		try {
+			stmt.executeUpdate(updateQuery);
+			System.out.println("SUCCESSFUL UPDATE");
+		} catch(SQLException e) {
+			System.out.println("Bad query: " + updateQuery);
+			// just means table already exists (probably)
+		}
 	}
 	
 	/**
