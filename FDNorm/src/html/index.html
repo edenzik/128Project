@@ -11,15 +11,16 @@
         </div>
         <div>
             <label class="title">Age</label>
-            <input type="text" id="name2" name="name2" >
+            <input type="text" id="age" name="age" >
         </div>
         <div>
             <input type="submit" id="submitButton"  name="submitButton" value="Submit">
         </div>
- </form>
- <textarea id="largeform" rows="4" cols="50">
+         <textarea id="largeform" rows="4" cols="50">
 At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies. 
 </textarea>
+ </form>
+
 <script type='text/javascript'>
     /* attach a submit handler to the form */
     $("#formoid").submit(function(event) {
@@ -32,8 +33,8 @@ At w3schools.com you will learn how to make a website. We offer free tutorials i
           url = $form.attr( 'action' );
 
       /* Send the data using post */
-      //var posting = $.post( url, { name: $('#name').val(), name2: $('#name2').val() } );
-	   var posting = $.post( url, { name: "John", time: "2pm" } );
+      var posting = $.post( url, { name: $('#name').val(), age: $('#age').val() } );
+	    //var posting = $.post( url, $('largeform').val());
       /* Alerts the results */
       posting.done(function( data ) {});
     });
