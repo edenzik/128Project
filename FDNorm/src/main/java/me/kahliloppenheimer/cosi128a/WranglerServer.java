@@ -3,7 +3,6 @@ package me.kahliloppenheimer.cosi128a;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,16 +21,11 @@ public class WranglerServer {
 	private static final String DB_NAME = "cosi128a";
 	private static final String USER = "kahlil";
 	private static final String PASS = "psswd";
-	private static final String LOG_FILE_NAME="wrangler_server_log";
-	private static final String LOG_ENCODING="UTF-8";
-	private static PrintWriter log; 
 	private static DBHelper dbHelper; 
 	
     public static void main(String[] args) throws Exception {
     	// initialize dbHelper
     	dbHelper = new DBHelper(HOST_IP, DB_NAME, USER, PASS);
-    	// initialize log writer
-        log = new PrintWriter(LOG_FILE_NAME, LOG_ENCODING);
         // initialize server
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.createContext("/test", new NewHandler());

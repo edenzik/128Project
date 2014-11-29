@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class to abstract away from boilerplate of JDBC connection
@@ -17,12 +19,15 @@ public class DBHelper {
 	
 	private Statement stmt;
 	private Connection conn;
+	private static final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
 
 	public DBHelper(String hostIP, String dbName, String dbUser, String dbPass) throws ClassNotFoundException, SQLException {
 		// Initialize JDBC driver
 		Class.forName("org.postgresql.Driver");
+		LOG.info("Initialized postgresql JDBC Driver");
 		String url = "jdbc:postgresql://" + hostIP + "/" + dbName;
 		conn = DriverManager.getConnection(url, dbUser, dbPass);
+		LOG.info("Connected to database at {}", url);
 		stmt = conn.createStatement();
 	}
 	
@@ -35,10 +40,9 @@ public class DBHelper {
 	public void executeUpdate(String updateQuery) {
 		try {
 			stmt.executeUpdate(updateQuery);
-			System.out.println(updateQuery);
+			LOG.info(updateQuery);
 		} catch(SQLException e) {
-			System.out.println(e.getMessage());
-			// just means table already exists (probably)
+			LOG.warn(e.getMessage());
 		}
 	}
 	
@@ -50,6 +54,7 @@ public class DBHelper {
 	 * @throws SQLException
 	 */
 	public ResultSet executeQuery(String query) throws SQLException {
+		LOG.info(query);
 		return stmt.executeQuery(query);
 	}
 	
@@ -59,6 +64,7 @@ public class DBHelper {
 	 * @throws SQLException
 	 */
 	public void close() throws SQLException {
+		LOG.info("Closed database connection!");
 		conn.close();
 	}
 	
@@ -79,6 +85,12 @@ public class DBHelper {
 		return false;
 	}
 	
+	/**
+	 * Returns the number of tables for a given postgreSQL database
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
 	public int countTables() throws SQLException {
 		String countTablesQuery = "select count(*) from information_schema.tables;";
 		ResultSet rs = executeQuery(countTablesQuery);
