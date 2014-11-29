@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DBHelper {
-	
+
 	private Statement stmt;
 	private Connection conn;
 	private static final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
@@ -30,14 +30,14 @@ public class DBHelper {
 		LOG.info("Connected to database at {}", url);
 		stmt = conn.createStatement();
 	}
-	
+
 	/**
 	 * Executes the given update query (i.e. "insert into foo values ("bar");")
 	 * 
 	 * @param updateQuery update Query to be executed
 	 * @throws SQLException
 	 */
-	public void executeUpdate(String updateQuery) {
+	public synchronized void executeUpdate(String updateQuery) {
 		try {
 			stmt.executeUpdate(updateQuery);
 			LOG.info(updateQuery);
@@ -45,7 +45,7 @@ public class DBHelper {
 			LOG.warn(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Executes the given select query (i.e. "select * from foo;")
 	 * 
@@ -53,21 +53,21 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ResultSet executeQuery(String query) throws SQLException {
+	public synchronized ResultSet executeQuery(String query) throws SQLException {
 		LOG.info(query);
 		return stmt.executeQuery(query);
 	}
-	
+
 	/**
 	 * Closes the connection to the given database
 	 * 
 	 * @throws SQLException
 	 */
-	public void close() throws SQLException {
+	public synchronized void close() throws SQLException {
 		LOG.info("Closed database connection!");
 		conn.close();
 	}
-	
+
 	/**
 	 * Returns true if a given table exists and false if it does not
 	 * 
@@ -75,23 +75,28 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean tableExists(String tableName) throws SQLException {
-		DatabaseMetaData dbm = conn.getMetaData();
-		ResultSet tables = dbm.getTables(null, null, tableName, null);
-		// Table exists
-		if(tables.next()) {
-			return true;
+	public synchronized boolean tableExists(String tableName) {
+		try {
+			DatabaseMetaData dbm = conn.getMetaData();
+			ResultSet tables = dbm.getTables(null, null, tableName.toLowerCase(), null);
+			// Table exists
+			if(tables.next()) {
+				return true;
+			}
+		}
+		catch(SQLException e) {
+			LOG.error("Could not check if table {} exists or not!", tableName);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns the number of tables for a given postgreSQL database
 	 * 
 	 * @return
 	 * @throws SQLException
 	 */
-	public int countTables() throws SQLException {
+	public synchronized int countTables() throws SQLException {
 		String countTablesQuery = "select count(*) from information_schema.tables;";
 		ResultSet rs = executeQuery(countTablesQuery);
 		rs.next();

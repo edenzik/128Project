@@ -8,6 +8,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class to ease in the generation of queries (i.e. update and create table queries
  * given just a list of attributes)
@@ -20,6 +23,7 @@ public class QueryHelper {
 	public static final String DEFAULT_TABLE_NAME = "TABLE";
 	public static final PostgresAttType DEFAULT_ATT_TYPE = PostgresAttType.VARCHAR;
 	public static final int TYPE_INFERENCE_SAMPLE_SIZE = 100;
+	private static final Logger LOG = LoggerFactory.getLogger(QueryHelper.class);
 
 	/**
 	 * ONLY USED FOR UNT-TESTING
@@ -188,10 +192,12 @@ public class QueryHelper {
 	 */
 	public static Map<String, PostgresAttType> inferTableTypes(
 			String[] headers, Map<String, List<String>> headersToSampleValues) {
+		LOG.info("Inferring types for database columns...");
 		Map<String, PostgresAttType> columnTypes = new LinkedHashMap<String, PostgresAttType>();
 		for(String s: headers) {
 			columnTypes.put(s, inferColumnType(s, headersToSampleValues));
 		}
+		LOG.debug("Inferred types are: {}", columnTypes.toString());
 		return columnTypes;
 	}
 
