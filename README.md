@@ -12,6 +12,16 @@ Preliminary relevant files
 Overview
 =====
 - Wrangle data into relational form
+- 
+
+Build Process
+======
+1.  Open Eclipse
+2.  Go to File -> Import -> Existing Maven Project
+3.  Select the "wizard" folder
+4.  Once all is imported, click on "run" (green arrow)
+5.  It will ask you for a build goal - in the window type the build goal as "jetty:run"
+6.  Press the green arrow again and you're done!
 
 Hard Functional Dependecy Detection
 =========
