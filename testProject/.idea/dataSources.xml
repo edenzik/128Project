@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="559233104">
+    <data-source source="LOCAL" name="PostgreSQL - @localhost" uuid="553c547d-9dbf-4632-898b-6bd09227d06c">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432</jdbc-url>
+      <libraries />
+    </data-source>
+    <data-source source="LOCAL" name="HSQLDB -" uuid="03f15ce2-3823-4216-8027-da3d08d0169b">
+      <driver-ref>hsqldb.embedded</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.hsqldb.jdbc.JDBCDriver</jdbc-driver>
+      <jdbc-url>jdbc:hsqldb:file:/</jdbc-url>
+      <libraries />
+    </data-source>
+  </component>
+</project>
