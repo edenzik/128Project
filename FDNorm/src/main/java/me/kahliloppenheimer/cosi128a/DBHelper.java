@@ -1,6 +1,7 @@
 package me.kahliloppenheimer.cosi128a;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,11 +17,11 @@ public class DBHelper {
 	
 	private Statement stmt;
 	private Connection conn;
-	
+
 	public DBHelper(String hostIP, String dbName, String dbUser, String dbPass) throws ClassNotFoundException, SQLException {
+		// Initialize JDBC driver
 		Class.forName("org.postgresql.Driver");
 		String url = "jdbc:postgresql://" + hostIP + "/" + dbName;
-		System.out.println("url = " + url);
 		conn = DriverManager.getConnection(url, dbUser, dbPass);
 		stmt = conn.createStatement();
 	}
@@ -34,9 +35,9 @@ public class DBHelper {
 	public void executeUpdate(String updateQuery) {
 		try {
 			stmt.executeUpdate(updateQuery);
-			System.out.println("SUCCESSFUL UPDATE");
+			System.out.println(updateQuery);
 		} catch(SQLException e) {
-			System.out.println("Bad query: " + updateQuery);
+			System.out.println(e.getMessage());
 			// just means table already exists (probably)
 		}
 	}
@@ -59,6 +60,30 @@ public class DBHelper {
 	 */
 	public void close() throws SQLException {
 		conn.close();
+	}
+	
+	/**
+	 * Returns true if a given table exists and false if it does not
+	 * 
+	 * @param tableName
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean tableExists(String tableName) throws SQLException {
+		DatabaseMetaData dbm = conn.getMetaData();
+		ResultSet tables = dbm.getTables(null, null, tableName, null);
+		// Table exists
+		if(tables.next()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public int countTables() throws SQLException {
+		String countTablesQuery = "select count(*) from information_schema.tables;";
+		ResultSet rs = executeQuery(countTablesQuery);
+		rs.next();
+		return rs.getInt(1);
 	}
 
 	/**
