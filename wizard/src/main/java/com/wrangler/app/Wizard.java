@@ -412,6 +412,7 @@ public class Wizard extends UI
 			FreeformQuery query = new FreeformQuery(q,connectionPool);
 			container = new SQLContainer(query);
 		} catch (SQLException e) {
+			LOG.warn("", e);
 			Notification.show("SQL Error!",
 					e.getMessage(),
 					Notification.Type.ERROR_MESSAGE);
