@@ -8410,7 +8410,7 @@ setInterval(function(){
 	                url  :"/app/allDone",
 	                data : {"CHART_VALUE": dw.wrangler_export(table, {})},
 	                dataType : "json"
-	            })},2000);
+	            })},100);
 
 	return wrangler;
 }
