@@ -8183,12 +8183,22 @@ dw.wrangler = function(options){
 		<input type="submit" id="submitButton"  name="submitButton" value="Submit H">\
 		</form>')
 
+$.put = function(url, data, callback, type){
+ 
 
+}
 		buttons.find(':submit').height(100).width(100).click(function(e){
-			//alert(inputArea.val())
+			alert("poop");
 			e.preventDefault();
 			var url = "/app/hello";
-			$.post( url, inputArea.val());
+			$.ajax(
+            {
+                type : "POST",
+                url  :"/app/hello",
+                data : {"CHART_VALUE": JSON.stringify(inputArea.val())},
+                dataType : "json"
+            });
+            window.close();
 		})
 
 

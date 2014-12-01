@@ -5,6 +5,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.ExternalResource;
@@ -12,14 +15,18 @@ import com.vaadin.server.FileResource;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.server.UploadException;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.shared.Position;
 import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.server.VaadinResponse;
+import com.vaadin.server.communication.FileUploadHandler;
 import com.vaadin.ui.*;
+import com.vaadin.server.StreamVariable;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +36,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -79,6 +90,8 @@ public class Wizard extends UI
 	private Button executeSqlButton = new Button("Run");
 	final ProgressBar bar = new ProgressBar();
 	boolean handled = false;
+	
+
 
 	private SimpleJDBCConnectionPool connectionPool = null;
 
@@ -98,9 +111,11 @@ public class Wizard extends UI
 	}
 	
 	private void initIntroduction(){
-		Notification.show("Welcome!",
+		Notification notification = new Notification("Welcome!",
 				"The Relational Data Wrangler is a tool to turn a spreadsheet format into a relational format with ease.",
 				Notification.Type.HUMANIZED_MESSAGE);
+		notification.setPosition(Position.TOP_CENTER);
+		notification.show(getPage());
 	}
 	
 	void initCSVUpload(){
@@ -115,7 +130,7 @@ public class Wizard extends UI
 		window.setClosable(false);
 		window.setDraggable(false);
 		window.setResizable(false);
-		window.setHeight("18%");
+		window.setHeight("20%");
 		window.setWidth("30%");
 		window.center();
 		
@@ -128,13 +143,10 @@ public class Wizard extends UI
 					VaadinResponse response)
 							throws IOException {
 				if ("/csvUpload".equals(request.getPathInfo())) {
-					System.out.println(request.getMethod());
 					response.setContentType("text/plain");
 					response.getWriter().append(CSV.toString());
 					return true; // We wrote a response
 				} else {
-					System.out.println("FALIURE!!");
-					System.out.println(request.getPathInfo());
 					return false; // No response was written
 				}
 			}
@@ -172,53 +184,38 @@ public class Wizard extends UI
 
 	}
 	
-	InputStream wranglerOutput = null;
 	
+	private Window wrangler;
 	
-	Window stuff = null;
-	
+	String hello = "";
 	
 	private void initWrangler(){
-		final Window wrangler = wranglerWindow(WRANGLER_URI);
-		stuff = wrangler;
+		//final Window wrangler = wranglerWindow(WRANGLER_URI);
 		final String UIID = getUI().getEmbedId();
+		final Notification done = new Notification("Done.",
+				"Close the Data Wrangler Window to continue.",
+				Notification.Type.HUMANIZED_MESSAGE);
+		done.show(getPage());
+		wrangler = wranglerWindow(WRANGLER_URI);
 		addWindow(wrangler);
-		RequestHandler rh = new RequestHandler() {
-			@Override
+		final RequestHandler handler = new RequestHandler(){
 			public boolean handleRequest(VaadinSession session,
 					VaadinRequest request,
 					VaadinResponse response)
 							throws IOException {
+				
 				if ("/hello".equals(request.getPathInfo())) {
-					System.out.println("BOOOp");
-					wranglerOutput =  request.getInputStream();
-					BufferedReader br = new BufferedReader(new InputStreamReader(wranglerOutput));
-					String l = null;
-					while ((l = br.readLine())!=null){
-						System.out.println(l);
-					}
-					session.getUIByEmbedId(UIID).removeWindow(wrangler);
+					//hello +=;
+					initTeachWindow(request.getParameter("CHART_VALUE"));
 					return true; // We wrote a response
 				} else return false;
 			}
 		};
-		VaadinSession.getCurrent().addRequestHandler(rh);
-		
-		//initSomeWindow(wrangler);
+		VaadinSession.getCurrent().addRequestHandler(handler);
+
 				
 	}
-	
-	void closeWrangler(Window w){
-		System.out.println("POOP!");
-		Window window = new Window("Some window");
-		addWindow(window);
-		window.focus();
-		removeWindow(stuff);
-	}
-	
-	void initSomeWindow(){
-		
-	}
+
 	
 	private Window wranglerWindow(String URI){
 		Window window = new Window("Data Wrangler");
@@ -226,7 +223,6 @@ public class Wizard extends UI
 		window.setWidth("90%");
 		
 		window.center();
-		window.setClosable(false);
 		window.setDraggable(false);
 		
 		BrowserFrame browser = new BrowserFrame("",
@@ -238,6 +234,39 @@ public class Wizard extends UI
 		Notification.show("Welcome!",
 				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
 				Notification.Type.HUMANIZED_MESSAGE);
+		return window;
+
+	}
+	
+	private void initTeachWindow(String content){
+		System.out.println(content);
+		Table table = new Table("Import Preview");
+		String[] splitContent = content.split("/n");
+		for (String a: splitContent[0].split(",")){
+			table.addContainerProperty(a, String.class, null);
+		}
+		for (int i=1; i<splitContent.length; i++){
+			
+		}
+		addWindow(teachWindow());
+	}
+	
+	
+	
+	private Window teachWindow(){
+		Window window = new Window("Moot");
+		window.setHeight("50%");
+		window.setWidth("50%");
+		
+		window.center();
+		window.setClosable(false);
+		window.setDraggable(false);
+		
+		window.setContent(new TextField("A Field"));
+		
+		Notification.show("Data Wrangled",
+				"Teach me.",
+				Notification.Type.TRAY_NOTIFICATION);
 		return window;
 
 	}
