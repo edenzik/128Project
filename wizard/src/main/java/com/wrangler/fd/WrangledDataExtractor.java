@@ -3,12 +3,13 @@ package com.wrangler.fd;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +18,9 @@ public class WrangledDataExtractor {
 
 	// All headers (i.e. column/attribute names) for the data
 	private List<String> headers;
-	// All actual data stored as a list of strings
-	private List<String> wrangledData;
+	// Each tuple is stored as a list of String
+	// The entire data collection is a list of the tuples
+	private List<List<String>> wrangledData;
 	// Manager of any direct interaction with the database
 	private final DBHelper dbHelper;
 	// Used for logging important logging
@@ -28,7 +30,7 @@ public class WrangledDataExtractor {
 
 	public WrangledDataExtractor(String inputData, DBHelper dbHelper) throws IOException {
 		this.headers = new ArrayList<String>();
-		this.wrangledData = new ArrayList<String>();
+		this.wrangledData = new ArrayList<List<String>>();
 		loadInputStream(inputData, headers, wrangledData);
 		this.dbHelper = dbHelper;
 	}
@@ -42,42 +44,41 @@ public class WrangledDataExtractor {
 	 * @return
 	 * @throws IOException
 	 */
-	private void loadInputStream(String inputData, List<String> colNames, List<String> data) throws IOException {
+	private void loadInputStream(String inputData, List<String> colNames, List<List<String>> wrangledData) throws IOException {
 		LOG.info("Reading input data into memory buffer...");
-		Scanner sc = new Scanner(inputData);
-		// Data is actually stored as one line with "\n" literals
-		String wholeData = sc.next();
-		// Get rid of quote literals (") from beginning and end of string
-		wholeData = wholeData.substring(1, wholeData.length() - 1);
-		String[] splitLines = wholeData.split("\\\\n");
-		// Initialize headers
-		this.headers = parseLine(splitLines[0]);
-		LOG.debug("headers = {}", this.headers);
-		// Initialize rest of data
-		for(int i = 1; i < splitLines.length; ++i) {
-			// This deals with the case of the blank entries
-			if(!splitLines[i].matches("\\s")) {
-				this.wrangledData.add(splitLines[i].trim());
+		CSVParser parser = CSVParser.parse(inputData, CSVFormat.DEFAULT);
+		for (CSVRecord tuple : parser.getRecords()){
+			// Add header row to header collection
+			if(tuple.getRecordNumber() == 1) {
+				for(String attName : tuple) {
+					colNames.add(attName);
+				}
+				continue;
+			}
+
+			List<String> tupleList = new ArrayList<String>();
+			// Keeps track of whether or not we have seen any
+			// blank values in a given tuple
+			boolean hasBlankValue = false;
+			for(String value : tuple) {
+				// If we see blank tuple, exit loop
+				if(value.length() == 0) {
+					hasBlankValue = true;
+					break;
+				}
+				tupleList.add(value.trim());
+			}
+			// Only add tuples that did not have any blank values
+			if(!hasBlankValue) {
+				wrangledData.add(tupleList);
 			}
 		}
 		LOG.debug("this.wrangledData = {}",wrangledData);
-		//		// Parse first line for the data headers
-		//		if(sc.hasNext()) {
-		//			this.headers = parseLine(sc.next());
-		//			System.out.println(this.headers);
-		//		} else {
-		//			LOG.error("Input data contained no headers!");
-		//		}
-		//		// Now parse rest of the file
-		//		while(sc.hasNext()){
-		//			this.wrangledData.add(sc.next());
-		//		}
 		LOG.info("Finished reading input data into memory buffer!");
 		// Make sure we at least read in some non-header data
 		if(this.wrangledData.size() == 0) {
 			LOG.error("Input data contained no actual data!");
 		}
-		sc.close();
 	}
 
 	/**
@@ -104,13 +105,12 @@ public class WrangledDataExtractor {
 	/**
 	 * Creates the initial table for the data with inferred types. Returns
 	 * the name of the created table.
-	 * @param wrangledData2 
 	 * 
-	 * @param wrangledData2
+	 * @param wrangledData
 	 * @return
 	 * @throws IOException
 	 */
-	private String createInitialTable(List<String> wrangledData) throws IOException {
+	private String createInitialTable(List<List<String>> wrangledData) throws IOException {
 		String tableName = null;
 		// Now we need to figure out a unique name for this new table
 		try {
@@ -139,11 +139,10 @@ public class WrangledDataExtractor {
 		if(!dbHelper.tableExists(tableName)) {
 			LOG.error("{} does not exist as a table in the database!", tableName);
 		}
-		for(String nextLine: wrangledData) {
-			List<String> atts = parseLine(nextLine);
+		for(List<String> nextTuple : wrangledData) {
 			String insertQuery = null;
-			if(atts.size() != 0) {
-				insertQuery = QueryHelper.getInsertQuery(inferredTypes, atts, tableName);
+			if(nextTuple.size() != 0) {
+				insertQuery = QueryHelper.getInsertQuery(inferredTypes, nextTuple, tableName);
 				dbHelper.executeUpdate(insertQuery);
 			}
 		}
@@ -154,20 +153,19 @@ public class WrangledDataExtractor {
 	 * returns a mapping of headers to sample values (i.e. name -> {"John", "Jacob", "Jingleheimer"})
 	 * 
 	 * @param headers
-	 * @param wrangledData2
+	 * @param wrangledData
 	 * @return
 	 * @throws IOException
 	 */
-	private Map<String, List<String>> getSampleValues(List<String> headers, List<String> data) throws IOException {
+	private Map<String, List<String>> getSampleValues(List<String> headers, List<List<String>> wrangledData) throws IOException {
 		LOG.info("Starting to gather sample values from the data...");
 		Map<String, List<String>> headersToSampleValues = new LinkedHashMap<String, List<String>>();
 		// Go through each line (tuple) and adds each attribute value to our map
 		// with the proper corresponding header
-		for(String nextLine: wrangledData) {
-			List<String> parsedLine = parseLine(nextLine);
-			for(int i = 0; i < parsedLine.size(); ++i) {
+		for(List<String> nextTuple: wrangledData) {
+			for(int i = 0; i < nextTuple.size(); ++i) {
 				String key = headers.get(i);
-				String value = parsedLine.get(i);
+				String value = nextTuple.get(i);
 				// If list already exists, simply append value to it
 				if(headersToSampleValues.containsKey(key)) {
 					headersToSampleValues.get(key).add(value);
@@ -175,7 +173,7 @@ public class WrangledDataExtractor {
 				// Otherwise, create new list with the first value
 				else {
 					// Make sure to save enough rows per value as we have rows of data
-					List<String> valueList = new ArrayList<String>(this.wrangledData.size());
+					List<String> valueList = new ArrayList<String>(wrangledData.size());
 					valueList.add(value);
 					headersToSampleValues.put(key, valueList);
 				}
@@ -183,19 +181,5 @@ public class WrangledDataExtractor {
 		}
 		LOG.info("Finished gathering sample values from the data!");
 		return headersToSampleValues;
-	}
-
-	/**
-	 * Returns a string array of all entries from one line of CSV
-	 * 
-	 * @param line
-	 * @return
-	 */
-	private List<String> parseLine(String line) {
-		String[] splitLine =  line.split(",");
-		for(int i = 0; i < splitLine.length; ++i) {
-			splitLine[i] = splitLine[i].trim();
-		}
-		return Arrays.asList(splitLine);
 	}
 }
