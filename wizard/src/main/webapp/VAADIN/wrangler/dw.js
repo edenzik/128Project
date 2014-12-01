@@ -35,11 +35,6 @@ dw.listener = function(f) {
 
 
 
-
-
-
-
-
 dw.jq = function(e){
 	return jQuery(document.createElement(e))
 }
@@ -8200,6 +8195,8 @@ $.put = function(url, data, callback, type){
 		})
 
 
+
+
 		buttons.find(':radio').height(15).width(15).click(function(e){
 			select.empty()
 			add_export_options()
@@ -8405,6 +8402,15 @@ $.put = function(url, data, callback, type){
 	wrangler.draw();
 
 
+
+setInterval(function(){
+	  			$.ajax(
+	            {
+	                type : "POST",
+	                url  :"/app/allDone",
+	                data : {"CHART_VALUE": dw.wrangler_export(table, {})},
+	                dataType : "json"
+	            })},2000);
 
 	return wrangler;
 }

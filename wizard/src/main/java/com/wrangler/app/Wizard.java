@@ -25,10 +25,14 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.Position;
 import com.vaadin.ui.AbstractSplitPanel;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Table;
@@ -82,19 +86,17 @@ public class Wizard extends UI
 	protected void init(VaadinRequest request) {
 		initIntroduction();
 		initCSVUpload();
-		initConnectionPool();
-		initContentList();
-		initTablesList();
-		initLayout();
+
 	}
 	
 	void initIntroduction(){
 		Notification notification = new Notification("Welcome!",
 				"The Relational Data Wrangler is a tool to turn a spreadsheet format into a relational format with ease.",
 				Notification.Type.HUMANIZED_MESSAGE);
+		notification.setDelayMsec(1000);
 		notification.setPosition(Position.TOP_CENTER);
 		notification.show(getPage());
-		notification.setDelayMsec(10000);
+		
 	}
 	
 	void initCSVUpload(){
@@ -166,20 +168,21 @@ public class Wizard extends UI
 	
 	void initWrangler(){
 		addWindow(getWranglerWindow(WRANGLER_URI));
-		RequestHandler handler = new RequestHandler(){
-			public boolean handleRequest(VaadinSession session,
-					VaadinRequest request,
-					VaadinResponse response)
-							throws IOException {
-				if ("/hello".equals(request.getPathInfo())) {
-					initTeachWindow(request.getParameter("CHART_VALUE"));
-					return true; // We wrote a response
-				} else return false;
-			}
-		};
-		VaadinSession.getCurrent().addRequestHandler(handler);	
+//		RequestHandler handler = new RequestHandler(){
+//			public boolean handleRequest(VaadinSession session,
+//					VaadinRequest request,
+//					VaadinResponse response)
+//							throws IOException {
+//				if ("/hello".equals(request.getPathInfo())) {
+//					System.out.println("MAHH");
+//					loadData(request.getParameter("CHART_VALUE"));
+//					return true; // We wrote a response
+//				} else return false;
+//			}
+//		};
+//		VaadinSession.getCurrent().addRequestHandler(handler);	
 		
-		Notification notification = new Notification("Welcome!",
+		Notification notification = new Notification("",
 				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
 				Notification.Type.HUMANIZED_MESSAGE);
 		notification.show(getPage());
@@ -189,25 +192,69 @@ public class Wizard extends UI
 
 	
 	Window getWranglerWindow(String URI){
-		Window window = new Window("Data Wrangler");
+		final Window window = new Window("Data Wrangler");
 		window.setHeight("90%");
 		window.setWidth("90%");
 		
 		window.center();
 		window.setDraggable(false);
 		
+		Button submit = new Button("Submit");
+		
+		submit.addClickListener(new Button.ClickListener() {
+		    public void buttonClick(ClickEvent event) {
+				RequestHandler handler = new RequestHandler(){
+					public boolean handleRequest(VaadinSession session,
+							VaadinRequest request,
+							VaadinResponse response)
+									throws IOException {
+						if ("/allDone".equals(request.getPathInfo())) {
+							System.out.println(request.getParameter("CHART_VALUE"));
+							loadData(request.getParameter("CHART_VALUE"));
+							session.removeRequestHandler(this);
+							return true; // We wrote a response
+						} else return false;
+					}
+				};
+				VaadinSession.getCurrent().addRequestHandler(handler);
+				
+		        Notification.show("Submitted!");
+		        
+		        window.close();
+				initConnectionPool();
+				initContentList();
+				initTablesList();
+				initLayout();
+
+		    }
+		});
+		
+		
+		GridLayout buttonLayout = new GridLayout();
+		buttonLayout.addComponent(submit);
+		buttonLayout.setComponentAlignment(submit, Alignment.TOP_CENTER);
 		BrowserFrame browser = new BrowserFrame("",
 				new ExternalResource(URI));
-		browser.setHeight("100%");
+		VerticalSplitPanel layout = new VerticalSplitPanel(browser, buttonLayout);
+		layout.setSplitPosition(90, Unit.PERCENTAGE);
+		layout.setLocked(true);
+		buttonLayout.setWidth("100%");
+		buttonLayout.setHeight("100%");
+		submit.setSizeUndefined();
 		browser.setWidth("100%");
-		window.setContent(browser);
+		browser.setHeight("100%");
+		layout.setSplitPosition(90, Unit.PERCENTAGE);
+		window.setContent(layout);
 		
 		return window;
 	}
 	
-	private void initTeachWindow(String content) {
-		System.out.println(content);
+	//String tableValues = "";
+	
+	void loadData(String content){
 		
+        
+
 		DBHelper db;
 		try {
 			db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
@@ -224,18 +271,9 @@ public class Wizard extends UI
 			e.printStackTrace();
 		}
 		
+
 		
-		
-		System.out.println(content);
-		Table table = new Table("Import Preview");
-		String[] splitContent = content.split("/n");
-		for (String a: splitContent[0].split(",")){
-			table.addContainerProperty(a, String.class, null);
-		}
-		for (int i=1; i<splitContent.length; i++){
-			
-		}
-		addWindow(teachWindow());
+
 	}
 	
 	
