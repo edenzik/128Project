@@ -1,6 +1,9 @@
 package me.kahliloppenheimer.cosi128a;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 
 import org.slf4j.Logger;
@@ -39,9 +42,27 @@ public class WranglerServer {
 			// TODO: Insert some sort of check here to make sure that the http request
 			// is to put newly rangled data into the db
 			if(true) {
-				WrangledDataExtractor rd = new WrangledDataExtractor(new String(), dbHelper);
+				String wrangledData = readDataIntoString(t.getRequestBody());
+				WrangledDataExtractor rd = new WrangledDataExtractor(wrangledData, dbHelper);
 				rd.createAndPopulateInitialTable();
 			}
+		}
+
+		/**
+		 * Reads data from input stream into a string
+		 * 
+		 * @param requestBody
+		 * @return
+		 * @throws IOException
+		 */
+		private String readDataIntoString(InputStream requestBody) throws IOException {
+			StringBuilder sb = new StringBuilder();
+			BufferedReader br = new BufferedReader(new InputStreamReader(requestBody));
+			String nextLine = null;
+			while((nextLine = br.readLine()) != null) {
+				sb.append(nextLine + "\n");
+			}
+			return sb.toString();
 		} 
     }
 }

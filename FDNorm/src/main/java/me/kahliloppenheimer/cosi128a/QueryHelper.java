@@ -194,11 +194,11 @@ public class QueryHelper {
 	public static Map<String, PostgresAttType> inferTableTypes(Map<String, List<String>> headersToSampleValues) {
 		LOG.info("Inferring types for database columns...");
 		Map<String, PostgresAttType> columnTypes = new LinkedHashMap<String, PostgresAttType>();
-		Set<String> headers = columnTypes.keySet();
+		Set<String> headers = headersToSampleValues.keySet();
 		for(String s: headers) {
 			columnTypes.put(s, inferColumnType(s, headersToSampleValues.get(s)));
 		}
-		LOG.debug("Inferred types are: {}", columnTypes.toString());
+		LOG.debug("Inferred types are: {}", columnTypes);
 		return columnTypes;
 	}
 

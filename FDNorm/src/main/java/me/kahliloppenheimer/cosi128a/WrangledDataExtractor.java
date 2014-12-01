@@ -72,13 +72,15 @@ public class WrangledDataExtractor {
 		String tableName = null;
 		try {
 			tableName = createInitialTable(this.wrangledData);
+			LOG.info("Created initial database table!");
 		} catch (IOException e) {
 			LOG.error("Failed to create table: {}\n{}", tableName, e.getMessage());
 		}
 		try {
 			populateInitialTable(tableName);
+			LOG.info("Populated initial database table!");
 		} catch(IOException e) {
-			LOG.error("Failed to populate table: {}\n{}", tableName, e.getMessage());
+			LOG.error("Failed to populate table: {}", tableName, e);
 		} 
 	}
 
