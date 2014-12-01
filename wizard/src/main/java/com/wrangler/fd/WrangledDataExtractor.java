@@ -45,18 +45,27 @@ public class WrangledDataExtractor {
 	private void loadInputStream(String inputData, List<String> colNames, List<String> data) throws IOException {
 		LOG.info("Reading input data into memory buffer...");
 		Scanner sc = new Scanner(inputData);
-		sc.useDelimiter("\\n");
-		// Parse first line for the data headers
-		if(sc.hasNext()) {
-			this.headers = parseLine(sc.next());
-			System.out.println(this.headers);
-		} else {
-			LOG.error("Input data contained no headers!");
+		// Data is actually stored as one line with "\n" literals
+		String wholeData = sc.next();
+		String[] splitLines = wholeData.split("\n");
+		// Initialize headers
+		this.headers = parseLine(splitLines[0]);
+		// Initialize rest of data
+		for(int i = 1; i < splitLines.length; ++i) {
+			this.wrangledData.add(splitLines[i]);
 		}
-		// Now parse rest of the file
-		while(sc.hasNext()){
-			this.wrangledData.add(sc.next());
-		}
+		System.out.println(Arrays.toString(splitLines));
+//		// Parse first line for the data headers
+//		if(sc.hasNext()) {
+//			this.headers = parseLine(sc.next());
+//			System.out.println(this.headers);
+//		} else {
+//			LOG.error("Input data contained no headers!");
+//		}
+//		// Now parse rest of the file
+//		while(sc.hasNext()){
+//			this.wrangledData.add(sc.next());
+//		}
 		LOG.info("Finished reading input data into memory buffer!");
 		// Make sure we at least read in some non-header data
 		if(this.wrangledData.size() == 0) {
