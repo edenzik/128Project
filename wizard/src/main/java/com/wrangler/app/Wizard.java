@@ -6,11 +6,10 @@ import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-
 import javax.servlet.annotation.WebServlet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
@@ -34,11 +33,8 @@ import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -58,15 +54,21 @@ import com.wrangler.fd.WrangledDataExtractor;
  *
  * Created by edenzik on 11/27/14.
  */
+/**
+ *
+ * Created by edenzik on 11/27/14.
+ */
 @Title("Relational Data Wrangler")
 @Theme("valo")
 public class Wizard extends UI
 {
-	
+
 	@WebServlet(value = "/app/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = Wizard.class)
 	public static class Servlet extends VaadinServlet {
 	}
+	
+	private static final Logger LOG = LoggerFactory.getLogger(Wizard.class);
 
 	private static final String HOST_IP = "104.236.17.70";
 	private static final String HOST_PORT = "5432";
@@ -79,7 +81,7 @@ public class Wizard extends UI
 	private Table tablesList = new Table();
 	private TextArea sqlField = new TextArea();
 	private Button executeSqlButton = new Button("Run");
-	
+
 	private SimpleJDBCConnectionPool connectionPool = null;
 
 	private SQLContainer container = null;
@@ -92,7 +94,7 @@ public class Wizard extends UI
 		initCSVUpload();
 
 	}
-	
+
 	void initIntroduction(){
 		Notification notification = new Notification("Welcome!",
 				"The Relational Data Wrangler is a tool to turn a spreadsheet format into a relational format with ease.",
@@ -100,18 +102,18 @@ public class Wizard extends UI
 		notification.setDelayMsec(1000);
 		notification.setPosition(Position.TOP_CENTER);
 		notification.show(getPage());
-		
+
 	}
-	
+
 	void initCSVUpload(){
 		Notification notification = new Notification("File Upload:",
 				"Begin by uploading a CSV file to Wrangle.",
 				Notification.Type.TRAY_NOTIFICATION);
-		
+
 		notification.setDelayMsec(10000);
-		
+
 		final OutputStream CSV = new ByteArrayOutputStream();
-		
+
 		VaadinSession.getCurrent().addRequestHandler(new RequestHandler() {
 			@Override
 			public boolean handleRequest(VaadinSession session,
@@ -127,14 +129,14 @@ public class Wizard extends UI
 				}
 			}
 		});
-		
+
 		Upload upload = new Upload("", 
 				new Receiver(){
 			public OutputStream receiveUpload(String filename,String mimeType) {
 				return CSV;
 			}
 		});
-		
+
 		final Window window = getUploadWindow(upload);
 
 		upload.addSucceededListener(
@@ -154,7 +156,7 @@ public class Wizard extends UI
 		});
 		addWindow(window);
 	}
-	
+
 	Window getUploadWindow(Upload upload){
 		final Window window = new Window("Upload CSV File");
 		window.setClosable(false);
@@ -169,23 +171,23 @@ public class Wizard extends UI
 		window.setContent(layout);
 		return window;
 	}
-	
+
 	void initWrangler(){
 		addWindow(getWranglerWindow(WRANGLER_URI));
-//		RequestHandler handler = new RequestHandler(){
-//			public boolean handleRequest(VaadinSession session,
-//					VaadinRequest request,
-//					VaadinResponse response)
-//							throws IOException {
-//				if ("/hello".equals(request.getPathInfo())) {
-//					System.out.println("MAHH");
-//					loadData(request.getParameter("CHART_VALUE"));
-//					return true; // We wrote a response
-//				} else return false;
-//			}
-//		};
-//		VaadinSession.getCurrent().addRequestHandler(handler);	
-		
+		//		RequestHandler handler = new RequestHandler(){
+		//			public boolean handleRequest(VaadinSession session,
+		//					VaadinRequest request,
+		//					VaadinResponse response)
+		//							throws IOException {
+		//				if ("/hello".equals(request.getPathInfo())) {
+		//					System.out.println("MAHH");
+		//					loadData(request.getParameter("CHART_VALUE"));
+		//					return true; // We wrote a response
+		//				} else return false;
+		//			}
+		//		};
+		//		VaadinSession.getCurrent().addRequestHandler(handler);	
+
 		Notification notification = new Notification("",
 				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
 				Notification.Type.HUMANIZED_MESSAGE);
@@ -194,26 +196,26 @@ public class Wizard extends UI
 		notification.setPosition(Position.BOTTOM_CENTER);
 	}
 
-	
+
 	Window getWranglerWindow(String URI){
 		final Window window = new Window("Data Wrangler");
 		window.setHeight("90%");
 		window.setWidth("90%");
-		
+
 		window.center();
 		window.setDraggable(false);
-		
+
 		Button submit = new Button("Submit");
-		
+
 		submit.addClickListener(new Button.ClickListener() {
-		    public void buttonClick(ClickEvent event) {
+			public void buttonClick(ClickEvent event) {
 				RequestHandler handler = new RequestHandler(){
 					public boolean handleRequest(VaadinSession session,
 							VaadinRequest request,
 							VaadinResponse response)
 									throws IOException {
 						if ("/allDone".equals(request.getPathInfo())) {
-							System.out.println(request.getParameter("CHART_VALUE"));
+							//System.out.println(request.getParameter("CHART_VALUE"));
 							loadData(request.getParameter("CHART_VALUE"));
 							session.removeRequestHandler(this);
 							return true; // We wrote a response
@@ -221,19 +223,19 @@ public class Wizard extends UI
 					}
 				};
 				VaadinSession.getCurrent().addRequestHandler(handler);
-				
-		        Notification.show("Submitted!");
-		        
-		        window.close();
+
+				Notification.show("Submitted!");
+
+				window.close();
 				initConnectionPool();
 				initContentList();
 				initTablesList();
 				initLayout();
 
-		    }
+			}
 		});
-		
-		
+
+
 		GridLayout buttonLayout = new GridLayout();
 		buttonLayout.addComponent(submit);
 		buttonLayout.setComponentAlignment(submit, Alignment.TOP_CENTER);
@@ -249,46 +251,43 @@ public class Wizard extends UI
 		browser.setHeight("100%");
 		layout.setSplitPosition(90, Unit.PERCENTAGE);
 		window.setContent(layout);
-		
+
 		return window;
 	}
-	
+
 	//String tableValues = "";
-	
+
 	void loadData(String content){
-		
-		
-		
 		DBHelper db;
 		try {
-			CSVParser parser = CSVParser.parse(content, CSVFormat.DEFAULT);
-			for (CSVRecord record : parser.getRecords()){
-				System.out.println(record.toString());
-			}
-			
-			
-			//db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
-			//WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
-			//wde.createAndPopulateInitialTable();
+			db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
+			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
+			wde.createAndPopulateInitialTable();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
+
+
+
 	private Window teachWindow(){
 		Window window = new Window("Moot");
 		window.setHeight("50%");
 		window.setWidth("50%");
-		
+
 		window.center();
 		window.setClosable(false);
 		window.setDraggable(false);
-		
+
 		window.setContent(new TextField("A Field"));
-		
+
 		return window;
 
 	}
@@ -356,7 +355,7 @@ public class Wizard extends UI
 		mainSplitPanel.addComponent(rightLayout());
 
 		//addWindow(uploadWindow());
-		
+
 		//addWindow(someWindow());
 
 		//addWindow(wranglerWindow());
