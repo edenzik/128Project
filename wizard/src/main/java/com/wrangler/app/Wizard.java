@@ -7,9 +7,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.servlet.annotation.WebServlet;
+<<<<<<< HEAD
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+=======
+>>>>>>> 672269a6ded1e2edbe8351d5c627c3b45a741dae
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,6 +183,23 @@ public class Wizard extends UI
 
 	void initWrangler(){
 		addWindow(getWranglerWindow(WRANGLER_URI));
+<<<<<<< HEAD
+=======
+		//		RequestHandler handler = new RequestHandler(){
+		//			public boolean handleRequest(VaadinSession session,
+		//					VaadinRequest request,
+		//					VaadinResponse response)
+		//							throws IOException {
+		//				if ("/hello".equals(request.getPathInfo())) {
+		//					System.out.println("MAHH");
+		//					loadData(request.getParameter("CHART_VALUE"));
+		//					return true; // We wrote a response
+		//				} else return false;
+		//			}
+		//		};
+		//		VaadinSession.getCurrent().addRequestHandler(handler);	
+
+>>>>>>> 672269a6ded1e2edbe8351d5c627c3b45a741dae
 		Notification notification = new Notification("",
 				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
 				Notification.Type.HUMANIZED_MESSAGE);
