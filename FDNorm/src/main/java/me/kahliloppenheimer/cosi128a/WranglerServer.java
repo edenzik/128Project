@@ -39,7 +39,7 @@ public class WranglerServer {
 			// TODO: Insert some sort of check here to make sure that the http request
 			// is to put newly rangled data into the db
 			if(true) {
-				RangledData rd = new RangledData(t, dbHelper);
+				WrangledDataExtractor rd = new WrangledDataExtractor(new String(), dbHelper);
 				rd.createAndPopulateInitialTable();
 			}
 		} 

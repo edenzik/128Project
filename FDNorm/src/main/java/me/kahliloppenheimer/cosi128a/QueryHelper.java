@@ -2,11 +2,13 @@ package me.kahliloppenheimer.cosi128a;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,6 @@ public class QueryHelper {
 
 	public static final String DEFAULT_TABLE_NAME = "TABLE";
 	public static final PostgresAttType DEFAULT_ATT_TYPE = PostgresAttType.VARCHAR;
-	public static final int TYPE_INFERENCE_SAMPLE_SIZE = 100;
 	private static final Logger LOG = LoggerFactory.getLogger(QueryHelper.class);
 
 	/**
@@ -49,14 +50,14 @@ public class QueryHelper {
 		headersToValues.put(header2, values2);
 		headersToValues.put(header3, values3);
 
-		Map<String, PostgresAttType> inferredTypes = inferTableTypes(new String[] {header1,  header2, header3}, headersToValues);
+		Map<String, PostgresAttType> inferredTypes = inferTableTypes(headersToValues);
 		System.out.println(inferredTypes);
 		System.out.println(getCreateTableQuery("TEST", inferredTypes));
 
-		System.out.println(getInsertQuery(inferredTypes, new String[] {"6", "Jerry", "John"}, "PERSON"));
+		System.out.println(getInsertQuery(inferredTypes, new ArrayList<String>(Arrays.asList(new String[] {"6", "Jerry", "John"})), "PERSON"));
 
 		for(String s: headersToValues.keySet()) {
-			System.out.println(s + " : " + QueryHelper.inferColumnType(s, headersToValues));
+			System.out.println(s + " : " + QueryHelper.inferColumnType(s, headersToValues.get(s)));
 		}
 
 	}
@@ -91,24 +92,23 @@ public class QueryHelper {
 	 * column and sample of values (found in the passed map)
 	 * 
 	 * @param header
-	 * @param headersToSampleValues
+	 * @param wrangledData
 	 * @return
 	 */
-	private static PostgresAttType inferColumnType(String header, Map<String, List<String>> headersToSampleValues) {
-		List<String> valueSample = headersToSampleValues.get(header);
-		if(valueSample == null) {
-			System.err.println("Null value sample for column: " + header);
+	private static PostgresAttType inferColumnType(String colName, List<String> columnVals) {
+		if(columnVals == null || columnVals.size() == 0) {
+			LOG.warn("No sample data for column {}! Assuming varchar...", colName);
 			return DEFAULT_ATT_TYPE;
 		}
 		// Check to see if any elements differ in inference type.
 		// If so, just assume default type for all
-		for(int i = 0; i < valueSample.size() - 1; ++i) {
-			if(!inferValueType(valueSample.get(i)).equals(inferValueType(valueSample.get(i + 1)))) {
+		for(int i = 0; i < columnVals.size() - 1; ++i) {
+			if(!inferValueType(columnVals.get(i)).equals(inferValueType(columnVals.get(i + 1)))) {
 				return DEFAULT_ATT_TYPE;
 			}
 		}
-		// Otherwise, return the type that was determined for all of the elements
-		return inferValueType(valueSample.get(0));
+		// If there are no mismatches, simply return the common type
+		return inferValueType(columnVals.get(0));
 	}
 
 	/**
@@ -132,14 +132,14 @@ public class QueryHelper {
 	/**
 	 * Returns a String representing an insert query with the given values
 	 * 
-	 * @param values
+	 * @param atts
 	 * @param headers 
 	 * @return
 	 */
-	public static String getInsertQuery(Map<String, PostgresAttType> inferredTypes, String[] values, String tableName) {
+	public static String getInsertQuery(Map<String, PostgresAttType> inferredTypes, List<String> atts, String tableName) {
 		// Ugly but effective way to convert Set<String> to String[]
 		String[] headers = inferredTypes.keySet().toArray(new String[inferredTypes.size()]);
-		if(values.length == 0) {
+		if(atts.size() == 0) {
 			throw new IllegalArgumentException("Blank value array passed for insert query!");
 		}
 		// Build SQL string for column names
@@ -155,16 +155,16 @@ public class QueryHelper {
 		StringBuilder valueList = new StringBuilder();
 		valueList.append("(");
 		if(isCharType(headers[0], inferredTypes)) {
-			valueList.append("'" + values[0] + "'");
+			valueList.append("'" + atts.get(0) + "'");
 		} else {
-			valueList.append(values[0]);
+			valueList.append(atts.get(0));
 		}
-		for(int i = 1; i < values.length; ++i) {
+		for(int i = 1; i < atts.size(); ++i) {
 			valueList.append(", ");
 			if(isCharType(headers[i], inferredTypes)) {
-				valueList.append("'" + values[i] + "'");
+				valueList.append("'" + atts.get(i) + "'");
 			} else {
-				valueList.append(values[i]);
+				valueList.append(atts.get(i));
 			}
 		}
 		valueList.append(")");
@@ -185,17 +185,18 @@ public class QueryHelper {
 
 	/**
 	 * Uses basic pattern matching to map all of the tables columns to their types
+	 * @param headersToSampleValues 
 	 * 
 	 * @param headers
-	 * @param headersToSampleValues
+	 * @param wrangledData
 	 * @return
 	 */
-	public static Map<String, PostgresAttType> inferTableTypes(
-			String[] headers, Map<String, List<String>> headersToSampleValues) {
+	public static Map<String, PostgresAttType> inferTableTypes(Map<String, List<String>> headersToSampleValues) {
 		LOG.info("Inferring types for database columns...");
 		Map<String, PostgresAttType> columnTypes = new LinkedHashMap<String, PostgresAttType>();
+		Set<String> headers = columnTypes.keySet();
 		for(String s: headers) {
-			columnTypes.put(s, inferColumnType(s, headersToSampleValues));
+			columnTypes.put(s, inferColumnType(s, headersToSampleValues.get(s)));
 		}
 		LOG.debug("Inferred types are: {}", columnTypes.toString());
 		return columnTypes;
