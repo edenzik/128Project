@@ -5,6 +5,8 @@
 	@import "style/wrangler.css";
 </style>
 
+ 
+
 
 
 <script type="text/javascript" src="lib/ThemeRoller/js/jquery-1.4.2.min.js"></script>
@@ -29,6 +31,7 @@ $(document).ready(function() {
 	var browserName=navigator.appName;
 	
 	var isSupported = navigator.userAgent.match(/Chrome|Safari|Firefox/);
+
 
 	if(isSupported===null) alert('Data Wrangler has only been tested in Chrome, Safari and Firefox.  For best performance, we recommend you use Chrome or Safari.')
 	
@@ -110,7 +113,7 @@ $(document).ready(function() {
 	}
 	else{
 
-
+		
 		jQuery('#preview').hide()
 
 		var upload = dw.jq('div').attr('id', 'uploadContainer')
@@ -127,12 +130,19 @@ $(document).ready(function() {
 
 		upload.append(dw.jq('button').attr('id','wranglerInputSubmit').append('Wrangle'))
 		
-
 		
 		var inputArea = dw.jq('textArea').attr('id','wranglerInput');
 		upload.append(inputArea)
 
-		inputArea.attr('value', crime)		
+		inputArea.attr('value', crime)	
+
+		$.ajax({
+    url:"http://localhost:8080/rhexample",
+    dataType:'jsonp',
+    crossDomain:true,
+    alert(data)
+})
+
 
 		jQuery('button').click(function(){
 			var val = inputArea.attr(
@@ -144,6 +154,11 @@ $(document).ready(function() {
 
 			startWrangler(dt)			
 		})
+				inputArea.val( 
+                $.ajax({
+                    url: 'http://localhost:8080/rhexample',
+                    dataType: 'jsonp'
+                }));
 		
 	}
 

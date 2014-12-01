@@ -39,7 +39,6 @@ dw.listener = function(f) {
 
 
 
-
 dw.jq = function(e){
 	return jQuery(document.createElement(e))
 }
