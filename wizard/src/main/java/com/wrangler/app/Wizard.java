@@ -54,7 +54,7 @@ import com.wrangler.fd.WrangledDataExtractor;
 @Theme("valo")
 public class Wizard extends UI
 {
-
+	
 	@WebServlet(value = "/app/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = Wizard.class)
 	public static class Servlet extends VaadinServlet {
@@ -71,11 +71,7 @@ public class Wizard extends UI
 	private Table tablesList = new Table();
 	private TextArea sqlField = new TextArea();
 	private Button executeSqlButton = new Button("Run");
-	final ProgressBar bar = new ProgressBar();
-	boolean handled = false;
 	
-
-
 	private SimpleJDBCConnectionPool connectionPool = null;
 
 	private SQLContainer container = null;
@@ -90,32 +86,23 @@ public class Wizard extends UI
 		initContentList();
 		initTablesList();
 		initLayout();
-
 	}
 	
-	private void initIntroduction(){
+	void initIntroduction(){
 		Notification notification = new Notification("Welcome!",
 				"The Relational Data Wrangler is a tool to turn a spreadsheet format into a relational format with ease.",
 				Notification.Type.HUMANIZED_MESSAGE);
 		notification.setPosition(Position.TOP_CENTER);
 		notification.show(getPage());
+		notification.setDelayMsec(10000);
 	}
 	
 	void initCSVUpload(){
-		Notification.show("File Upload:",
+		Notification notification = new Notification("File Upload:",
 				"Begin by uploading a CSV file to Wrangle.",
 				Notification.Type.TRAY_NOTIFICATION);
-		addWindow(uploadWindow());
-	}
-	
-	private Window uploadWindow(){
-		final Window window = new Window("Upload CSV File");
-		window.setClosable(false);
-		window.setDraggable(false);
-		window.setResizable(false);
-		window.setHeight("20%");
-		window.setWidth("30%");
-		window.center();
+		
+		notification.setDelayMsec(10000);
 		
 		final OutputStream CSV = new ByteArrayOutputStream();
 		
@@ -141,6 +128,8 @@ public class Wizard extends UI
 				return CSV;
 			}
 		});
+		
+		final Window window = getUploadWindow(upload);
 
 		upload.addSucceededListener(
 				new SucceededListener(){
@@ -149,7 +138,7 @@ public class Wizard extends UI
 						initWrangler();
 					}
 				});
-				
+
 		upload.addFailedListener(new FailedListener(){
 			public void uploadFailed(FailedEvent event){
 				Notification.show("Upload Failed:",
@@ -157,50 +146,42 @@ public class Wizard extends UI
 						Notification.Type.ERROR_MESSAGE);
 			}
 		});
-		
+		addWindow(window);
+	}
+	
+	Window getUploadWindow(Upload upload){
+		final Window window = new Window("Upload CSV File");
+		window.setClosable(false);
+		window.setDraggable(false);
+		window.setResizable(false);
+		window.setHeight("20%");
+		window.setWidth("30%");
+		window.center();
 		VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(true);
 		layout.addComponent(upload);
 		window.setContent(layout);
-		
 		return window;
-
 	}
 	
-	
-	private Window wrangler;
-	
-	String hello = "";
-	
-	private void initWrangler(){
-		//final Window wrangler = wranglerWindow(WRANGLER_URI);
-		final String UIID = getUI().getEmbedId();
-		final Notification done = new Notification("Done.",
-				"Close the Data Wrangler Window to continue.",
-				Notification.Type.HUMANIZED_MESSAGE);
-		done.show(getPage());
-		wrangler = wranglerWindow(WRANGLER_URI);
-		addWindow(wrangler);
-		final RequestHandler handler = new RequestHandler(){
+	void initWrangler(){
+		addWindow(getWranglerWindow(WRANGLER_URI));
+		RequestHandler handler = new RequestHandler(){
 			public boolean handleRequest(VaadinSession session,
 					VaadinRequest request,
 					VaadinResponse response)
 							throws IOException {
-				
 				if ("/hello".equals(request.getPathInfo())) {
-					//hello +=;
 					initTeachWindow(request.getParameter("CHART_VALUE"));
 					return true; // We wrote a response
 				} else return false;
 			}
 		};
-		VaadinSession.getCurrent().addRequestHandler(handler);
-
-				
+		VaadinSession.getCurrent().addRequestHandler(handler);	
 	}
 
 	
-	private Window wranglerWindow(String URI){
+	Window getWranglerWindow(String URI){
 		Window window = new Window("Data Wrangler");
 		window.setHeight("90%");
 		window.setWidth("90%");
@@ -218,7 +199,6 @@ public class Wizard extends UI
 				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
 				Notification.Type.HUMANIZED_MESSAGE);
 		return window;
-
 	}
 	
 	private void initTeachWindow(String content) {
@@ -267,9 +247,6 @@ public class Wizard extends UI
 		
 		window.setContent(new TextField("A Field"));
 		
-		Notification.show("Data Wrangled",
-				"Teach me.",
-				Notification.Type.TRAY_NOTIFICATION);
 		return window;
 
 	}
