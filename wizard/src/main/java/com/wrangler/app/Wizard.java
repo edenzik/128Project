@@ -6,6 +6,10 @@ import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
 import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.annotations.Theme;
@@ -249,35 +253,27 @@ public class Wizard extends UI
 		return window;
 	}
 	
-<<<<<<< HEAD
 	//String tableValues = "";
 	
 	void loadData(String content){
 		
-        
-=======
-	private void initTeachWindow(String content) {
->>>>>>> 49aa8801d7aa072a0090d1f66adafd6b3b719460
-
+		
+		
 		DBHelper db;
 		try {
-			db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
-			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
-			wde.createAndPopulateInitialTable();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			CSVParser parser = CSVParser.parse(content, CSVFormat.DEFAULT);
+			for (CSVRecord record : parser.getRecords()){
+				System.out.println(record.toString());
+			}
+			
+			
+			//db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
+			//WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
+			//wde.createAndPopulateInitialTable();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-
-		
-
 	}
 	
 	
