@@ -178,6 +178,13 @@ public class Wizard extends UI
 			}
 		};
 		VaadinSession.getCurrent().addRequestHandler(handler);	
+		
+		Notification notification = new Notification("Welcome!",
+				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
+				Notification.Type.HUMANIZED_MESSAGE);
+		notification.show(getPage());
+		notification.setDelayMsec(1000);
+		notification.setPosition(Position.BOTTOM_CENTER);
 	}
 
 	
@@ -195,9 +202,6 @@ public class Wizard extends UI
 		browser.setWidth("100%");
 		window.setContent(browser);
 		
-		Notification.show("Welcome!",
-				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
-				Notification.Type.HUMANIZED_MESSAGE);
 		return window;
 	}
 	
