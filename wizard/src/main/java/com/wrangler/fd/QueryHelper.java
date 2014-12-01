@@ -140,7 +140,7 @@ public class QueryHelper {
 		// Ugly but effective way to convert Set<String> to String[]
 		String[] headers = inferredTypes.keySet().toArray(new String[inferredTypes.size()]);
 		if(atts.size() == 0) {
-			throw new IllegalArgumentException("Blank value array passed for insert query!");
+			throw new IllegalArgumentException("Trying to insert blank list of values!");
 		}
 		// Build SQL string for column names
 		StringBuilder columnList = new StringBuilder();

@@ -32,7 +32,7 @@ public class WrangledDataExtractor {
 		loadInputStream(inputData, headers, wrangledData);
 		this.dbHelper = dbHelper;
 	}
-	
+
 	/**
 	 * Takes input Wrangled Data and reads the headers (i.e. column/attribute names)
 	 * into the passed header list and then reads each line containing actual data
@@ -47,25 +47,31 @@ public class WrangledDataExtractor {
 		Scanner sc = new Scanner(inputData);
 		// Data is actually stored as one line with "\n" literals
 		String wholeData = sc.next();
-		String[] splitLines = wholeData.split("\n");
+		// Get rid of quote literals (") from beginning and end of string
+		wholeData = wholeData.substring(1, wholeData.length() - 1);
+		String[] splitLines = wholeData.split("\\\\n");
 		// Initialize headers
 		this.headers = parseLine(splitLines[0]);
+		LOG.debug("headers = {}", this.headers);
 		// Initialize rest of data
 		for(int i = 1; i < splitLines.length; ++i) {
-			this.wrangledData.add(splitLines[i]);
+			// This deals with the case of the blank entries
+			if(!splitLines[i].matches("\\s")) {
+				this.wrangledData.add(splitLines[i].trim());
+			}
 		}
-		System.out.println(Arrays.toString(splitLines));
-//		// Parse first line for the data headers
-//		if(sc.hasNext()) {
-//			this.headers = parseLine(sc.next());
-//			System.out.println(this.headers);
-//		} else {
-//			LOG.error("Input data contained no headers!");
-//		}
-//		// Now parse rest of the file
-//		while(sc.hasNext()){
-//			this.wrangledData.add(sc.next());
-//		}
+		LOG.debug("this.wrangledData = {}",wrangledData);
+		//		// Parse first line for the data headers
+		//		if(sc.hasNext()) {
+		//			this.headers = parseLine(sc.next());
+		//			System.out.println(this.headers);
+		//		} else {
+		//			LOG.error("Input data contained no headers!");
+		//		}
+		//		// Now parse rest of the file
+		//		while(sc.hasNext()){
+		//			this.wrangledData.add(sc.next());
+		//		}
 		LOG.info("Finished reading input data into memory buffer!");
 		// Make sure we at least read in some non-header data
 		if(this.wrangledData.size() == 0) {
@@ -135,8 +141,11 @@ public class WrangledDataExtractor {
 		}
 		for(String nextLine: wrangledData) {
 			List<String> atts = parseLine(nextLine);
-			String insertQuery = QueryHelper.getInsertQuery(inferredTypes, atts, tableName);
-			dbHelper.executeUpdate(insertQuery);
+			String insertQuery = null;
+			if(atts.size() != 0) {
+				insertQuery = QueryHelper.getInsertQuery(inferredTypes, atts, tableName);
+				dbHelper.executeUpdate(insertQuery);
+			}
 		}
 	}
 

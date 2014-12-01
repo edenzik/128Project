@@ -42,7 +42,9 @@ public class DBHelper {
 			stmt.executeUpdate(updateQuery);
 			LOG.info(updateQuery);
 		} catch(SQLException e) {
-			LOG.warn(e.getMessage());
+			LOG.info(updateQuery);
+//			LOG.error(updateQuery);
+//			LOG.error("", e);
 		}
 	}
 
@@ -53,9 +55,15 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized ResultSet executeQuery(String query) throws SQLException {
+	public synchronized ResultSet executeQuery(String query) {
 		LOG.info(query);
-		return stmt.executeQuery(query);
+		try {
+			return stmt.executeQuery(query);
+		} catch (SQLException e) {
+			LOG.error(query);
+//			LOG.error("", e);
+			return null;
+		}
 	}
 
 	/**
@@ -85,7 +93,7 @@ public class DBHelper {
 			}
 		}
 		catch(SQLException e) {
-			LOG.error("Could not check if table {} exists or not!", tableName);
+			LOG.error("Could not check if table {} exists or not!", tableName, e);
 		}
 		return false;
 	}
