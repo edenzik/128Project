@@ -1,4 +1,4 @@
-package me.kahliloppenheimer.cosi128a;
+package com.wrangler.fd;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

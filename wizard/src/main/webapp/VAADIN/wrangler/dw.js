@@ -8188,7 +8188,6 @@ $.put = function(url, data, callback, type){
 
 }
 		buttons.find(':submit').height(100).width(100).click(function(e){
-			alert("poop");
 			e.preventDefault();
 			var url = "/app/hello";
 			$.ajax(
@@ -8198,7 +8197,6 @@ $.put = function(url, data, callback, type){
                 data : {"CHART_VALUE": JSON.stringify(inputArea.val())},
                 dataType : "json"
             });
-            window.close();
 		})
 
 

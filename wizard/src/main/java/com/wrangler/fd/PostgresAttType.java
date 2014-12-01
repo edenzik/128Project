@@ -1,4 +1,4 @@
-package me.kahliloppenheimer.cosi128a;
+package com.wrangler.fd;
 
 public enum PostgresAttType {
 	VARCHAR("VARCHAR(100)"),

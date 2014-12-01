@@ -1,4 +1,4 @@
-package me.kahliloppenheimer.cosi128a;
+package com.wrangler.fd;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -45,15 +45,17 @@ public class WrangledDataExtractor {
 	private void loadInputStream(String inputData, List<String> colNames, List<String> data) throws IOException {
 		LOG.info("Reading input data into memory buffer...");
 		Scanner sc = new Scanner(inputData);
+		sc.useDelimiter("\\n");
 		// Parse first line for the data headers
-		if(sc.hasNextLine()) {
-			this.headers = parseLine(sc.nextLine());
+		if(sc.hasNext()) {
+			this.headers = parseLine(sc.next());
+			System.out.println(this.headers);
 		} else {
 			LOG.error("Input data contained no headers!");
 		}
 		// Now parse rest of the file
-		while(sc.hasNextLine()){
-			this.wrangledData.add(sc.nextLine());
+		while(sc.hasNext()){
+			this.wrangledData.add(sc.next());
 		}
 		LOG.info("Finished reading input data into memory buffer!");
 		// Make sure we at least read in some non-header data
