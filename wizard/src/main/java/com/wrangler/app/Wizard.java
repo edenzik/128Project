@@ -249,11 +249,15 @@ public class Wizard extends UI
 		return window;
 	}
 	
+<<<<<<< HEAD
 	//String tableValues = "";
 	
 	void loadData(String content){
 		
         
+=======
+	private void initTeachWindow(String content) {
+>>>>>>> 49aa8801d7aa072a0090d1f66adafd6b3b719460
 
 		DBHelper db;
 		try {
