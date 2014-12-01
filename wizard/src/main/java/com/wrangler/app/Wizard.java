@@ -6,11 +6,11 @@ import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.servlet.annotation.WebServlet;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-
-import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
@@ -19,6 +19,7 @@ import com.vaadin.data.util.AbstractContainer;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
+import com.vaadin.data.util.sqlcontainer.query.TableQuery;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.server.ExternalResource;
@@ -34,11 +35,8 @@ import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -172,20 +170,6 @@ public class Wizard extends UI
 	
 	void initWrangler(){
 		addWindow(getWranglerWindow(WRANGLER_URI));
-//		RequestHandler handler = new RequestHandler(){
-//			public boolean handleRequest(VaadinSession session,
-//					VaadinRequest request,
-//					VaadinResponse response)
-//							throws IOException {
-//				if ("/hello".equals(request.getPathInfo())) {
-//					System.out.println("MAHH");
-//					loadData(request.getParameter("CHART_VALUE"));
-//					return true; // We wrote a response
-//				} else return false;
-//			}
-//		};
-//		VaadinSession.getCurrent().addRequestHandler(handler);	
-		
 		Notification notification = new Notification("",
 				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
 				Notification.Type.HUMANIZED_MESSAGE);
@@ -265,12 +249,16 @@ public class Wizard extends UI
 			for (CSVRecord record : parser.getRecords()){
 				System.out.println(record.toString());
 			}
-			
-			
-			//db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
-			//WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
-			//wde.createAndPopulateInitialTable();
+			db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
+			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
+			wde.createAndPopulateInitialTable();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -291,6 +279,22 @@ public class Wizard extends UI
 		
 		return window;
 
+	}
+	
+	private void insert(CSVRecord record, String tableName){
+		TableQuery query = new TableQuery(tableName, connectionPool);
+		//query.storeRow(null, null, new String[]{record.))
+	}
+	
+	private void runQuerys(String q) {
+		try {
+			FreeformQuery query = new FreeformQuery(q,connectionPool);
+			container = new SQLContainer(query);
+		} catch (SQLException e) {
+			Notification.show("SQL Error!",
+					e.getMessage(),
+					Notification.Type.ERROR_MESSAGE);
+		}
 	}
 
 
@@ -379,7 +383,6 @@ public class Wizard extends UI
 		}
 		tablesList.setSelectable(true);
 		tablesList.setImmediate(true);
-		//tablesList.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
 	}
 
 
