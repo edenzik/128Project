@@ -202,8 +202,7 @@ public class Wizard extends UI
 	}
 	
 	private void initTeachWindow(String content) {
-		System.out.println(content);
-		
+
 		DBHelper db;
 		try {
 			db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
