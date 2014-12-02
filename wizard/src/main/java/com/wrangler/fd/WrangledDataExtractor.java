@@ -38,7 +38,7 @@ public class WrangledDataExtractor {
 	/**
 	 * Takes input Wrangled Data and reads the headers (i.e. column/attribute names)
 	 * into the passed header list and then reads each line containing actual data
-	 * and adds them to the passed data list
+	 * and adds each line as a List to the maintained List of Lists 
 	 * 
 	 * @param inputData
 	 * @return
