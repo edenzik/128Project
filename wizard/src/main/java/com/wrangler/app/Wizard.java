@@ -49,6 +49,7 @@ import com.vaadin.ui.Upload.FailedListener;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
+import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
@@ -105,8 +106,8 @@ public class Wizard extends UI
 	void initIntroduction(){
 		Notification notification = new Notification("Welcome!",
 				"The Relational Data Wrangler is a tool to turn a spreadsheet format into a relational format with ease.",
-				Notification.Type.HUMANIZED_MESSAGE);
-		notification.setDelayMsec(1000);
+				Notification.Type.ASSISTIVE_NOTIFICATION);
+		//notification.setDelayMsec(1);
 		notification.setPosition(Position.TOP_CENTER);
 		notification.show(getPage());
 		addWindow(getIntroductionWindow());
@@ -123,12 +124,16 @@ public class Wizard extends UI
 	    
 	    Button submit = new Button("Login");
 	    form.addComponent(submit);
+	    form.setMargin(true);
 	    submit.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				try {
 					user = new User(emailField.getValue(), passwordField.getValue());
 					DB_NAME = user.getDB().getName();
 					Notification notification = new Notification("Welcome " + DB_NAME + "!");
+					notification.setDelayMsec(10);
+					notification.setPosition(Position.MIDDLE_CENTER);
+					notification.show(getPage());
 					window.close();
 					initCSVUpload();
 				} catch (ClassNotFoundException e) {
@@ -146,8 +151,8 @@ public class Wizard extends UI
 	    window.setClosable(false);
 		window.setDraggable(false);
 		window.setResizable(false);
-		window.setHeight("30%");
-		window.setWidth("30%");
+		window.setHeight("23%");
+		window.setWidth("24%");
 		window.center();
 	    
 	    window.setContent(form);
@@ -210,7 +215,14 @@ public class Wizard extends UI
 
 	Window getUploadWindow(Upload upload){
 		final Window window = new Window("Upload CSV File");
-		window.setClosable(false);
+		window.addCloseListener(new Window.CloseListener() {
+			
+			@Override
+			public void windowClose(CloseEvent e) {
+				initDatabaseBrowser();
+				
+			}
+		});
 		window.setDraggable(false);
 		window.setResizable(false);
 		window.setHeight("20%");
@@ -229,8 +241,8 @@ public class Wizard extends UI
 				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
 				Notification.Type.HUMANIZED_MESSAGE);
 		notification.show(getPage());
-		notification.setDelayMsec(1000);
-		notification.setPosition(Position.BOTTOM_CENTER);
+		notification.setDelayMsec(10);
+		notification.setPosition(Position.MIDDLE_CENTER);
 	}
 
 
@@ -264,10 +276,7 @@ public class Wizard extends UI
 				Notification.show("Submitted!");
 
 				window.close();
-				initConnectionPool();
-				initContentList();
-				initTablesList();
-				initLayout();
+				initDatabaseBrowser();
 
 			}
 		});
@@ -290,6 +299,11 @@ public class Wizard extends UI
 		window.setContent(layout);
 
 		return window;
+	}
+	
+	void initDatabaseBrowser(){
+		initConnectionPool();
+
 	}
 
 	//String tableValues = "";
@@ -447,6 +461,9 @@ public class Wizard extends UI
 			showError("Couldn't create the connection pool!");
 			e.printStackTrace();
 		}
+		initContentList();
+		initTablesList();
+		initLayout();
 	}
 
 	public void showError(String errorString) {
