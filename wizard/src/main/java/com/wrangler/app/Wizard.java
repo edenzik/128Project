@@ -213,14 +213,13 @@ public class Wizard extends UI
 		addWindow(window);
 	}
 
-	Window getUploadWindow(Upload upload){
+	Window getUploadWindow(final Upload upload){
 		final Window window = new Window("Upload CSV File");
 		window.addCloseListener(new Window.CloseListener() {
 			
 			@Override
 			public void windowClose(CloseEvent e) {
-				initDatabaseBrowser();
-				
+				if (!upload.isUploading()) initDatabaseBrowser();
 			}
 		});
 		window.setDraggable(false);
@@ -303,6 +302,9 @@ public class Wizard extends UI
 	
 	void initDatabaseBrowser(){
 		initConnectionPool();
+		initContentList();
+		initTablesList();
+		initLayout();
 
 	}
 
@@ -436,6 +438,7 @@ public class Wizard extends UI
 
 	private void initTablesList() {
 		try {
+			tablesList.refreshRowCache();
 			tablesList.removeAllItems();
 			ResultSet rs = connectionPool.reserveConnection().getMetaData().getTables(null, "public", null, new String[] {"TABLE"});
 			tablesList.addContainerProperty("Table",String.class,null);
@@ -461,9 +464,6 @@ public class Wizard extends UI
 			showError("Couldn't create the connection pool!");
 			e.printStackTrace();
 		}
-		initContentList();
-		initTablesList();
-		initLayout();
 	}
 
 	public void showError(String errorString) {
