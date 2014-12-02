@@ -34,6 +34,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Notification;
@@ -50,8 +51,10 @@ import com.vaadin.ui.Upload.SucceededListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
 import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.Database;
+import com.wrangler.login.User;
 /**
  *
  * Created by edenzik on 11/27/14.
@@ -72,12 +75,14 @@ public class Wizard extends UI
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Wizard.class);
 
-	private static final String HOST_IP = "104.236.17.70";
-	private static final String HOST_PORT = "5432";
-	private static final String DB_NAME = "cosi128a";
-	private static final String DB_USER = "kahlil";
-	private static final String DB_PASS = "psswd";
-	private static final String WRANGLER_URI = "/VAADIN/wrangler/index.html";
+	private static String HOST_IP = "104.236.17.70";
+	private static String HOST_PORT = "5432";
+	private static String DB_NAME = "cosi128a";
+	private static String DB_USER = "kahlil";
+	private static String DB_PASS = "psswd";
+	private static String WRANGLER_URI = "/VAADIN/wrangler/index.html";
+	
+	private User user;
 
 	private Table contentList = new Table();
 	private Table tablesList = new Table();
@@ -93,19 +98,67 @@ public class Wizard extends UI
 	@Override
 	protected void init(VaadinRequest request) {
 		initIntroduction();
-		initCSVUpload();
+		//initCSVUpload();
 
 	}
 
 	void initIntroduction(){
 		Notification notification = new Notification("Welcome!",
 				"The Relational Data Wrangler is a tool to turn a spreadsheet format into a relational format with ease.",
-				Notification.Type.HUMANIZED_MESSAGE);
-		notification.setDelayMsec(1000);
+				Notification.Type.ASSISTIVE_NOTIFICATION);
+		//notification.setDelayMsec(1);
 		notification.setPosition(Position.TOP_CENTER);
 		notification.show(getPage());
-
+		addWindow(getIntroductionWindow());
 	}
+	
+	Window getIntroductionWindow(){
+		final Window window = new Window();
+		FormLayout form = new FormLayout();
+		final TextField emailField = new TextField("Email");
+		form.addComponent(emailField);
+	    final TextField passwordField = new TextField("Password");
+	    form.addComponent(passwordField);
+	    
+	    
+	    Button submit = new Button("Login");
+	    form.addComponent(submit);
+	    form.setMargin(true);
+	    submit.addClickListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				try {
+					user = new User(emailField.getValue(), passwordField.getValue());
+					DB_NAME = user.getDB().getDbName();
+					Notification notification = new Notification("Welcome " + DB_NAME + "!");
+					notification.setDelayMsec(10);
+					notification.setPosition(Position.MIDDLE_CENTER);
+					notification.show(getPage());
+					window.close();
+					initCSVUpload();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+	    });
+	    
+	    
+	    
+	    window.setClosable(false);
+		window.setDraggable(false);
+		window.setResizable(false);
+		window.setHeight("23%");
+		window.setWidth("24%");
+		window.center();
+	    
+	    window.setContent(form);
+		return window;
+	}
+	
+	
 
 	void initCSVUpload(){
 		Notification notification = new Notification("File Upload:",
@@ -159,9 +212,15 @@ public class Wizard extends UI
 		addWindow(window);
 	}
 
-	Window getUploadWindow(Upload upload){
+	Window getUploadWindow(final Upload upload){
 		final Window window = new Window("Upload CSV File");
-		window.setClosable(false);
+		window.addCloseListener(new Window.CloseListener() {
+			
+			@Override
+			public void windowClose(CloseEvent e) {
+				if (!upload.isUploading()) initDatabaseBrowser();
+			}
+		});
 		window.setDraggable(false);
 		window.setResizable(false);
 		window.setHeight("20%");
@@ -180,8 +239,8 @@ public class Wizard extends UI
 				"The Data Wrangler step helps you conform your data to a spreadsheet like format, with every row containing exactly one data element.",
 				Notification.Type.HUMANIZED_MESSAGE);
 		notification.show(getPage());
-		notification.setDelayMsec(1000);
-		notification.setPosition(Position.BOTTOM_CENTER);
+		notification.setDelayMsec(10);
+		notification.setPosition(Position.MIDDLE_CENTER);
 	}
 
 
@@ -215,10 +274,7 @@ public class Wizard extends UI
 				Notification.show("Submitted!");
 
 				window.close();
-				initConnectionPool();
-				initContentList();
-				initTablesList();
-				initLayout();
+				initDatabaseBrowser();
 
 			}
 		});
@@ -241,6 +297,14 @@ public class Wizard extends UI
 		window.setContent(layout);
 
 		return window;
+	}
+	
+	void initDatabaseBrowser(){
+		initConnectionPool();
+		initContentList();
+		initTablesList();
+		initLayout();
+
 	}
 
 	//String tableValues = "";
@@ -280,11 +344,13 @@ public class Wizard extends UI
 
 	}
 	
+	@Deprecated
 	private void insert(CSVRecord record, String tableName){
 		TableQuery query = new TableQuery(tableName, connectionPool);
 		//query.storeRow(null, null, new String[]{record.))
 	}
 	
+	@Deprecated
 	private void runQuerys(String q) {
 		try {
 			FreeformQuery query = new FreeformQuery(q,connectionPool);
@@ -373,6 +439,7 @@ public class Wizard extends UI
 
 	private void initTablesList() {
 		try {
+			tablesList.refreshRowCache();
 			tablesList.removeAllItems();
 			ResultSet rs = connectionPool.reserveConnection().getMetaData().getTables(null, "public", null, new String[] {"TABLE"});
 			tablesList.addContainerProperty("Table",String.class,null);
@@ -403,6 +470,7 @@ public class Wizard extends UI
 	public void showError(String errorString) {
 	}
 
+	@Deprecated
 	private void runQuery(String q) {
 		try {
 			FreeformQuery query = new FreeformQuery(q,connectionPool);

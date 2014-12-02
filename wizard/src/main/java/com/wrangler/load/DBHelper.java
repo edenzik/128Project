@@ -64,12 +64,12 @@ public class DBHelper {
 	 * @param updateQuery update Query to be executed
 	 * @throws SQLException
 	 */
-	public synchronized void executeUpdate(String updateQuery) {
+	public synchronized void executeUpdate(String query) {
 		try {
-			stmt.executeUpdate(updateQuery);
-			LOG.info(updateQuery);
+			stmt.executeUpdate(query);
+			LOG.info(query);
 		} catch(SQLException e) {
-			LOG.info(updateQuery);
+			LOG.info(query);
 //			LOG.error(updateQuery);
 //			LOG.error("", e);
 		}
@@ -92,6 +92,23 @@ public class DBHelper {
 			return null;
 		}
 	}
+	
+	/**
+	 * Checks if the result of this query exists
+	 * 
+	 * @param if the result of this query is empty or not (true if not empty)
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized boolean exists(String query) {
+		LOG.info(query);
+		try {
+			return stmt.executeQuery(query).next();
+		} catch (SQLException e) {
+			LOG.error(query);
+			return false;
+		}
+	}
 
 	/**
 	 * Closes the connection to the given database
@@ -101,6 +118,18 @@ public class DBHelper {
 	public synchronized void close() throws SQLException {
 		LOG.info("Closed database connection!");
 		conn.close();
+	}
+	
+	/**
+	 * Returns true if the passed user_name exists in the given db
+	 * 
+	 * @param user_name
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public boolean userExists(String user_name) throws ClassNotFoundException, SQLException{
+		return exists("SELECT * FROM users WHERE email=" + "'" + user_name + "'");
 	}
 
 	/**
@@ -124,6 +153,53 @@ public class DBHelper {
 		}
 		return false;
 	}
+	
+	/**
+	 * Returns true if a given database exists
+	 * 
+	 * @param database name
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized boolean databaseExists(String databaseName) {
+		try {
+			DatabaseMetaData dbm = conn.getMetaData();
+			ResultSet databases = dbm.getCatalogs();
+			// Table exists
+			if(databases.next()) {
+				if (databases.getString(1).equals(databaseName)) return true;
+			}
+		}
+		catch(SQLException e) {
+			LOG.error("Could not check if database {} exists or not!", databaseName, e);
+		}
+		return false;
+	}
+	
+	/**
+	 * Creates a databse
+	 * 
+	 * @param database name
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized boolean createDatabase(String databaseName) {
+		return executeQuery("CREATE DATABASE " + databaseName)!=null;
+	}
+	
+	/**
+	 * Creates a new user
+	 * 
+	 * @param user to be created, their password
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized boolean addUser(String userName, String userPassword) {
+		executeUpdate("INSERT INTO users VALUES('" +  userName + "', '" + userPassword + "')");
+		return true;
+	}
+	
+	
 
 	/**
 	 * Returns the number of tables for a given postgreSQL database
@@ -206,8 +282,8 @@ public class DBHelper {
 		DatabaseMetaData meta = conn.getMetaData();
 		ResultSet rs = meta.getColumns(null, null, rel.getName().toLowerCase(), null);
 		while(rs.next()) {
-			String colName = rs.getString("COLUMN_NAME");
-			String colType = rs.getString("TYPE_NAME");
+//			String colName = rs.getString("COLUMN_NAME");
+//			String colType = rs.getString("TYPE_NAME");
 			
 			//TODO: convert from string colType from DB to my enum colType
 
