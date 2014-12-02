@@ -20,7 +20,7 @@ public class FDHelper {
 	
 	public FDHelper(DBHelper dbHelper) {
 		this.dbHelper = dbHelper;
-		this.tableAtts = dbHelper.getTableAttributes();
+//		this.tableAtts = dbHelper.getTableAttributes();
 		this.hardFdSet = findAllHardFds();
 	}
 
