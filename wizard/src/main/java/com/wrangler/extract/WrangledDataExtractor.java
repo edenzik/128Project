@@ -13,9 +13,10 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wrangler.load.DBHelper;
+import com.wrangler.load.Database;
 import com.wrangler.load.PostgresAttType;
 import com.wrangler.load.QueryHelper;
+import com.wrangler.load.Relation;
 
 
 public class WrangledDataExtractor {
@@ -25,18 +26,18 @@ public class WrangledDataExtractor {
 	// Each tuple is stored as a list of String
 	// The entire data collection is a list of the tuples
 	private List<List<String>> wrangledData;
-	// Manager of any direct interaction with the database
-	private final DBHelper dbHelper;
+	// Database to which this "extracts" the data
+	private final Database db;
 	// Used for logging important logging
 	private final Logger LOG = LoggerFactory.getLogger(WrangledDataExtractor.class);
 	// Maps each header value to its inferred data type (i.e. numeric, varchar, date, etc.) 
 	private Map<String, PostgresAttType> inferredTypes;
 
-	public WrangledDataExtractor(String inputData, DBHelper dbHelper) throws IOException {
+	public WrangledDataExtractor(String inputData, Database db) throws IOException {
 		this.headers = new ArrayList<String>();
 		this.wrangledData = new ArrayList<List<String>>();
 		loadInputStream(inputData, headers, wrangledData);
-		this.dbHelper = dbHelper;
+		this.db = db;
 	}
 
 	/**
@@ -91,18 +92,18 @@ public class WrangledDataExtractor {
 	 * 
 	 */
 	public void createAndPopulateInitialTable() {
-		String tableName = null;
+		Relation rel = null;
 		try {
-			tableName = createInitialTable(this.wrangledData);
+			rel = createInitialTable(this.wrangledData);
 			LOG.info("Created initial database table!");
 		} catch (IOException e) {
-			LOG.error("Failed to create table: {}\n{}", tableName, e.getMessage());
+			LOG.error("Failed to create table: {}\n{}", rel, e.getMessage());
 		}
 		try {
-			populateInitialTable(tableName);
+			populateInitialTable(rel);
 			LOG.info("Populated initial database table!");
 		} catch(IOException e) {
-			LOG.error("Failed to populate table: {}", tableName, e);
+			LOG.error("Failed to populate table: {}", rel, e);
 		} 
 	}
 
@@ -114,20 +115,21 @@ public class WrangledDataExtractor {
 	 * @return
 	 * @throws IOException
 	 */
-	private String createInitialTable(List<List<String>> wrangledData) throws IOException {
-		String tableName = null;
+	private Relation createInitialTable(List<List<String>> wrangledData) throws IOException {
+		Relation rel = null;
 		// Now we need to figure out a unique name for this new table
 		try {
-			tableName = QueryHelper.DEFAULT_TABLE_NAME + dbHelper.countTables();
+			String tableName = QueryHelper.DEFAULT_TABLE_NAME + db.getDbHelper().countTables();
+			rel = new Relation(tableName, db);
 		} catch (SQLException e) {
 			LOG.error("Failed to count tables!", e);
 		}
 		Map<String, List<String>> headersToSampleValues = getSampleValues(this.headers, this.wrangledData);
 		inferredTypes = QueryHelper.inferTableTypes(headersToSampleValues);
-		String createTableQuery = QueryHelper.getCreateTableQuery(tableName, inferredTypes);
-		dbHelper.executeUpdate(createTableQuery);
+		String createTableQuery = QueryHelper.getCreateTableQuery(rel, inferredTypes);
+		db.getDbHelper().executeUpdate(createTableQuery);
 
-		return tableName;
+		return rel;
 	}
 
 	/**
@@ -139,15 +141,15 @@ public class WrangledDataExtractor {
 	 * @param sc
 	 * @throws IOException
 	 */
-	private void populateInitialTable(String tableName) throws IOException {
-		if(!dbHelper.tableExists(tableName)) {
-			LOG.error("{} does not exist as a table in the database!", tableName);
+	private void populateInitialTable(Relation rel) throws IOException {
+		if(!db.getDbHelper().tableExists(rel)) {
+			LOG.error("{} does not exist as a table in the database!", rel);
 		}
 		for(List<String> nextTuple : wrangledData) {
 			String insertQuery = null;
 			if(nextTuple.size() != 0) {
-				insertQuery = QueryHelper.getInsertQuery(inferredTypes, nextTuple, tableName);
-				dbHelper.executeUpdate(insertQuery);
+				insertQuery = QueryHelper.getInsertQuery(inferredTypes, nextTuple, rel);
+				db.getDbHelper().executeUpdate(insertQuery);
 			}
 		}
 	}
@@ -185,5 +187,12 @@ public class WrangledDataExtractor {
 		}
 		LOG.info("Finished gathering sample values from the data!");
 		return headersToSampleValues;
+	}
+
+	/**
+	 * @return the db
+	 */
+	public Database getDb() {
+		return db;
 	}
 }

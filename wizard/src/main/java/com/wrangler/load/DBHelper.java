@@ -6,6 +6,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,16 +22,40 @@ public class DBHelper {
 
 	private Statement stmt;
 	private Connection conn;
-	private static final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
+	private final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
+	private final Database db;
 
-	public DBHelper(String hostIP, String dbName, String dbUser, String dbPass) throws ClassNotFoundException, SQLException {
-		// Initialize JDBC driver
+	
+	/**
+	 * Constructs a DatabaseHelper object to help with the passed Database
+	 * 
+	 * @param db
+	 * @throws ClassNotFoundException if postgres driver can't be loaded
+	 * @throws SQLException if connection can't be established to DB
+	 */
+	public DBHelper(Database db) throws ClassNotFoundException, SQLException {
+		this.db = db;
 		Class.forName("org.postgresql.Driver");
 		LOG.info("Initialized postgresql JDBC Driver");
-		String url = "jdbc:postgresql://" + hostIP + "/" + dbName;
-		conn = DriverManager.getConnection(url, dbUser, dbPass);
+		String url = "jdbc:postgresql://" + db.getHostIp() + "/" + db.getDbName();
+		conn = DriverManager.getConnection(url, db.getUser(), db.getPass());
 		LOG.info("Connected to database at {}", url);
 		stmt = conn.createStatement();
+	}
+
+	/**
+	 * Creates a DB helper object with passed fields, rather than by constructing
+	 * Database object outside of the method.
+	 * 
+	 * @param hostIP
+	 * @param dbName
+	 * @param dbUser
+	 * @param dbPass
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public DBHelper(String hostIP, String dbName, String dbUser, String dbPass) throws ClassNotFoundException, SQLException {
+		this(new Database(hostIP, dbName, dbUser, dbPass));
 	}
 
 	/**
@@ -79,21 +106,21 @@ public class DBHelper {
 	/**
 	 * Returns true if a given table exists and false if it does not
 	 * 
-	 * @param tableName
+	 * @param rel
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized boolean tableExists(String tableName) {
+	public synchronized boolean tableExists(Relation rel) {
 		try {
 			DatabaseMetaData dbm = conn.getMetaData();
-			ResultSet tables = dbm.getTables(null, null, tableName.toLowerCase(), null);
+			ResultSet tables = dbm.getTables(null, null, rel.getName().toLowerCase(), null);
 			// Table exists
 			if(tables.next()) {
 				return true;
 			}
 		}
 		catch(SQLException e) {
-			LOG.error("Could not check if table {} exists or not!", tableName, e);
+			LOG.error("Could not check if table {} exists or not!", rel, e);
 		}
 		return false;
 	}
@@ -109,6 +136,13 @@ public class DBHelper {
 		ResultSet rs = executeQuery(countTablesQuery);
 		rs.next();
 		return rs.getInt(1);
+	}
+
+	/**
+	 * @return the db
+	 */
+	public Database getDb() {
+		return db;
 	}
 
 	/**
@@ -157,6 +191,31 @@ public class DBHelper {
 			}
 		}
 
+	}
+
+	/**
+	 * Returns a Set of all of the attributes for a given table
+	 * 
+	 * @param rel
+	 * @return
+	 * @throws SQLException 
+	 */
+	public Set<Attribute> getTableAttributes(Relation rel) throws SQLException {
+		Set<Attribute> attrSet = new LinkedHashSet<Attribute>();
+
+		DatabaseMetaData meta = conn.getMetaData();
+		ResultSet rs = meta.getColumns(null, null, rel.getName().toLowerCase(), null);
+		while(rs.next()) {
+			String colName = rs.getString("COLUMN_NAME");
+			String colType = rs.getString("TYPE_NAME");
+			
+			//TODO: convert from string colType from DB to my enum colType
+
+			//Attribute attr = new Attribute(colName, colType, rel);
+		}
+
+		return attrSet;
+		
 	}
 
 }

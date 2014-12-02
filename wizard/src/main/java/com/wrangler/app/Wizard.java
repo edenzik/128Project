@@ -51,7 +51,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.wrangler.extract.WrangledDataExtractor;
-import com.wrangler.load.DBHelper;
+import com.wrangler.load.Database;
 /**
  *
  * Created by edenzik on 11/27/14.
@@ -246,9 +246,9 @@ public class Wizard extends UI
 	//String tableValues = "";
 
 	void loadData(String content){
-		DBHelper db;
+		Database db;
 		try {
-			db = new DBHelper(HOST_IP, DB_NAME,DB_USER,DB_PASS);
+			db = new Database (HOST_IP, DB_NAME,DB_USER,DB_PASS);
 			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
 			wde.createAndPopulateInitialTable();
 		} catch (IOException e) {

@@ -2,6 +2,7 @@ package com.wrangler.load;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,8 +32,9 @@ public class QueryHelper {
 	 * 
 	 * @param args
 	 * @throws IOException 
+	 * @throws SQLException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, SQLException {
 		String[] test = {"4", "4.9", ".65", ".65.7", "7.33", "S23", "07.21", "Jerry", "$415", "415.000"};
 		for(String s: test) {
 			System.out.println(s + " : " + inferValueType(s));
@@ -52,9 +54,8 @@ public class QueryHelper {
 
 		Map<String, PostgresAttType> inferredTypes = inferTableTypes(headersToValues);
 		System.out.println(inferredTypes);
-		System.out.println(getCreateTableQuery("TEST", inferredTypes));
 
-		System.out.println(getInsertQuery(inferredTypes, new ArrayList<String>(Arrays.asList(new String[] {"6", "Jerry", "John"})), "PERSON"));
+		System.out.println(getInsertQuery(inferredTypes, new ArrayList<String>(Arrays.asList(new String[] {"6", "Jerry", "John"})), new Relation("PERSON", null)));
 
 		for(String s: headersToValues.keySet()) {
 			System.out.println(s + " : " + QueryHelper.inferColumnType(s, headersToValues.get(s)));
@@ -67,11 +68,11 @@ public class QueryHelper {
 	 * the first couple of tuples of each attribute to try to infer
 	 * type (i.e. int, float, date, etc.) based on basic pattern matching.
 	 * 
-	 * @param name
+	 * @param rel
 	 * @param inferredTypes 
 	 * @return
 	 */
-	public static String getCreateTableQuery(String name, Map<String, PostgresAttType> inferredTypes) {
+	public static String getCreateTableQuery(Relation rel, Map<String, PostgresAttType> inferredTypes) {
 		// Ugliest but apparently most effective way to convert a set to an array
 		String[] headers = inferredTypes.keySet().toArray(new String[inferredTypes.keySet().size()]);
 		if(headers.length == 0) {
@@ -84,7 +85,7 @@ public class QueryHelper {
 			attList.append(", " + headers[i] + " " + inferredTypes.get(headers[i])); 
 		}
 		attList.append(")");
-		return "CREATE TABLE " + name + attList.toString() + ";";
+		return "CREATE TABLE " + rel + attList.toString() + ";";
 	}
 
 	/**
@@ -136,7 +137,7 @@ public class QueryHelper {
 	 * @param headers 
 	 * @return
 	 */
-	public static String getInsertQuery(Map<String, PostgresAttType> inferredTypes, List<String> atts, String tableName) {
+	public static String getInsertQuery(Map<String, PostgresAttType> inferredTypes, List<String> atts, Relation rel) {
 		// Ugly but effective way to convert Set<String> to String[]
 		String[] headers = inferredTypes.keySet().toArray(new String[inferredTypes.size()]);
 		if(atts.size() == 0) {
@@ -168,7 +169,7 @@ public class QueryHelper {
 			}
 		}
 		valueList.append(")");
-		String query = "INSERT INTO " + tableName + " " + columnList + " VALUES " + valueList.toString() + ";";
+		String query = "INSERT INTO " + rel + " " + columnList + " VALUES " + valueList.toString() + ";";
 		return query;
 	}
 

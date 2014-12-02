@@ -22,12 +22,12 @@ public class WranglerServer {
 	private static final String DB_NAME = "cosi128a";
 	private static final String USER = "kahlil";
 	private static final String PASS = "psswd";
-	private static DBHelper dbHelper; 
+	private static Database db; 
 	private static final Logger LOG = LoggerFactory.getLogger(WranglerServer.class);
 	
     public static void main(String[] args) throws Exception {
     	// initialize dbHelper
-    	dbHelper = new DBHelper(HOST_IP, DB_NAME, USER, PASS);
+    	db = new Database(HOST_IP, DB_NAME, USER, PASS);
         // initialize server
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.createContext("/test", new NewHandler());
@@ -45,7 +45,7 @@ public class WranglerServer {
 			// is to put newly rangled data into the db
 			if(true) {
 				String wrangledData = readDataIntoString(t.getRequestBody());
-				WrangledDataExtractor rd = new WrangledDataExtractor(wrangledData, dbHelper);
+				WrangledDataExtractor rd = new WrangledDataExtractor(wrangledData, db);
 				rd.createAndPopulateInitialTable();
 			}
 		}
