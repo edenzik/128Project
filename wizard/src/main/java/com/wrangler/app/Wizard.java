@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.AbstractContainer;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
@@ -34,6 +35,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Notification;
@@ -52,6 +54,7 @@ import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.DBHelper;
+import com.wrangler.login.*;
 /**
  *
  * Created by edenzik on 11/27/14.
@@ -72,12 +75,14 @@ public class Wizard extends UI
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Wizard.class);
 
-	private static final String HOST_IP = "104.236.17.70";
-	private static final String HOST_PORT = "5432";
-	private static final String DB_NAME = "cosi128a";
-	private static final String DB_USER = "kahlil";
-	private static final String DB_PASS = "psswd";
-	private static final String WRANGLER_URI = "/VAADIN/wrangler/index.html";
+	private static String HOST_IP = "104.236.17.70";
+	private static String HOST_PORT = "5432";
+	private static String DB_NAME = "cosi128a";
+	private static String DB_USER = "kahlil";
+	private static String DB_PASS = "psswd";
+	private static String WRANGLER_URI = "/VAADIN/wrangler/index.html";
+	
+	private User user;
 
 	private Table contentList = new Table();
 	private Table tablesList = new Table();
@@ -93,7 +98,7 @@ public class Wizard extends UI
 	@Override
 	protected void init(VaadinRequest request) {
 		initIntroduction();
-		initCSVUpload();
+		//initCSVUpload();
 
 	}
 
@@ -104,8 +109,52 @@ public class Wizard extends UI
 		notification.setDelayMsec(1000);
 		notification.setPosition(Position.TOP_CENTER);
 		notification.show(getPage());
-
+		addWindow(getIntroductionWindow());
 	}
+	
+	Window getIntroductionWindow(){
+		final Window window = new Window();
+		FormLayout form = new FormLayout();
+		final TextField emailField = new TextField("Email");
+		form.addComponent(emailField);
+	    final TextField passwordField = new TextField("Password");
+	    form.addComponent(passwordField);
+	    
+	    
+	    Button submit = new Button("Login");
+	    form.addComponent(submit);
+	    submit.addClickListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				try {
+					user = new User(emailField.getValue(), passwordField.getValue());
+					DB_NAME = user.getDB().getName();
+					Notification notification = new Notification("Welcome " + DB_NAME + "!");
+					window.close();
+					initCSVUpload();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+	    });
+	    
+	    
+	    
+	    window.setClosable(false);
+		window.setDraggable(false);
+		window.setResizable(false);
+		window.setHeight("30%");
+		window.setWidth("30%");
+		window.center();
+	    
+	    window.setContent(form);
+		return window;
+	}
+	
+	
 
 	void initCSVUpload(){
 		Notification notification = new Notification("File Upload:",

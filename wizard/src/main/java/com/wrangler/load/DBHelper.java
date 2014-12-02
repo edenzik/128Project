@@ -37,12 +37,12 @@ public class DBHelper {
 	 * @param updateQuery update Query to be executed
 	 * @throws SQLException
 	 */
-	public synchronized void executeUpdate(String updateQuery) {
+	public synchronized void executeUpdate(String query) {
 		try {
-			stmt.executeUpdate(updateQuery);
-			LOG.info(updateQuery);
+			stmt.executeUpdate(query);
+			LOG.info(query);
 		} catch(SQLException e) {
-			LOG.info(updateQuery);
+			LOG.info(query);
 //			LOG.error(updateQuery);
 //			LOG.error("", e);
 		}
@@ -63,6 +63,23 @@ public class DBHelper {
 			LOG.error(query);
 //			LOG.error("", e);
 			return null;
+		}
+	}
+	
+	/**
+	 * Checks if the result of this query exists
+	 * 
+	 * @param if the result of this query is empty or not (true if not empty)
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized boolean exists(String query) {
+		LOG.info(query);
+		try {
+			return stmt.executeQuery(query).next();
+		} catch (SQLException e) {
+			LOG.error(query);
+			return false;
 		}
 	}
 
@@ -97,6 +114,53 @@ public class DBHelper {
 		}
 		return false;
 	}
+	
+	/**
+	 * Returns true if a given database exists
+	 * 
+	 * @param database name
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized boolean databaseExists(String databaseName) {
+		try {
+			DatabaseMetaData dbm = conn.getMetaData();
+			ResultSet databases = dbm.getCatalogs();
+			// Table exists
+			if(databases.next()) {
+				if (databases.getString(1).equals(databaseName)) return true;
+			}
+		}
+		catch(SQLException e) {
+			LOG.error("Could not check if database {} exists or not!", databaseName, e);
+		}
+		return false;
+	}
+	
+	/**
+	 * Creates a databse
+	 * 
+	 * @param database name
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized boolean createDatabase(String databaseName) {
+		return executeQuery("CREATE DATABASE " + databaseName)!=null;
+	}
+	
+	/**
+	 * Creates a new user
+	 * 
+	 * @param user to be created, their password
+	 * @return
+	 * @throws SQLException
+	 */
+	public synchronized boolean addUser(String userName, String userPassword) {
+		executeUpdate("INSERT INTO users VALUES('" +  userName + "', '" + userPassword + "')");
+		return true;
+	}
+	
+	
 
 	/**
 	 * Returns the number of tables for a given postgreSQL database

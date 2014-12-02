@@ -47,3 +47,4 @@ Thumbs.db
 .codekit-config.json
 config.codekit
 /build/
+.prefs
