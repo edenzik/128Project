@@ -97,7 +97,7 @@ public class WrangledDataExtractor {
 			rel = createInitialTable(this.wrangledData);
 			LOG.info("Created initial database table!");
 		} catch (IOException e) {
-			LOG.error("Failed to create table: {}\n{}", rel, e.getMessage());
+			LOG.error("Failed to create table: {}", rel, e);
 		}
 		try {
 			populateInitialTable(rel);
