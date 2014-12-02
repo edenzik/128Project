@@ -3,6 +3,8 @@
  */
 package com.wrangler.fd;
 
+import com.wrangler.load.Attribute;
+
 /**
  * Represents a "soft" functional dependency (i.e. one in which
  * one or more values may contradict the functional dependency,

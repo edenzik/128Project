@@ -3,6 +3,8 @@
  */
 package com.wrangler.fd;
 
+import com.wrangler.load.Attribute;
+
 /**
  * Represents a "hard" functional dependency between two attributes
  * (i.e. one in which no values contradict the FD)

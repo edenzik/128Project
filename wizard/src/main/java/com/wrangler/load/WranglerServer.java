@@ -15,6 +15,7 @@ import com.sun.net.httpserver.HttpServer;
 import com.wrangler.extract.WrangledDataExtractor;
 
 @SuppressWarnings("restriction")
+@Deprecated
 public class WranglerServer {
 	
 	private static final String HOST_IP = "104.236.17.70";

@@ -1,4 +1,4 @@
-package com.wrangler.fd;
+package com.wrangler.load;
 
 import com.wrangler.load.PostgresAttType;
 

@@ -1,7 +1,6 @@
-/**
- * 
- */
 package com.wrangler.fd;
+
+import com.wrangler.load.Attribute;
 
 /**
  * Represents a single functional dependency from one Attribute
