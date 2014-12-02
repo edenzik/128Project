@@ -37,7 +37,7 @@ public class DBHelper {
 		this.db = db;
 		Class.forName("org.postgresql.Driver");
 		LOG.info("Initialized postgresql JDBC Driver");
-		String url = "jdbc:postgresql://" + db.getHostIp() + "/" + db.getDbName();
+		String url = "jdbc:postgresql://" + db.getHost().getHostIp()() + "/" + db.getDbName();
 		conn = DriverManager.getConnection(url, db.getUser(), db.getPass());
 		LOG.info("Connected to database at {}", url);
 		stmt = conn.createStatement();
