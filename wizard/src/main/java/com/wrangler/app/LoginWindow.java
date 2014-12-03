@@ -6,6 +6,7 @@ package com.wrangler.app;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 import com.wrangler.login.IncorrectPasswordException;
@@ -43,11 +44,13 @@ public class LoginWindow extends Window {
 					user = lm.login(nameField.getValue(), passwordField.getValue());
 					close();
 				} catch (UserNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Notification.show("User not found!",
+							e.getMessage(),
+							Notification.Type.ERROR_MESSAGE);
 				} catch (IncorrectPasswordException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Notification.show("Invalid password!",
+							e.getMessage(),
+							Notification.Type.ERROR_MESSAGE);
 				}
 			}
 	    });

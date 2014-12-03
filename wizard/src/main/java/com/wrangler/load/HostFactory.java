@@ -20,7 +20,7 @@ public class HostFactory {
 	 * 
 	 * @return
 	 */
-	protected static Host createDefaultHost() {
+	public static Host createDefaultHost() {
 		return new Host();
 	}
 
