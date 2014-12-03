@@ -98,8 +98,8 @@ public class FDHelper {
 
 		String relName = fromAtt.getSourceTable().getName();
 		String query = 
-				String.format("SELECT count(%s) FROM (SELECT DISTINCT %s,%s FROM %s) AS temp GROUP BY %s HAVING count(%s)>1;",
-						fromAtt.getName(), toAtt.getName(), fromAtt.getName(), relName, fromAtt.getName(), toAtt.getName());
+				String.format("SELECT COUNT(*) FROM (SELECT %s FROM (SELECT DISTINCT %s,%s FROM %s) AS temp GROUP BY %s HAVING count(%s)>1) as FDViolationCount;",
+						toAtt.getName(), toAtt.getName(), fromAtt.getName(), relName, toAtt.getName(), fromAtt.getName());
 		ResultSet rs = fromAtt.getSourceTable().getSourceDb().getDbHelper().executeQuery(query);
 		try {
 			if(rs.next()) {
@@ -128,7 +128,7 @@ public class FDHelper {
 		Host host = HostFactory.createDefaultHost();
 		try {
 			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", host);
-			Relation rel = RelationFactory.createRelation("table154", db);
+			Relation rel = RelationFactory.createRelation("fdtest", db);
 			FDHelper fdHelper = new FDHelper(db);
 			Set<FunctionalDependency> fds = fdHelper.findAllHardFds(rel);
 			System.out.println(fds);

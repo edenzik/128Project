@@ -77,10 +77,14 @@ public class Attribute {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+//	@Override
+//	public String toString() {
+//		return String.format("Attribute [name=%s, sourceTable=%s, attType=%s]",
+//				name, sourceTable, attType);
+//	}
+
 	@Override
 	public String toString() {
-		return String.format("Attribute [name=%s, sourceTable=%s, attType=%s]",
-				name, sourceTable, attType);
+		return String.format("%s.%s", getSourceTable().getName(), this.getName());
 	}
-
 }
