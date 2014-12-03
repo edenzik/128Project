@@ -5,6 +5,9 @@ package com.wrangler.login;
 
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wrangler.load.Database;
 import com.wrangler.load.DatabaseFactory;
 import com.wrangler.load.UserDatabase;
@@ -15,10 +18,17 @@ import com.wrangler.load.UserDatabase;
  */
 public class LoginManager {
 	
-	private final UserDatabase userDb; 
+	private UserDatabase userDb; 
+	private final Logger LOG = LoggerFactory.getLogger(LoginManager.class);
 	
-	public LoginManager() throws ClassNotFoundException, SQLException {
-		userDb = DatabaseFactory.createUserDatabase();
+	public LoginManager() {
+		try {
+			userDb = DatabaseFactory.createUserDatabase();
+		} catch (ClassNotFoundException e) {
+			LOG.error("", e);
+		} catch (SQLException e) {
+			LOG.error("", e);
+		} 
 	}
 	
 	/**
@@ -43,11 +53,10 @@ public class LoginManager {
 		} catch (IncorrectPasswordException e) {
 			throw e;
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error("", e);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error("", e);
 		}
 		// Should theoretically never be reached
 		return null;
