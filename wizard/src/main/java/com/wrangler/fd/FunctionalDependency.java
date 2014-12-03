@@ -13,7 +13,7 @@ public abstract class FunctionalDependency {
 	private final Attribute fromAtt;
 	private final Attribute toAtt;
 
-	public FunctionalDependency(Attribute fromAtt, Attribute toAtt) {
+	protected FunctionalDependency(Attribute fromAtt, Attribute toAtt) {
 		this.fromAtt = fromAtt;
 		this.toAtt = toAtt;
 	}

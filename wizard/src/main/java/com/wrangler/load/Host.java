@@ -68,4 +68,53 @@ public class Host {
 		return PASS;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((IP == null) ? 0 : IP.hashCode());
+		result = prime * result + ((PASS == null) ? 0 : PASS.hashCode());
+		result = prime * result + ((PORT == null) ? 0 : PORT.hashCode());
+		result = prime * result + ((ROLE == null) ? 0 : ROLE.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Host))
+			return false;
+		Host other = (Host) obj;
+		if (IP == null) {
+			if (other.IP != null)
+				return false;
+		} else if (!IP.equals(other.IP))
+			return false;
+		if (PASS == null) {
+			if (other.PASS != null)
+				return false;
+		} else if (!PASS.equals(other.PASS))
+			return false;
+		if (PORT == null) {
+			if (other.PORT != null)
+				return false;
+		} else if (!PORT.equals(other.PORT))
+			return false;
+		if (ROLE == null) {
+			if (other.ROLE != null)
+				return false;
+		} else if (!ROLE.equals(other.ROLE))
+			return false;
+		return true;
+	}
+
 }

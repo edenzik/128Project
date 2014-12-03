@@ -1,6 +1,5 @@
 package com.wrangler.load;
 
-import com.wrangler.load.PostgresAttType;
 
 /**
  * Represents a single attribute within a table
@@ -12,9 +11,9 @@ public class Attribute {
 	
 	private final String name;
 	private final Relation sourceTable;
-	private final PostgresAttType attType;
+	private final String attType;
 	
-	public Attribute(String name, PostgresAttType attType, Relation sourceTable) {
+	protected Attribute(String name, String attType, Relation sourceTable) {
 		this.name = name;
 		this.attType = attType;
 		this.sourceTable = sourceTable;
@@ -30,7 +29,7 @@ public class Attribute {
 	/**
 	 * @return the attType
 	 */
-	public PostgresAttType getAttType() {
+	public String getAttType() {
 		return attType;
 	}
 
@@ -73,6 +72,15 @@ public class Attribute {
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return String.format("Attribute [name=%s, sourceTable=%s, attType=%s]",
+				name, sourceTable, attType);
 	}
 
 }

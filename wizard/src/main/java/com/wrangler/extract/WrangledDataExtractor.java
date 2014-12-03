@@ -17,6 +17,7 @@ import com.wrangler.load.Database;
 import com.wrangler.load.PostgresAttType;
 import com.wrangler.load.QueryHelper;
 import com.wrangler.load.Relation;
+import com.wrangler.load.RelationFactory;
 
 
 public class WrangledDataExtractor {
@@ -120,7 +121,7 @@ public class WrangledDataExtractor {
 		// Now we need to figure out a unique name for this new table
 		try {
 			String tableName = QueryHelper.DEFAULT_TABLE_NAME + db.getDbHelper().countTables();
-			rel = new Relation(tableName, db);
+			rel = RelationFactory.createRelation(tableName, db);
 		} catch (SQLException e) {
 			LOG.error("Failed to count tables!", e);
 		}
