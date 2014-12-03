@@ -29,7 +29,7 @@ public class LoginWindow extends Window {
 	public LoginWindow() {
 		super("Please Login");
 		FormLayout form = new FormLayout();
-		final TextField nameField = new TextField("Email");
+		final TextField nameField = new TextField("Username");
 		form.addComponent(nameField);
 	    final TextField passwordField = new TextField("Password");
 	    form.addComponent(passwordField);

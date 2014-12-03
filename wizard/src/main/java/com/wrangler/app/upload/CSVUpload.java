@@ -1,19 +1,18 @@
 /**
  * 
  */
-package com.wrangler.app;
+package com.wrangler.app.upload;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.Receiver;
 
 /**
  * @author edenzik
  *
  */
-class CSVUpload extends Upload {
+public class CSVUpload extends Upload {
 	private final OutputStream csv;
 	public CSVUpload() {
 		csv = new ByteArrayOutputStream();
@@ -24,6 +23,6 @@ class CSVUpload extends Upload {
 		});
 	}
 	
-	OutputStream getOutputStream(){return csv;}
+	public OutputStream getOutputStream(){return csv;}
 
 }

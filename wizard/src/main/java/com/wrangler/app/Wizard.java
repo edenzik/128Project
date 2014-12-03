@@ -1,8 +1,6 @@
 package com.wrangler.app;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -22,7 +20,6 @@ import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.data.util.sqlcontainer.query.TableQuery;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.server.ExternalResource;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
@@ -30,12 +27,8 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.Position;
 import com.vaadin.ui.AbstractSplitPanel;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
@@ -44,21 +37,15 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.FailedListener;
-import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.Upload.SucceededListener;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
+import com.wrangler.app.query.QueryWindow;
 import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.Database;
 import com.wrangler.login.User;
-/**
- *
- * Created by edenzik on 11/27/14.
- */
+import com.wrangler.app.upload.*;
 /**
  *
  * Created by edenzik on 11/27/14.
@@ -68,18 +55,11 @@ import com.wrangler.login.User;
 public class Wizard extends UI
 {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8261547005973362262L;
 
 	@WebServlet(value = "/app/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = Wizard.class)
 	public static class Servlet extends VaadinServlet {
-
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 7869620340268929564L;
 	}
 	
@@ -90,7 +70,6 @@ public class Wizard extends UI
 	private static String DB_NAME = "cosi128a";
 	private static String DB_USER = "kahlil";
 	private static String DB_PASS = "psswd";
-	private static String WRANGLER_URI = "/VAADIN/wrangler/index.html";
 	
 	private User user;
 
@@ -125,18 +104,6 @@ public class Wizard extends UI
 		});
 	}
 	
-	void initIntroduction(){
-		Notification notification = new Notification("Welcome!",
-				"The Relational Data Wrangler is a tool to turn a spreadsheet format into a relational format with ease.",
-				Notification.Type.ASSISTIVE_NOTIFICATION);
-		//notification.setDelayMsec(1);
-		notification.setPosition(Position.TOP_CENTER);
-		notification.show(getPage());
-		//addWindow(getIntroductionWindow());
-		LoginWindow login = new LoginWindow();
-		addWindow(login);
-	}
-	
 	void initUpload(){
 		UploadWindow uploadWindow = new UploadWindow();
 		addWindow(uploadWindow);
@@ -151,7 +118,6 @@ public class Wizard extends UI
 			@Override
 			public void uploadFailed(FailedEvent event) {
 				initUpload();
-				
 			}
 		});
 		VaadinSession.getCurrent().addRequestHandler(new RequestHandler() {
@@ -178,9 +144,6 @@ public class Wizard extends UI
 			@Override
 			public void windowClose(CloseEvent e) {
 				RequestHandler handler = new RequestHandler(){
-					/**
-					 * 
-					 */
 					private static final long serialVersionUID = -5193766318144593205L;
 
 					public boolean handleRequest(VaadinSession session,
@@ -206,8 +169,6 @@ public class Wizard extends UI
 		initTablesList();
 	}
 
-	//String tableValues = "";
-
 	void loadData(String content, RequestHandler handler){
 		Database db;
 		try {
@@ -217,7 +178,6 @@ public class Wizard extends UI
 				wde.createAndPopulateInitialTable();
 			}
 			initDatabaseBrowser();
-		//	VaadinSession.getCurrent().removeRequestHandler(handler);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -231,23 +191,6 @@ public class Wizard extends UI
 		
 	}
 
-
-
-	private Window teachWindow(){
-		Window window = new Window("Moot");
-		window.setHeight("50%");
-		window.setWidth("50%");
-
-		window.center();
-		window.setClosable(false);
-		window.setDraggable(false);
-
-		window.setContent(new TextField("A Field"));
-
-		return window;
-
-	}
-	
 	@Deprecated
 	private void insert(CSVRecord record, String tableName){
 		TableQuery query = new TableQuery(tableName, connectionPool);
@@ -267,43 +210,6 @@ public class Wizard extends UI
 	}
 
 
-
-	private AbstractSplitPanel rightLayout(){
-		VerticalSplitPanel sqlPanel = new VerticalSplitPanel();
-		sqlPanel.setSplitPosition(80, Unit.PERCENTAGE);
-
-		sqlPanel.addComponent(contentList);
-
-
-		sqlPanel.addComponent(sqlExecutionFieldAndButton());
-
-		contentList.setSizeFull();
-		sqlField.setSizeFull();
-
-		return sqlPanel;
-
-	}
-
-	private AbstractSplitPanel sqlExecutionFieldAndButton(){
-		final HorizontalSplitPanel sqlSection = new HorizontalSplitPanel();
-		sqlSection.setSplitPosition(90, Unit.PERCENTAGE);
-		sqlSection.addComponent(sqlField);
-		sqlSection.addComponent(executeSqlButton);
-		executeSqlButton.addClickListener(new Button.ClickListener() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 8493137984105639401L;
-
-			public void buttonClick(ClickEvent event) {
-				runQuery(sqlField.getValue());
-				initContentList();
-			}
-		});
-		executeSqlButton.setSizeFull();
-		return sqlSection;
-	}
-
 	private Table leftLayout(){
 
 
@@ -312,9 +218,6 @@ public class Wizard extends UI
 		tablesList.setSelectable(true);
 		tablesList.addItemClickListener(new ItemClickListener() {
 
-			/**
-			 * 
-			 */
 			private static final long serialVersionUID = 6889129017259570441L;
 
 			@Override
@@ -331,20 +234,15 @@ public class Wizard extends UI
 	}
 
 	private void initLayout() {
-		HorizontalSplitPanel mainSplitPanel = new HorizontalSplitPanel();
-		mainSplitPanel.setSplitPosition(20, Unit.PERCENTAGE);
+		VerticalSplitPanel mainSplitPanel = new VerticalSplitPanel();
+		mainSplitPanel.setLocked(true);
+		mainSplitPanel.setSplitPosition(5, Unit.PERCENTAGE);
+		mainSplitPanel.addComponent(new MainMenu());
+		mainSplitPanel.addComponent(new DatabaseBrowser());
 		setContent(mainSplitPanel);
 
-		mainSplitPanel.addComponent(leftLayout());
-		mainSplitPanel.addComponent(rightLayout());
-
-		//addWindow(uploadWindow());
-
-		//addWindow(someWindow());
-
-		//addWindow(wranglerWindow());
-
-
+		//mainSplitPanel.addComponent(leftLayout());
+		//mainSplitPanel.addComponent(new QueryWindow());
 	}
 
 	private void initContentList() {
