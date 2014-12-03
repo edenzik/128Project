@@ -3,17 +3,15 @@
  */
 package com.wrangler.app;
 
-import java.sql.SQLException;
-
-import com.vaadin.shared.Position;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
+import com.wrangler.login.IncorrectPasswordException;
+import com.wrangler.login.LoginManager;
 import com.wrangler.login.User;
+import com.wrangler.login.UserNotFoundException;
 
 /**
  * @author edenzik
@@ -41,12 +39,13 @@ public class LoginWindow extends Window {
 	    submit.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				try {
-					user = new User(nameField.getValue(), passwordField.getValue());
+					LoginManager lm = new LoginManager();
+					user = lm.login(nameField.getValue(), passwordField.getValue());
 					close();
-				} catch (ClassNotFoundException e) {
+				} catch (UserNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (SQLException e) {
+				} catch (IncorrectPasswordException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

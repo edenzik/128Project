@@ -172,19 +172,13 @@ public class Wizard extends UI
 	void loadData(String content, RequestHandler handler){
 		Database db;
 		try {
-			db = new Database (HOST_IP, DB_NAME,DB_USER,DB_PASS);
-			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
+			//db = new Database (HOST_IP, DB_NAME,DB_USER,DB_PASS);
+			WrangledDataExtractor wde = new WrangledDataExtractor(content, null);
 			synchronized (this){
 				wde.createAndPopulateInitialTable();
 			}
 			initDatabaseBrowser();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
