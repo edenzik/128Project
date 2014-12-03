@@ -3,16 +3,17 @@
  */
 package com.wrangler.load;
 
+
 /**
  * @author kahliloppenheimer
  *
  */
 public class Host {
 	
-	private final String ip;
-	private final String port;
-	private final String role;
-	private final String pass;
+	private final String IP;
+	private final String PORT;
+	private final String ROLE;
+	private final String PASS;
 	
 	private static final String DEFAULT_IP = "104.236.17.70";
 	private static final String DEFAULT_PORT = "5432";
@@ -24,54 +25,47 @@ public class Host {
 	 * @param role
 	 * @param pass
 	 */
-	public Host(String hostIp, String port, String role, String pass) {
-		this.ip = hostIp;
-		this.port = port;
-		this.role = role;
-		this.pass = pass;
+	protected Host(String hostIp, String port, String role, String pass) {
+		this.IP = hostIp;
+		this.PORT = port;
+		this.ROLE = role;
+		this.PASS = pass;
+	}
+	
+	protected Host(String hostIp, String role, String pass) {
+		this(hostIp, DEFAULT_PORT, role, pass);
 	}
 	
 	/**
 	 * Creates a host object with the default specifications
 	 */
-	public Host() {
+	protected Host() {
 		this(DEFAULT_IP, DEFAULT_PORT, DEFAULT_ROLE, DEFAULT_PASS);
 	}
-	/**
-	 * Returns a new database for this host with the given dbName
-	 * 
-	 * TODO: Add instance control to make sure only one instance
-	 * of Database object for any given Database exists.
-	 * 
-	 * @param dbName
-	 * @return
-	 */
-	public Database createDatabase(String dbName) {
-		return new Database(dbName, this);
-	}
+
 	/**
 	 * @return the hostIp
 	 */
 	public String getIp() {
-		return ip;
+		return IP;
 	}
 	/**
 	 * @return the port
 	 */
 	public String getPort() {
-		return port;
+		return PORT;
 	}
 	/**
 	 * @return the role
 	 */
 	public String getRole() {
-		return role;
+		return ROLE;
 	}
 	/**
 	 * @return the pass
 	 */
 	public String getPass() {
-		return pass;
+		return PASS;
 	}
 
 }

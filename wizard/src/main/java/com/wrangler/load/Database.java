@@ -22,8 +22,10 @@ public class Database {
 	 * @param dbName
 	 * @param host
 	 * @param dbHelper
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
 	 */
-	protected Database(String dbName, Host host) {
+	protected Database(String dbName, Host host) throws ClassNotFoundException, SQLException {
 		this.dbName = dbName;
 		this.host = host;
 		this.dbHelper = new DBHelper(this);

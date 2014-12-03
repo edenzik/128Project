@@ -37,25 +37,10 @@ public class DBHelper {
 		this.db = db;
 		Class.forName("org.postgresql.Driver");
 		LOG.info("Initialized postgresql JDBC Driver");
-		String url = "jdbc:postgresql://" + db.getHost().getHostIp()() + "/" + db.getDbName();
-		conn = DriverManager.getConnection(url, db.getUser(), db.getPass());
+		String url = "jdbc:postgresql://" + db.getHost().getIp() + "/" + db.getDbName();
+		conn = DriverManager.getConnection(url, db.getHost().getRole(), db.getHost().getPass());
 		LOG.info("Connected to database at {}", url);
 		stmt = conn.createStatement();
-	}
-
-	/**
-	 * Creates a DB helper object with passed fields, rather than by constructing
-	 * Database object outside of the method.
-	 * 
-	 * @param hostIP
-	 * @param dbName
-	 * @param dbUser
-	 * @param dbPass
-	 * @throws ClassNotFoundException
-	 * @throws SQLException
-	 */
-	public DBHelper(String hostIP, String dbName, String dbUser, String dbPass) throws ClassNotFoundException, SQLException {
-		this(new Database(hostIP, dbName, dbUser, dbPass));
 	}
 
 	/**
@@ -120,17 +105,7 @@ public class DBHelper {
 		conn.close();
 	}
 	
-	/**
-	 * Returns true if the passed user_name exists in the given db
-	 * 
-	 * @param user_name
-	 * @return
-	 * @throws ClassNotFoundException
-	 * @throws SQLException
-	 */
-	public boolean userExists(String user_name) throws ClassNotFoundException, SQLException{
-		return exists("SELECT * FROM users WHERE email=" + "'" + user_name + "'");
-	}
+	
 
 	/**
 	 * Returns true if a given table exists and false if it does not
@@ -186,20 +161,7 @@ public class DBHelper {
 	public synchronized boolean createDatabase(String databaseName) {
 		return executeQuery("CREATE DATABASE " + databaseName)!=null;
 	}
-	
-	/**
-	 * Creates a new user
-	 * 
-	 * @param user to be created, their password
-	 * @return
-	 * @throws SQLException
-	 */
-	public synchronized boolean addUser(String userName, String userPassword) {
-		executeUpdate("INSERT INTO users VALUES('" +  userName + "', '" + userPassword + "')");
-		return true;
-	}
-	
-	
+
 
 	/**
 	 * Returns the number of tables for a given postgreSQL database

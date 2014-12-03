@@ -54,7 +54,13 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.Database;
+import com.wrangler.load.DatabaseFactory;
+import com.wrangler.load.Host;
+import com.wrangler.load.HostFactory;
+import com.wrangler.login.IncorrectPasswordException;
+import com.wrangler.login.LoginManager;
 import com.wrangler.login.User;
+import com.wrangler.login.UserNotFoundException;
 /**
  *
  * Created by edenzik on 11/27/14.
@@ -78,8 +84,8 @@ public class Wizard extends UI
 	private static String HOST_IP = "104.236.17.70";
 	private static String HOST_PORT = "5432";
 	private static String DB_NAME = "cosi128a";
-	private static String DB_USER = "kahlil";
-	private static String DB_PASS = "psswd";
+	private static String HOST_ROLE = "kahlil";
+	private static String HOST_PASS = "psswd";
 	private static String WRANGLER_URI = "/VAADIN/wrangler/index.html";
 	
 	private User user;
@@ -127,7 +133,8 @@ public class Wizard extends UI
 	    submit.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				try {
-					user = new User(emailField.getValue(), passwordField.getValue());
+					LoginManager lm = new LoginManager();
+					user = lm.login(emailField.getValue(), passwordField.getValue());
 					DB_NAME = user.getDB().getDbName();
 					Notification notification = new Notification("Welcome " + DB_NAME + "!");
 					notification.setDelayMsec(10);
@@ -139,6 +146,12 @@ public class Wizard extends UI
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UserNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IncorrectPasswordException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -312,7 +325,8 @@ public class Wizard extends UI
 	void loadData(String content){
 		Database db;
 		try {
-			db = new Database (HOST_IP, DB_NAME,DB_USER,DB_PASS);
+			Host host = HostFactory.createHost(HOST_IP, HOST_PORT, HOST_ROLE, HOST_PASS);
+			db = DatabaseFactory.createDatabase(DB_NAME, host);
 			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
 			wde.createAndPopulateInitialTable();
 		} catch (IOException e) {
@@ -460,7 +474,7 @@ public class Wizard extends UI
 		try {
 			connectionPool = new SimpleJDBCConnectionPool(
 					"org.postgresql.Driver",
-					"jdbc:postgresql://" + HOST_IP + ":" + HOST_PORT + "/" + DB_NAME, DB_USER, DB_PASS);
+					"jdbc:postgresql://" + HOST_IP + ":" + HOST_PORT + "/" + DB_NAME, HOST_ROLE, HOST_PASS);
 		} catch (SQLException e) {
 			showError("Couldn't create the connection pool!");
 			e.printStackTrace();
