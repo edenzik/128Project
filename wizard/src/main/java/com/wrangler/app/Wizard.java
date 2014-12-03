@@ -142,18 +142,10 @@ public class Wizard extends UI
 					notification.show(getPage());
 					window.close();
 					initCSVUpload();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (UserNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LOG.warn("", e);
 				} catch (IncorrectPasswordException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LOG.warn("", e);
 				}
 			}
 	    });
