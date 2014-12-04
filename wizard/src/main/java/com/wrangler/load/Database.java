@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class Database {
 	
 	// The name of this database
-	private final String dbName;
+	private final String name;
 	// The host of this db
 	private final Host host;
 	// Facilitates any actual interaction with the database
@@ -26,7 +26,7 @@ public class Database {
 	 * @throws ClassNotFoundException 
 	 */
 	protected Database(String dbName, Host host) throws ClassNotFoundException, SQLException {
-		this.dbName = dbName;
+		this.name = dbName;
 		this.host = host;
 		this.dbHelper = new DBHelper(this);
 	}
@@ -40,8 +40,8 @@ public class Database {
 	 * @throws SQLException
 	 */
 	boolean initialize() throws ClassNotFoundException, SQLException{
-		if (!getDbHelper().databaseExists(getDbName())) {
-			return getDbHelper().createDatabase(getDbName());
+		if (!getDbHelper().databaseExists(getName())) {
+			return getDbHelper().createDatabase(getName());
 		}
 		return false;
 	}
@@ -49,8 +49,8 @@ public class Database {
 	/**
 	 * @return the dbName
 	 */
-	public String getDbName() {
-		return dbName;
+	public String getName() {
+		return name;
 	}
 	/**
 	 * @return the dbHelper
@@ -65,6 +65,11 @@ public class Database {
 	public Host getHost() {
 		return host;
 	}
+	
+	@Override
+	public String toString() {
+		return getName();
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -73,7 +78,7 @@ public class Database {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((dbName == null) ? 0 : dbName.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((host == null) ? 0 : host.hashCode());
 		return result;
 	}
@@ -90,10 +95,10 @@ public class Database {
 		if (!(obj instanceof Database))
 			return false;
 		Database other = (Database) obj;
-		if (dbName == null) {
-			if (other.dbName != null)
+		if (name == null) {
+			if (other.name != null)
 				return false;
-		} else if (!dbName.equals(other.dbName))
+		} else if (!name.equals(other.name))
 			return false;
 		if (host == null) {
 			if (other.host != null)

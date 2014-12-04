@@ -30,6 +30,9 @@ public class Relation {
 	public String getName() {
 		return name;
 	}
+	public String getFullyQualifiedName() {
+		return String.format("%s.%s", getSourceDb(), getName());
+	}
 	/**
 	 * @return the attributes
 	 */
@@ -48,7 +51,7 @@ public class Relation {
 	 */
 	@Override
 	public String toString() {
-		return name;
+		return getName();
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

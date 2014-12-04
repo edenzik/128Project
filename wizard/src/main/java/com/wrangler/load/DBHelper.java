@@ -2,12 +2,10 @@ package com.wrangler.load;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -42,10 +40,12 @@ public class DBHelper {
 		
 		Class.forName("org.postgresql.Driver");
 		LOG.info("Initialized postgresql JDBC Driver");
-		String uri = "jdbc:postgresql://" + db.getHost().getIp() + "/" + db.getDbName();
+		String uri = "jdbc:postgresql://" + db.getHost().getIp() + "/" + db.getName();
 		pool = new SimpleJDBCConnectionPool("org.postgresql.Driver", uri, db.getHost().getRole(), db.getHost().getPass());
 		//conn = DriverManager.getConnection(uri, db.getHost().getRole(), db.getHost().getPass());
 		conn = pool.reserveConnection();
+		// Separates sql statements into multiple transactions
+		conn.setAutoCommit(true);
 		LOG.info("Connected to database at {}", uri);
 		stmt = conn.createStatement();
 	}
@@ -59,11 +59,9 @@ public class DBHelper {
 	public void executeUpdate(String query) {
 		try {
 			stmt.executeUpdate(query);
-			LOG.info(query);
+			LOG.info("{}: {}", getDb(), query);
 		} catch(SQLException e) {
-			LOG.info(query);
-//			LOG.error(updateQuery);
-//			LOG.error("", e);
+			LOG.error("Could not run update: {}", query, e);
 		}
 	}
 	
@@ -92,8 +90,7 @@ public class DBHelper {
 		try {
 			return stmt.executeQuery(query);
 		} catch (SQLException e) {
-			LOG.error(query);
-			e.printStackTrace();
+			LOG.error("Could not run query: {}", query, e);
 			return null;
 		}
 	}
