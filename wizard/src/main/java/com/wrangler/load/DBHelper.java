@@ -7,10 +7,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 
 /**
  * Class to abstract away from boilerplate of JDBC connection
@@ -19,7 +22,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DBHelper {
-
+	
+	private SimpleJDBCConnectionPool pool;
 	private Statement stmt;
 	private Connection conn;
 	private final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
@@ -35,11 +39,14 @@ public class DBHelper {
 	 */
 	public DBHelper(Database db) throws ClassNotFoundException, SQLException {
 		this.db = db;
+		
 		Class.forName("org.postgresql.Driver");
 		LOG.info("Initialized postgresql JDBC Driver");
-		String url = "jdbc:postgresql://" + db.getHost().getIp() + "/" + db.getDbName();
-		conn = DriverManager.getConnection(url, db.getHost().getRole(), db.getHost().getPass());
-		LOG.info("Connected to database at {}", url);
+		String uri = "jdbc:postgresql://" + db.getHost().getIp() + "/" + db.getDbName();
+		pool = new SimpleJDBCConnectionPool("org.postgresql.Driver", uri, db.getHost().getRole(), db.getHost().getPass());
+		//conn = DriverManager.getConnection(uri, db.getHost().getRole(), db.getHost().getPass());
+		conn = pool.reserveConnection();
+		LOG.info("Connected to database at {}", uri);
 		stmt = conn.createStatement();
 	}
 
@@ -49,7 +56,7 @@ public class DBHelper {
 	 * @param updateQuery update Query to be executed
 	 * @throws SQLException
 	 */
-	public synchronized void executeUpdate(String query) {
+	public void executeUpdate(String query) {
 		try {
 			stmt.executeUpdate(query);
 			LOG.info(query);
@@ -57,6 +64,19 @@ public class DBHelper {
 			LOG.info(query);
 //			LOG.error(updateQuery);
 //			LOG.error("", e);
+		}
+	}
+	
+	/**
+	 * Gets a list of all the tables in the specified schema
+	 * @return
+	 */
+	public ResultSet getTables(){
+		try {
+			return conn.getMetaData().getTables(null, "public", null, new String[] {"TABLE"});
+		} catch (SQLException e) {
+			LOG.error("Cannot get Metadata");
+			return null;
 		}
 	}
 
@@ -67,13 +87,13 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized ResultSet executeQuery(String query) {
+	public ResultSet executeQuery(String query) {
 		LOG.info(query);
 		try {
 			return stmt.executeQuery(query);
 		} catch (SQLException e) {
 			LOG.error(query);
-//			LOG.error("", e);
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -85,7 +105,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized boolean exists(String query) {
+	public boolean exists(String query) {
 		LOG.info(query);
 		try {
 			return stmt.executeQuery(query).next();
@@ -100,7 +120,7 @@ public class DBHelper {
 	 * 
 	 * @throws SQLException
 	 */
-	public synchronized void close() throws SQLException {
+	public void close() throws SQLException {
 		LOG.info("Closed database connection!");
 		conn.close();
 	}
@@ -114,7 +134,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized boolean tableExists(Relation rel) {
+	public boolean tableExists(Relation rel) {
 		try {
 			DatabaseMetaData dbm = conn.getMetaData();
 			ResultSet tables = dbm.getTables(null, null, rel.getName().toLowerCase(), null);
@@ -136,7 +156,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized boolean databaseExists(String databaseName) {
+	public boolean databaseExists(String databaseName) {
 		try {
 			DatabaseMetaData dbm = conn.getMetaData();
 			ResultSet databases = dbm.getCatalogs();
@@ -158,7 +178,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized boolean createDatabase(String databaseName) {
+	public boolean createDatabase(String databaseName) {
 		return executeQuery("CREATE DATABASE " + databaseName)!=null;
 	}
 
@@ -169,7 +189,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized int countTables() throws SQLException {
+	public int countTables() throws SQLException {
 		String countTablesQuery = "select count(*) from information_schema.tables;";
 		ResultSet rs = executeQuery(countTablesQuery);
 		rs.next();
@@ -225,6 +245,11 @@ public class DBHelper {
 		return attrSet;
 		
 	}
+	
+	/**
+	 * @return the JDBC connection pool
+	 */
+	public SimpleJDBCConnectionPool getPool(){return pool;}
 	
 }
 

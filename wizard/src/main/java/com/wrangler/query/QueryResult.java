@@ -3,7 +3,12 @@
  */
 package com.wrangler.query;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.vaadin.data.Container;
+import com.vaadin.data.util.sqlcontainer.SQLContainer;
+import com.vaadin.data.util.sqlcontainer.query.QueryDelegate;
 import com.vaadin.ui.Table;
 
 /**
@@ -13,10 +18,14 @@ import com.vaadin.ui.Table;
 public class QueryResult extends Table {
 
 	/**
+	 * @throws SQLException 
 	 * 
 	 */
 	public QueryResult() {
-		// TODO Auto-generated constructor stub
+		setSelectable(false);
+		setImmediate(true);
+		setSizeFull();
+
 	}
 
 }

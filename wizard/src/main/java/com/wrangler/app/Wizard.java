@@ -131,7 +131,6 @@ public class Wizard extends UI
 			@Override
 			public void windowClose(CloseEvent e) {
 				try {
-					System.out.println("HELLO");
 					window.getWrangler().loadData(user.getDB());
 				} catch (IOException e1) {
 					LOG.error("", e);
@@ -148,21 +147,6 @@ public class Wizard extends UI
 		initContentList();
 		initLayout();
 		initTablesList();
-	}
-
-	void loadData(String content){
-		try {
-			Database db = DatabaseFactory.createDatabase(DB_NAME, DEFAULT_HOST);
-			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
-			wde.createAndPopulateInitialTable();
-			initDatabaseBrowser();
-		} catch (IOException e) {
-			LOG.error("", e);
-		} catch (ClassNotFoundException e) {
-			LOG.error("", e);
-		} catch (SQLException e) {
-			LOG.error("", e);
-		}
 	}
 
 	@Deprecated
@@ -212,7 +196,7 @@ public class Wizard extends UI
 		mainSplitPanel.setLocked(true);
 		mainSplitPanel.setSplitPosition(5, Unit.PERCENTAGE);
 		mainSplitPanel.addComponent(new MainMenu());
-		mainSplitPanel.addComponent(new DatabaseBrowser());
+		mainSplitPanel.addComponent(new DatabaseBrowser(user.getDB()));
 		setContent(mainSplitPanel);
 
 		//mainSplitPanel.addComponent(leftLayout());

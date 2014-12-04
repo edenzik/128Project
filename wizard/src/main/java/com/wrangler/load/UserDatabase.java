@@ -49,7 +49,7 @@ public class UserDatabase extends Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized boolean addUser(String userName, String userPassword) {
+	public boolean addUser(String userName, String userPassword) {
 		getDbHelper().executeUpdate("INSERT INTO users VALUES('" +  userName + "', '" + userPassword + "')");
 		return true;
 	}
