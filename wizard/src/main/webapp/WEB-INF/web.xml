@@ -26,6 +26,10 @@
   <param-value>true</param-value>
 </context-param>
 
+<Configure id="WebAppContext" class="org.mortbay.jetty.webapp.WebAppContext">
+          <Set name="maxFormContentSize" type="int">600000</Set>
+  </Configure>
+
   <servlet-mapping>
     <servlet-name>myservlet</servlet-name>
     <url-pattern>/app/*</url-pattern>

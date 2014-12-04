@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.app;
+package com.wrangler.app.tool;
 
 import java.io.IOException;
 
@@ -26,7 +26,9 @@ import com.vaadin.ui.Button.ClickEvent;
  *
  */
 public class WranglerWindow extends Window {
-	private static final String URI = "/VAADIN/wrangler/index.html";
+	
+	private final DataWrangler wrangler;
+	
 
 	/**
 	 * 
@@ -40,26 +42,28 @@ public class WranglerWindow extends Window {
 		
 		Button submit = new Button("Submit");
 		submit.addClickListener(new Button.ClickListener() {
-			public void buttonClick(ClickEvent event) {close();}
+			public void buttonClick(ClickEvent event) {
+				wrangler.setRead();
+				if (wrangler.isDone()) close();
+			}
 		});
-
 		GridLayout buttonLayout = new GridLayout();
 		buttonLayout.addComponent(submit);
 		buttonLayout.setComponentAlignment(submit, Alignment.TOP_CENTER);
-		BrowserFrame browser = new BrowserFrame("",new ExternalResource(URI));
-		VerticalSplitPanel layout = new VerticalSplitPanel(browser, buttonLayout);
+		wrangler = new DataWrangler();
+		VerticalSplitPanel layout = new VerticalSplitPanel(wrangler, buttonLayout);
 		layout.setSplitPosition(90, Unit.PERCENTAGE);
 		layout.setLocked(true);
 		buttonLayout.setWidth("100%");
 		buttonLayout.setHeight("100%");
 		submit.setHeight(50, Unit.PERCENTAGE);
 		submit.setSizeUndefined();
-		browser.setWidth("100%");
-		browser.setHeight("100%");
+		wrangler.setWidth("100%");
+		wrangler.setHeight("100%");
 		layout.setSplitPosition(90, Unit.PERCENTAGE);
 		setContent(layout);
 	}
-
-
+	
+	public DataWrangler getWrangler(){return wrangler;}
 
 }

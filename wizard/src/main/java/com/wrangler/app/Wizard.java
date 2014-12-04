@@ -1,6 +1,14 @@
 package com.wrangler.app;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -36,6 +44,7 @@ import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
+import com.wrangler.app.tool.WranglerWindow;
 import com.wrangler.app.upload.CSVUpload;
 import com.wrangler.app.upload.UploadWindow;
 import com.wrangler.extract.WrangledDataExtractor;
@@ -44,6 +53,8 @@ import com.wrangler.load.DatabaseFactory;
 import com.wrangler.load.Host;
 import com.wrangler.load.HostFactory;
 import com.wrangler.login.User;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestException;
 /**
  *
  * Created by edenzik on 11/27/14.
@@ -55,7 +66,7 @@ public class Wizard extends UI
 
 	private static final long serialVersionUID = 8261547005973362262L;
 
-	@WebServlet(value = "/app/*", asyncSupported = true)
+	@WebServlet(value = "/app", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = Wizard.class)
 	public static class Servlet extends VaadinServlet {
 		private static final long serialVersionUID = 7869620340268929564L;
@@ -75,8 +86,6 @@ public class Wizard extends UI
 
 	private Table contentList = new Table();
 	private Table tablesList = new Table();
-	private TextArea sqlField = new TextArea();
-	private Button executeSqlButton = new Button("Run");
 
 	private SimpleJDBCConnectionPool connectionPool = null;
 
@@ -88,7 +97,6 @@ public class Wizard extends UI
 	protected void init(VaadinRequest request) {
 		initLogin();
 		//initCSVUpload();
-
 	}
 	
 	void initLogin(){
@@ -143,21 +151,8 @@ public class Wizard extends UI
 		window.addCloseListener(new Window.CloseListener() {
 			@Override
 			public void windowClose(CloseEvent e) {
-				RequestHandler handler = new RequestHandler(){
-					private static final long serialVersionUID = -5193766318144593205L;
-
-					public boolean handleRequest(VaadinSession session,
-							VaadinRequest request,
-							VaadinResponse response)
-									throws IOException {
-						if ("/allDone".equals(request.getPathInfo())) {
-							loadData(request.getParameter("CHART_VALUE"), this);
-							session.removeRequestHandler(this);
-							return true; // We wrote a response
-						} else return false;
-					}
-				};
-				VaadinSession.getCurrent().addRequestHandler(handler);
+				System.out.println("POOPO");
+				loadData(window.getWrangler().getResult().toString());
 			}
 		});
 	}
@@ -169,13 +164,12 @@ public class Wizard extends UI
 		initTablesList();
 	}
 
-	void loadData(String content, RequestHandler handler){
+	void loadData(String content){
+		System.out.println("REACHED!!");
 		try {
 			Database db = DatabaseFactory.createDatabase(DB_NAME, DEFAULT_HOST);
 			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);
-			synchronized (this){
-				wde.createAndPopulateInitialTable();
-			}
+			wde.createAndPopulateInitialTable();
 			initDatabaseBrowser();
 		} catch (IOException e) {
 			LOG.error("", e);
