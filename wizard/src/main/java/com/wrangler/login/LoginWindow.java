@@ -62,5 +62,5 @@ public class LoginWindow extends Window {
 	    setContent(form);
 	}
 	
-	User getUser(){return user;}
+	public User getUser(){return user;}
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.app;
+package com.wrangler.query;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
@@ -9,7 +9,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalSplitPanel;
-import com.wrangler.query.QueryWindow;
 
 /**
  * @author edenzik

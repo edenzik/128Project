@@ -44,7 +44,6 @@ import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
-import com.wrangler.app.wrangletool.WranglerWindow;
 import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.Database;
 import com.wrangler.load.DatabaseFactory;
@@ -52,8 +51,10 @@ import com.wrangler.load.Host;
 import com.wrangler.load.HostFactory;
 import com.wrangler.login.LoginWindow;
 import com.wrangler.login.User;
+import com.wrangler.query.DatabaseBrowser;
 import com.wrangler.upload.CSVUpload;
 import com.wrangler.upload.UploadWindow;
+import com.wrangler.wranglertool.WranglerWindow;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 /**

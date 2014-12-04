@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.app.wrangletool;
+package com.wrangler.wranglertool;
 
 import java.io.IOException;
 
