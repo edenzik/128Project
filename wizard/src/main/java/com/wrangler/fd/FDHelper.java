@@ -38,8 +38,9 @@ public class FDHelper {
 	 * 
 	 * @return set of all hard FDs
 	 * @throws TableNotFoundException if passed table does not exist in db
+	 * @throws SQLException 
 	 */
-	public Set<FunctionalDependency> findAllHardFds(Relation rel) throws TableNotFoundException {
+	public Set<FunctionalDependency> findAllHardFds(Relation rel) throws TableNotFoundException, SQLException {
 		Set<FunctionalDependency> hardFdSet = new HashSet<FunctionalDependency>();
 		// Check to see if table doesn't exist
 		if(!db.getDbHelper().tableExists(rel)) {
@@ -47,7 +48,13 @@ public class FDHelper {
 			throw new TableNotFoundException();
 		}
 
-		Set<Attribute> attrs = rel.getAttributes();
+		Set<Attribute> attrs;
+		try {
+			attrs = rel.getAttributes();
+		} catch (SQLException e) {
+			LOG.error("Could not access {}'s attributes", rel, e);
+			throw e;
+		}
 
 		// Check hard FDs for every possible pairing of atts
 		for(Attribute fromAtt : attrs) {

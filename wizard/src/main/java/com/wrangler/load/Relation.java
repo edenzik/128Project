@@ -11,7 +11,6 @@ import java.util.Set;
  */
 public class Relation {
 	private final String name;
-	private final Set<Attribute> attributes;
 	private final Database sourceDb;
 	/**
 	 * @param name
@@ -22,7 +21,6 @@ public class Relation {
 	protected Relation(String name, Database sourceDb) throws SQLException {
 		this.name = name;
 		this.sourceDb = sourceDb;
-		this.attributes = sourceDb.getDbHelper().getTableAttributes(this);
 	}
 	/**
 	 * @return the name
@@ -30,14 +28,18 @@ public class Relation {
 	public String getName() {
 		return name;
 	}
+	/**
+	 * @return dbName.relationName
+	 */
 	public String getFullyQualifiedName() {
 		return String.format("%s.%s", getSourceDb(), getName());
 	}
 	/**
 	 * @return the attributes
+	 * @throws SQLException 
 	 */
-	public Set<Attribute> getAttributes() {
-		return attributes;
+	public Set<Attribute> getAttributes() throws SQLException {
+		return sourceDb.getDbHelper().getTableAttributes(this);
 	}
 
 	/**
