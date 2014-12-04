@@ -79,7 +79,7 @@ public class WrangledDataExtractor {
 				wrangledData.add(tupleList);
 			}
 		}
-		LOG.debug("this.wrangledData = {}",wrangledData);
+		LOG.debug("Loading data...");
 		LOG.info("Finished reading input data into memory buffer!");
 		// Make sure we at least read in some non-header data
 		if(this.wrangledData.size() == 0) {

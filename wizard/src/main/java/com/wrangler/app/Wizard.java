@@ -131,6 +131,7 @@ public class Wizard extends UI
 			@Override
 			public void windowClose(CloseEvent e) {
 				try {
+					System.out.println("HELLO");
 					window.getWrangler().loadData(user.getDB());
 				} catch (IOException e1) {
 					LOG.error("", e);

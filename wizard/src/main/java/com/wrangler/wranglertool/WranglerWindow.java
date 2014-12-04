@@ -17,6 +17,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
@@ -42,14 +43,16 @@ public class WranglerWindow extends Window {
 		setDraggable(false);
 		center();
 		
-		Button submit = new Button("Submit");
+		final Button submit = new Button("Load");
+
+		GridLayout buttonLayout = new GridLayout();
 		submit.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				wrangler.setReady();
+				submit.setCaption("Done");
 				if (wrangler.isDone()) close();
 			}
 		});
-		GridLayout buttonLayout = new GridLayout();
 		buttonLayout.addComponent(submit);
 		buttonLayout.setComponentAlignment(submit, Alignment.TOP_CENTER);
 		wrangler = new DataWrangler();

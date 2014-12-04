@@ -8426,7 +8426,7 @@ dw.JSON = {};
 									success: function(data){
 										if (data==="TRUE") {
 											recievedUpload();
-											var chunkResult = dw.wrangler_export(table, {});
+											var chunkResult = chunkString(dw.wrangler_export(table, {}),20000);
 											for (var i = 0; i < chunkResult.length; i++) {
 												$.ajax(
 														{
