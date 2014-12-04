@@ -15,31 +15,34 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.wrangler.load.Database;
+import com.wrangler.login.User;
 
 /**
  * @author edenzik
  *
  */
 public class DatabaseBrowser extends HorizontalSplitPanel {
+	private final TablesList tablesList;
 
 	/**
 	 * @throws SQLException 
 	 * @throws UnsupportedOperationException 
 	 * 
 	 */
-	public DatabaseBrowser(Database db){
+	public DatabaseBrowser(User user){
 		initLayout();
-		TablesList tables = new TablesList(db);
-		final QueryWindow window = new QueryWindow(db);
-		addComponent(tables);
+		tablesList = new TablesList(user.getDB());
+		final QueryWindow window = new QueryWindow(user.getDB());
+		addComponent(tablesList);
 		addComponent(window);
 		
-		tables.addItemClickListener(new ItemClickListener() {
+		tablesList.addItemClickListener(new ItemClickListener() {
 			@Override
 			public void itemClick(ItemClickEvent event) {
 				window.displayQuery("SELECT * FROM " + event.getItem().getItemProperty("Table").getValue());
 			}
 		});
+		
 		
 		setSizeFull();
 	}
@@ -47,6 +50,10 @@ public class DatabaseBrowser extends HorizontalSplitPanel {
 	private void initLayout(){
 		setSplitPosition(20, Unit.PERCENTAGE);
 		setLocked(true);
+	}
+	
+	public void reload(){
+		tablesList.reload();
 	}
 
 }

@@ -44,6 +44,7 @@ public class Wizard extends UI {
 
 	@Override
 	protected void init(VaadinRequest request) {
+		//addWindow(new LoginWindow());
 		initLogin();
 	}
 
@@ -69,6 +70,8 @@ public class Wizard extends UI {
 			}
 		});
 	}
+	
+	private DatabaseBrowser browser;
 
 	void initWrangler() {
 		final WranglerWindow window = new WranglerWindow();
@@ -78,6 +81,7 @@ public class Wizard extends UI {
 			public void windowClose(CloseEvent e) {
 				try {
 					window.getWrangler().loadData(user.getDB());
+					browser.reload();
 				} catch (IOException e1) {
 					LOG.error("", e);
 					Notification.show("Failed to read. Please try again.",
@@ -91,8 +95,10 @@ public class Wizard extends UI {
 		VerticalSplitPanel mainSplitPanel = new VerticalSplitPanel();
 		mainSplitPanel.setLocked(true);
 		mainSplitPanel.setSplitPosition(5, Unit.PERCENTAGE);
-		mainSplitPanel.addComponent(new MainMenu());
-		mainSplitPanel.addComponent(new DatabaseBrowser(user.getDB()));
+		browser = new DatabaseBrowser(user);
+		mainSplitPanel.addComponent(new MainMenu(this));
+		mainSplitPanel.addComponent(browser);
 		setContent(mainSplitPanel);
 	}
+
 }
