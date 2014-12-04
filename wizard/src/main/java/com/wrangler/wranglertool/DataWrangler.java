@@ -12,6 +12,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.BrowserFrame;
+import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.Database;
 
 /**
@@ -59,6 +60,11 @@ public class DataWrangler extends BrowserFrame {
 			}
 		};
 		VaadinSession.getCurrent().addRequestHandler(handler);
+	}
+	
+	public void loadData(Database db) throws IOException{
+		WrangledDataExtractor wde = new WrangledDataExtractor(result.toString(), db);
+		wde.createAndPopulateInitialTable();
 	}
 
 	public StringBuffer getResult(){return result;}

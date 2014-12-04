@@ -130,7 +130,14 @@ public class Wizard extends UI
 		window.addCloseListener(new Window.CloseListener() {
 			@Override
 			public void windowClose(CloseEvent e) {
-				loadData(window.getWrangler().getResult().toString());
+				try {
+					window.getWrangler().loadData(user.getDB());
+				} catch (IOException e1) {
+					LOG.error("", e);
+					Notification.show("Failed to read. Please try again.",
+							e1.getMessage(),
+							Notification.Type.ERROR_MESSAGE);
+				}
 			}
 		});
 	}
