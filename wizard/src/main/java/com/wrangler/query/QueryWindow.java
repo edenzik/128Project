@@ -10,9 +10,12 @@ import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate;
 import com.vaadin.data.util.sqlcontainer.query.TableQuery;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.Button.ClickEvent;
 import com.wrangler.load.Database;
 import com.wrangler.query.QueryExecutionField;
 
@@ -22,18 +25,48 @@ import com.wrangler.query.QueryExecutionField;
  *
  */
 public class QueryWindow extends VerticalSplitPanel {
+	private final Database db;
+	private final QueryResult result;
 
 	/**
-	 * @throws SQLException 
+	 * 
 	 * 
 	 */
-	public QueryWindow(Database db) throws SQLException {
-		setSplitPosition(80, Unit.PERCENTAGE);
-		setLocked(true);
-		QueryResult result = new QueryResult();
-		result.setContainerDataSource(new SQLContainer(new FreeformQuery("SELECT * FROM table156",db.getDbHelper().getPool())));
+	public QueryWindow(Database db){
+		initLayout();
+		this.db = db;
+		result = new QueryResult();
+		
+		final QueryExecutionField field = new QueryExecutionField();
+		field.getButton().addClickListener(new Button.ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				displayQuery(field.getQuery());
+				
+			}
+		});
 		addComponent(result);
-		addComponent(new QueryExecutionField());
+		addComponent(field);
+		
 	}
+	
+	private void initLayout(){
+		setSplitPosition(90, Unit.PERCENTAGE);
+		setLocked(true);
+	}
+
+	void displayQuery(String sql){
+		try {
+			result.setContainerDataSource(new SQLContainer(new FreeformQuery(sql,db.getDbHelper().getPool())));
+		} catch (SQLException e) {
+			Notification.show("SQL Error!",
+					e.getMessage(),
+					Notification.Type.ERROR_MESSAGE);
+		}
+	}
+
+
+
+
 
 }

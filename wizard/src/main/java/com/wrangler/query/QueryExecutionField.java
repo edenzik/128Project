@@ -19,18 +19,23 @@ public class QueryExecutionField extends HorizontalSplitPanel {
 	 * 
 	 */
 	public QueryExecutionField() {
-		setSplitPosition(90, Unit.PERCENTAGE);
+		initLayout();
 		runQuery = new Button("Run");
 		runQuery.setSizeFull();
 		sqlField = new TextArea();
 		sqlField.setSizeFull();
 		addComponent(sqlField);
 		addComponent(runQuery);
+
+	}
+	
+	private void initLayout(){
+		setSplitPosition(93, Unit.PERCENTAGE);
 		setLocked(true);
 		setSizeFull();
 	}
 	
-	public TextArea getField(){return sqlField;}
-	public Button getButton(){return runQuery;}
+	String getQuery(){return sqlField.getValue();}
+	Button getButton(){return runQuery;}
 
 }

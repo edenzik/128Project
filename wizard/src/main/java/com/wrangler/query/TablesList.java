@@ -26,11 +26,11 @@ public class TablesList extends Table {
 	 * 
 	 */
 	public TablesList(Database db) {
-
+		initLayout();
 		this.db = db;
 		try {
 			ResultSet tables = db.getDbHelper().getTables();
-			addContainerProperty("Table", String.class, null);
+			
 			while (tables.next()) {
 				addItem(new String[]{tables.getString("TABLE_NAME")}, null);
 			}
@@ -41,9 +41,13 @@ public class TablesList extends Table {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+	}
+	
+	private void initLayout(){
+		addContainerProperty("Table", String.class, null);
 		setSelectable(true);
 		setImmediate(true);
 		setSizeFull();
-
 	}
 }

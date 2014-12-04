@@ -28,27 +28,25 @@ public class DatabaseBrowser extends HorizontalSplitPanel {
 	 * 
 	 */
 	public DatabaseBrowser(Database db){
-		setSplitPosition(20, Unit.PERCENTAGE);
-		setLocked(true);
-		QueryWindow window = null;
+		initLayout();
 		TablesList tables = new TablesList(db);
-		try {
-			window = new QueryWindow(db);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		final QueryWindow window = new QueryWindow(db);
 		addComponent(tables);
 		addComponent(window);
 		
 		tables.addItemClickListener(new ItemClickListener() {
 			@Override
 			public void itemClick(ItemClickEvent event) {
-				//window.
-				//initContentList();
+				window.displayQuery("SELECT * FROM " + event.getItem().getItemProperty("Table").getValue());
 			}
 		});
+		
 		setSizeFull();
+	}
+	
+	private void initLayout(){
+		setSplitPosition(20, Unit.PERCENTAGE);
+		setLocked(true);
 	}
 
 }
