@@ -96,13 +96,12 @@ public class WrangledDataExtractor {
 		Relation rel = null;
 		try {
 			rel = createInitialTable(this.wrangledData);
-			LOG.info("Created initial database table!");
 		} catch (IOException e) {
 			LOG.error("Failed to create table: {}", rel, e);
 		}
 		try {
 			populateInitialTable(rel);
-			LOG.info("Populated initial database table!");
+			LOG.info("Finished populating {}!", rel);
 		} catch(IOException e) {
 			LOG.error("Failed to populate table: {}", rel, e);
 		} 
