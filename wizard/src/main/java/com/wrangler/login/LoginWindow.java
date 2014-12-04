@@ -1,18 +1,15 @@
 /**
  * 
  */
-package com.wrangler.app;
+package com.wrangler.login;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
-import com.wrangler.login.IncorrectPasswordException;
-import com.wrangler.login.LoginManager;
-import com.wrangler.login.User;
-import com.wrangler.login.UserNotFoundException;
 
 /**
  * @author edenzik
@@ -30,9 +27,8 @@ public class LoginWindow extends Window {
 		FormLayout form = new FormLayout();
 		final TextField nameField = new TextField("Username");
 		form.addComponent(nameField);
-	    final TextField passwordField = new TextField("Password");
+	    final PasswordField passwordField = new PasswordField("Password");
 	    form.addComponent(passwordField);
-	    
 	    
 	    Button submit = new Button("Login");
 	    form.addComponent(submit);

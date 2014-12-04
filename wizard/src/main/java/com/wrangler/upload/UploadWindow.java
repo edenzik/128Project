@@ -1,12 +1,14 @@
 /**
  * 
  */
-package com.wrangler.app.upload;
+package com.wrangler.upload;
 
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FinishedEvent;
+import com.vaadin.ui.Upload.SucceededEvent;
 
 /**
  * @author edenzik

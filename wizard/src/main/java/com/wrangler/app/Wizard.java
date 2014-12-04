@@ -44,15 +44,16 @@ import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
-import com.wrangler.app.tool.WranglerWindow;
-import com.wrangler.app.upload.CSVUpload;
-import com.wrangler.app.upload.UploadWindow;
+import com.wrangler.app.wrangletool.WranglerWindow;
 import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.Database;
 import com.wrangler.load.DatabaseFactory;
 import com.wrangler.load.Host;
 import com.wrangler.load.HostFactory;
+import com.wrangler.login.LoginWindow;
 import com.wrangler.login.User;
+import com.wrangler.upload.CSVUpload;
+import com.wrangler.upload.UploadWindow;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 /**
@@ -96,7 +97,6 @@ public class Wizard extends UI
 	@Override
 	protected void init(VaadinRequest request) {
 		initLogin();
-		//initCSVUpload();
 	}
 	
 	void initLogin(){
@@ -115,32 +115,10 @@ public class Wizard extends UI
 	void initUpload(){
 		UploadWindow uploadWindow = new UploadWindow();
 		addWindow(uploadWindow);
-		final CSVUpload upload = uploadWindow.getUploader();
-		upload.addSucceededListener(new Upload.SucceededListener() {
+		uploadWindow.addCloseListener(new Window.CloseListener() {
 			@Override
-			public void uploadSucceeded(SucceededEvent event) {
+			public void windowClose(CloseEvent e) {
 				initWrangler();
-			}
-		});
-		upload.addFailedListener(new Upload.FailedListener() {
-			@Override
-			public void uploadFailed(FailedEvent event) {
-				initUpload();
-			}
-		});
-		VaadinSession.getCurrent().addRequestHandler(new RequestHandler() {
-			@Override
-			public boolean handleRequest(VaadinSession session,
-					VaadinRequest request,
-					VaadinResponse response)
-							throws IOException {
-				if ("/csvUpload".equals(request.getPathInfo())) {
-					response.setContentType("text/plain");
-					response.getWriter().append(upload.getOutputStream().toString());
-					return true; // We wrote a response
-				} else {
-					return false; // No response was written
-				}
 			}
 		});
 	}
@@ -151,7 +129,6 @@ public class Wizard extends UI
 		window.addCloseListener(new Window.CloseListener() {
 			@Override
 			public void windowClose(CloseEvent e) {
-				System.out.println("POOPO");
 				loadData(window.getWrangler().getResult().toString());
 			}
 		});
@@ -165,7 +142,6 @@ public class Wizard extends UI
 	}
 
 	void loadData(String content){
-		System.out.println("REACHED!!");
 		try {
 			Database db = DatabaseFactory.createDatabase(DB_NAME, DEFAULT_HOST);
 			WrangledDataExtractor wde = new WrangledDataExtractor(content, db);

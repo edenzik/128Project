@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.app.tool;
+package com.wrangler.app.wrangletool;
 
 import java.io.IOException;
 
@@ -12,6 +12,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.BrowserFrame;
+import com.wrangler.load.Database;
 
 /**
  * @author edenzik
@@ -19,16 +20,23 @@ import com.vaadin.ui.BrowserFrame;
  */
 public class DataWrangler extends BrowserFrame {
 
-	private StringBuilder result = new StringBuilder();
-	private boolean read = false;
+	private StringBuffer result = new StringBuffer();
+	private boolean ready = false;
 	private boolean done = false;
 	private static final String URI = "/VAADIN/wrangler/index.html";
 
 	/**
+	 * This is the embedded Browser Window of data Wrangler
+	 * Serves as a listener for requests - using GET and POST to communicate with
+	 * the front end.
+	 * isReady -> Backend issues a POST to front end "TRUE"
+	 * sendData -> Front end sends CSV data in chunks in response to that address
+	 * allDone -> Front end indicates its done submitting
 	 * 
 	 */
-	public DataWrangler() {
+	DataWrangler() {
 		super("", new ExternalResource(URI));
+		
 		RequestHandler handler = new RequestHandler(){
 			private static final long serialVersionUID = -5193766318144593205L;
 
@@ -36,26 +44,26 @@ public class DataWrangler extends BrowserFrame {
 					VaadinRequest request,
 					VaadinResponse response)
 							throws IOException {
-				if ("/isDone".equals(request.getPathInfo())) {
+				if ("/isReady".equals(request.getPathInfo())) {
 					response.setContentType("text/plain");
-					if (read) response.getWriter().append("TRUE");
+					if (ready) response.getWriter().append("TRUE");
 					else response.getWriter().append("FALSE");
-					return true; // We wrote a response
+					return true;
+				} if ("/sendData".equals(request.getPathInfo())) {
+					result.append(request.getParameter("CHART_VALUE"));
+					return true;
 				} if ("/allDone".equals(request.getPathInfo())) {
-					String item = request.getParameter("CHART_VALUE");
-					System.out.println(item);
-					if (item.contains((Long.toString(serialVersionUID)))) done = true;
-					result.append(item);
-					return true; // We wrote a response
+					done = true;
+					return true;
 				} else return false;
 			}
 		};
 		VaadinSession.getCurrent().addRequestHandler(handler);
 	}
 
-	public StringBuilder getResult(){return result;}
+	public StringBuffer getResult(){return result;}
 	
-	void setRead(){read = true;}
+	void setReady(){ready = true;}
 	
 	boolean isDone(){return done;}
 }

@@ -1,13 +1,13 @@
 /**
  * 
  */
-package com.wrangler.app.query;
+package com.wrangler.query;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.VerticalSplitPanel;
-import com.wrangler.app.query.QueryExecutionField;
+import com.wrangler.query.QueryExecutionField;
 
 /**
  * Main window containing the table panel and the running panel

@@ -9,7 +9,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalSplitPanel;
-import com.wrangler.app.query.QueryWindow;
+import com.wrangler.query.QueryWindow;
 
 /**
  * @author edenzik

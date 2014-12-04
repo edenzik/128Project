@@ -8403,65 +8403,63 @@ dw.JSON = {};
 
 
 						function chunkString(str, len) {
-							  var _size = Math.ceil(str.length/len),
-							      _ret  = new Array(_size),
-							      _offset
-							  ;
+							var _size = Math.ceil(str.length/len),
+							_ret  = new Array(_size),
+							_offset
+							;
 
-							  for (var _i=0; _i<_size; _i++) {
-							    _offset = _i * len;
-							    _ret[_i] = str.substring(_offset, _offset + len);
-							  }
-
-							  return _ret;
+							for (var _i=0; _i<_size; _i++) {
+								_offset = _i * len;
+								_ret[_i] = str.substring(_offset, _offset + len);
 							}
 
+							return _ret;
+						}
 
-										var uploadInterval;
 
-										function waitForUpload(){
-											uploadInterval = setInterval(function() {
-												$.ajax({
-															url: "/app/isDone",
-															success: function(data){
-																if (data==="TRUE") {
-																	recievedUpload();
-																	var chunkResult = chunkString(dw.wrangler_export(table, {}), 1000);
-																	for (var i = 0; i < chunkResult.length; i++) {
-																		$.ajax(
-																				{
-																					type : "POST",
-																					url  :"/app/allDone",
-																					data : {"CHART_VALUE": chunkResult[i]},
-																					dataType : "json"
-																				});
-																	};
-																	$.ajax(
-																		{
-																			type : "POST",
-																			url  :"/app/allDone",
-																			data : {"CHART_VALUE": "-5193766318144593205L"},
-																			dataType : "json"
-																		});
-																	alert("TADA!!");
-																}
-															}
-														})
-													}, 1000);
+						var uploadInterval;
+
+						function waitForUpload(){
+							uploadInterval = setInterval(function() {
+								$.ajax({
+									url: "/app/isReady",
+									success: function(data){
+										if (data==="TRUE") {
+											recievedUpload();
+											var chunkResult = dw.wrangler_export(table, {});
+											for (var i = 0; i < chunkResult.length; i++) {
+												$.ajax(
+														{
+															type : "POST",
+															url  :"/app/sendData",
+															data : {"CHART_VALUE": chunkResult[i]},
+															dataType : "json"
+														});
+											};
+											$.ajax(
+													{
+														type : "POST",
+														url  :"/app/allDone",
+														data : {"CHART_VALUE": "-5193766318144593205L"},
+														dataType : "json"
+													});
 										}
+									}
+								})
+							}, 1000);
+						}
 
-										function recievedUpload(){
-											clearInterval(uploadInterval);
-											alert("Interval Cleared!!");
-										}
+						function recievedUpload(){
+							clearInterval(uploadInterval);
+						}
 
-										waitForUpload();
+						waitForUpload();
 
-										
-										
-										
-										
-										
-										
+
+
+
+
+
+
 						return wrangler;
 					}

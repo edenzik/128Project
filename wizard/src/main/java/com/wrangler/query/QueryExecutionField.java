@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.app.query;
+package com.wrangler.query;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalSplitPanel;

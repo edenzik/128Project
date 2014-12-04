@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.app.query;
+package com.wrangler.query;
 
 import com.vaadin.data.Container;
 import com.vaadin.ui.Table;

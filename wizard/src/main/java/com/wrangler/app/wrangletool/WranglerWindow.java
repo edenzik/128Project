@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.app.tool;
+package com.wrangler.app.wrangletool;
 
 import java.io.IOException;
 
@@ -31,6 +31,8 @@ public class WranglerWindow extends Window {
 	
 
 	/**
+	 * This is the actual window for data wrangler
+	 * Adds button to close this window when the CSV is done uploading
 	 * 
 	 */
 	public WranglerWindow() {
@@ -43,7 +45,7 @@ public class WranglerWindow extends Window {
 		Button submit = new Button("Submit");
 		submit.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				wrangler.setRead();
+				wrangler.setReady();
 				if (wrangler.isDone()) close();
 			}
 		});
