@@ -26,7 +26,7 @@ public class TableSelection extends ComboBox {
 	public TableSelection(Database db) {
 		addContainerProperty("Table", Relation.class, null);
 		setFilteringMode(FilteringMode.CONTAINS);
-		db.getDbHelper().getTables();
+		db.getDbHelper().getRelations();
 		Set<Relation> relations = null;
 		this.addItems(relations);
 	}
