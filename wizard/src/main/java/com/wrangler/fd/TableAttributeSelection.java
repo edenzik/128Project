@@ -38,7 +38,7 @@ public class TableAttributeSelection extends VerticalSplitPanel {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				try {
-					atable.fill(user.getDB().getDbHelper().getTableAttributes(RelationFactory.createRelation((String) event.getProperty().getValue(), user.getDB())));
+					atable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createRelation((String) event.getProperty().getValue(), user.getDB())));
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

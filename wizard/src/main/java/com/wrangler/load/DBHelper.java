@@ -87,7 +87,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public Set<Relation> getTables() {
+	public Set<Relation> getRelations() {
 		Connection conn = null;
 		try {
 			Set<Relation> tableSet = new LinkedHashSet<Relation>();
@@ -155,9 +155,9 @@ public class DBHelper {
 	 * 
 	 * @throws SQLException
 	 */
-	public void close() throws SQLException {
-		LOG.info("Closed database connection!");
+	public void close() {
 		pool.destroy();
+		LOG.info("Closed database connection!");
 	}
 
 
@@ -167,9 +167,8 @@ public class DBHelper {
 	 * 
 	 * @param rel
 	 * @return
-	 * @throws SQLException
 	 */
-	public boolean tableExists(Relation rel) throws SQLException {
+	public boolean tableExists(Relation rel) {
 		Connection conn = null;
 		try {
 			conn = getConnection();
@@ -181,7 +180,8 @@ public class DBHelper {
 			}
 		}
 		catch(SQLException e) {
-			throw e;
+			LOG.error("Could not check if table exists!\n", e);
+			return false;
 		} finally {
 			pool.releaseConnection(conn);
 		}
@@ -255,8 +255,8 @@ public class DBHelper {
 		try {
 			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
 			Relation rel = RelationFactory.createRelation("table154", db);
-			System.out.println(db.getDbHelper().getTables());
-			Set<Attribute> attrs = db.getDbHelper().getTableAttributes(rel);
+			System.out.println(db.getDbHelper().getRelations());
+			Set<Attribute> attrs = db.getDbHelper().getRelationAttributes(rel);
 			System.out.println(attrs);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -274,7 +274,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public Set<Attribute> getTableAttributes(Relation rel) throws SQLException {
+	public Set<Attribute> getRelationAttributes(Relation rel) throws SQLException {
 		Set<Attribute> attrSet = new LinkedHashSet<Attribute>();
 
 		Connection conn = getConnection();

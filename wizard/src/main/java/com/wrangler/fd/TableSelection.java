@@ -23,7 +23,7 @@ public class TableSelection extends ComboBox {
 		this.setHeight(90, Unit.PERCENTAGE);
 		addContainerProperty("Table", Relation.class, null);
 		setFilteringMode(FilteringMode.CONTAINS);
-		Set<Relation> relations = db.getDbHelper().getTables();
+		Set<Relation> relations = db.getDbHelper().getRelations();
 		this.addItems(relations);
 	}
 	

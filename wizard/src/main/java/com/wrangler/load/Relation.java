@@ -39,7 +39,7 @@ public class Relation {
 	 * @throws SQLException 
 	 */
 	public Set<Attribute> getAttributes() throws SQLException {
-		return sourceDb.getDbHelper().getTableAttributes(this);
+		return sourceDb.getDbHelper().getRelationAttributes(this);
 	}
 
 	/**
