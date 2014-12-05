@@ -17,6 +17,7 @@ public class TablesList extends Table {
 
 	/**
 	 * Gets the list of tables in this database schema
+	 * Dynamically reloads.
 	 * @throws SQLException 
 	 * @throws UnsupportedOperationException 
 	 * 

@@ -1,6 +1,5 @@
 package com.wrangler.app;
 
-import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,18 +8,10 @@ import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalSplitPanel;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
 import com.wrangler.load.Host;
 import com.wrangler.load.HostFactory;
 import com.wrangler.login.LoginWindow;
-import com.wrangler.login.User;
-import com.wrangler.query.DatabaseBrowser;
-import com.wrangler.upload.UploadWindow;
-import com.wrangler.wranglertool.WranglerWindow;
 /**
  *
  * Created by edenzik on 11/27/14.
