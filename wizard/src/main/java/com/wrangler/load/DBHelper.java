@@ -41,6 +41,7 @@ public class DBHelper {
 		Class.forName("org.postgresql.Driver");
 		LOG.info("Initialized postgresql JDBC Driver");
 		String uri = "jdbc:postgresql://" + db.getHost().getIp() + "/" + db.getName();
+		LOG.info("Connecting to {}", uri);
 		pool = new SimpleJDBCConnectionPool("org.postgresql.Driver", uri, db.getHost().getRole(), db.getHost().getPass());
 		//conn = DriverManager.getConnection(uri, db.getHost().getRole(), db.getHost().getPass());
 		conn = pool.reserveConnection();

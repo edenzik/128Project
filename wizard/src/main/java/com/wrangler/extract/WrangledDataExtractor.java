@@ -37,7 +37,7 @@ public class WrangledDataExtractor {
 	public WrangledDataExtractor(String inputData, Database db) throws IOException {
 		this.headers = new ArrayList<String>();
 		this.wrangledData = new ArrayList<List<String>>();
-		loadInputStream(inputData, headers, wrangledData);
+		loadInputData(inputData, headers, wrangledData);
 		this.db = db;
 	}
 
@@ -50,7 +50,8 @@ public class WrangledDataExtractor {
 	 * @return
 	 * @throws IOException
 	 */
-	private void loadInputStream(String inputData, List<String> colNames, List<List<String>> wrangledData) throws IOException {
+	private void loadInputData(String inputData, List<String> colNames, List<List<String>> wrangledData) throws IOException {
+		LOG.trace("Input data = \n{}", inputData);
 		LOG.info("Reading input data into memory buffer...");
 		CSVParser parser = CSVParser.parse(inputData, CSVFormat.DEFAULT);
 		for (CSVRecord tuple : parser.getRecords()){
@@ -90,20 +91,19 @@ public class WrangledDataExtractor {
 	/**
 	 * Creates the initial table with inferred types and populates it
 	 * with all of the passed data.
+	 * @throws CSVFormatException 
 	 * 
 	 */
 	public void createAndPopulateInitialTable() {
 		Relation rel = null;
 		try {
 			rel = createInitialTable(this.wrangledData);
-		} catch (IOException e) {
-			LOG.error("Failed to create table: {}", rel, e);
-		}
-		try {
 			populateInitialTable(rel);
 			LOG.info("Finished populating {}!", rel);
 		} catch(IOException e) {
 			LOG.error("Failed to populate table: {}", rel, e);
+		} catch (CSVFormatException e) {
+			LOG.error("", e);
 		} 
 	}
 
@@ -113,9 +113,9 @@ public class WrangledDataExtractor {
 	 * 
 	 * @param wrangledData
 	 * @return
-	 * @throws IOException
+	 * @throws CSVFormatException 
 	 */
-	private Relation createInitialTable(List<List<String>> wrangledData) throws IOException {
+	private Relation createInitialTable(List<List<String>> wrangledData) throws CSVFormatException {
 		Relation rel = null;
 		// Now we need to figure out a unique name for this new table
 		try {
@@ -161,14 +161,21 @@ public class WrangledDataExtractor {
 	 * @param headers
 	 * @param wrangledData
 	 * @return
-	 * @throws IOException
+	 * @throws CSVFormatException 
 	 */
-	private Map<String, List<String>> getSampleValues(List<String> headers, List<List<String>> wrangledData) throws IOException {
+	private Map<String, List<String>> getSampleValues(List<String> headers, List<List<String>> wrangledData) throws CSVFormatException{
 		LOG.info("Starting to gather sample values from the data...");
 		Map<String, List<String>> headersToSampleValues = new LinkedHashMap<String, List<String>>();
 		// Go through each line (tuple) and adds each attribute value to our map
 		// with the proper corresponding header
 		for(List<String> nextTuple: wrangledData) {
+			// Make sure each tuple has the right number of elements
+			if(nextTuple.size() != headers.size()) {
+				String errorMsg = String.format("Number of values in tuple {} does not match schema {}", nextTuple, headers);
+				CSVFormatException e = new CSVFormatException(errorMsg);
+				LOG.error("", e);
+				throw e;
+			}
 			for(int i = 0; i < nextTuple.size(); ++i) {
 				String key = headers.get(i);
 				String value = nextTuple.get(i);
