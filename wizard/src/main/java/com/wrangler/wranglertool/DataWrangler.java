@@ -12,8 +12,11 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.BrowserFrame;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.Database;
+import com.wrangler.login.User;
 
 /**
  * @author edenzik
@@ -35,7 +38,7 @@ public class DataWrangler extends BrowserFrame {
 	 * allDone -> Front end indicates its done submitting
 	 * 
 	 */
-	DataWrangler() {
+	DataWrangler(UI ui, final User user) {
 		super("", new ExternalResource(URI));
 		
 		RequestHandler handler = new RequestHandler(){
@@ -54,6 +57,7 @@ public class DataWrangler extends BrowserFrame {
 					result.append(request.getParameter("CHART_VALUE"));
 					return true;
 				} if ("/allDone".equals(request.getPathInfo())) {
+					loadData(user.getDB());
 					done = true;
 					return true;
 				} else return false;
@@ -69,7 +73,6 @@ public class DataWrangler extends BrowserFrame {
 	
 	String getResult(){return result.toString();}
 
-	
 	void setReady(){ready = true;}
 	
 	boolean isDone(){return done;}

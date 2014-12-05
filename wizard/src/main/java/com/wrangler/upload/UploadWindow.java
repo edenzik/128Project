@@ -3,12 +3,15 @@
  */
 package com.wrangler.upload;
 
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FinishedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
+import com.wrangler.login.User;
+import com.wrangler.wranglertool.WranglerWindow;
 
 /**
  * @author edenzik
@@ -20,7 +23,7 @@ public class UploadWindow extends Window {
 	/**
 	 * 
 	 */
-	public UploadWindow() {
+	public UploadWindow(final UI ui, final User user) {
 		setCaption("Upload CSV here");
 		setDraggable(false);
 		setResizable(false);
@@ -33,7 +36,11 @@ public class UploadWindow extends Window {
 		layout.addComponent(uploader);
 		uploader.addFinishedListener(new Upload.FinishedListener() {
 			@Override
-			public void uploadFinished(FinishedEvent event) {close();}});
+			public void uploadFinished(FinishedEvent event) {
+				close();
+				ui.addWindow(new WranglerWindow(ui, user));
+			}
+		});
 		setContent(layout);
 	}
 	

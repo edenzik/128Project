@@ -1,18 +1,10 @@
-/**
- * 
- */
 package com.wrangler.query;
 
 import java.sql.SQLException;
 
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
-import com.vaadin.data.util.sqlcontainer.query.QueryDelegate;
-import com.vaadin.data.util.sqlcontainer.query.TableQuery;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Button.ClickEvent;
@@ -29,7 +21,7 @@ public class QueryWindow extends VerticalSplitPanel {
 	private final QueryResult result;
 
 	/**
-	 * 
+	 * A window letteing the user input a query
 	 * 
 	 */
 	public QueryWindow(Database db){
@@ -64,9 +56,4 @@ public class QueryWindow extends VerticalSplitPanel {
 					Notification.Type.ERROR_MESSAGE);
 		}
 	}
-
-
-
-
-
 }
