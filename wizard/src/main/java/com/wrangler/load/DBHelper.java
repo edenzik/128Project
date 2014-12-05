@@ -83,16 +83,26 @@ public class DBHelper {
 
 	/**
 	 * Gets a list of all the tables in the specified schema
+	 * 
 	 * @return
 	 * @throws SQLException 
 	 */
-	public ResultSet getTables() throws SQLException{
+	public Set<Relation> getTables() {
 		Connection conn = null;
 		try {
+			Set<Relation> tableSet = new LinkedHashSet<Relation>();
 			conn = getConnection();
-			return conn.getMetaData().getTables(null, "public", null, new String[] {"TABLE"});
+			DatabaseMetaData m = conn.getMetaData();
+			ResultSet tableRS = m.getTables(null, "public", "%", new String[] {"TABLE"} );
+			while(tableRS.next()) {
+				String tableName = tableRS.getString(3);
+				Relation rel = RelationFactory.createRelation(tableName, getDb());
+				tableSet.add(rel);
+			}
+			return tableSet;
 		} catch (SQLException e) {
-			throw e;
+			LOG.error("Could not retrieve tables!\n", e);
+			return null;
 		} finally {
 			pool.releaseConnection(conn);
 		}
@@ -245,6 +255,7 @@ public class DBHelper {
 		try {
 			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
 			Relation rel = RelationFactory.createRelation("table154", db);
+			System.out.println(db.getDbHelper().getTables());
 			Set<Attribute> attrs = db.getDbHelper().getTableAttributes(rel);
 			System.out.println(attrs);
 		} catch (ClassNotFoundException e) {
