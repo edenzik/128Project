@@ -4,14 +4,17 @@
 package com.wrangler.fd;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.wrangler.load.Database;
 import com.wrangler.load.Relation;
+import com.wrangler.load.RelationFactory;
 import com.wrangler.login.User;
 
 /**
@@ -24,7 +27,8 @@ public class TableAttributeSelection extends VerticalSplitPanel {
 	/**
 	 * 
 	 */
-	public TableAttributeSelection(User user) {
+	public TableAttributeSelection(final User user) {
+		
 		initLayout();
 		TableSelection cbox = new TableSelection(user.getDB());
 		final AttributeTable atable = new AttributeTable();
@@ -33,7 +37,12 @@ public class TableAttributeSelection extends VerticalSplitPanel {
 			
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				//atable.fill(user.getDB().getDbHelper().getTableAttributes(new event.getProperty().getValue()));
+				try {
+					atable.fill(user.getDB().getDbHelper().getTableAttributes(RelationFactory.createRelation((String) event.getProperty().getValue(), user.getDB())));
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 			}
 		});
@@ -43,7 +52,7 @@ public class TableAttributeSelection extends VerticalSplitPanel {
 	
 	
 	private void initLayout(){
-		setSplitPosition(10, Unit.PERCENTAGE);
+		setSplitPosition(8, Unit.PERCENTAGE);
 		setLocked(true);
 	}
 

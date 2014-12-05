@@ -3,12 +3,8 @@
  */
 package com.wrangler.fd;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Set;
 
-import com.vaadin.data.Container;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.ComboBox;
 import com.wrangler.load.Database;
@@ -24,10 +20,10 @@ public class TableSelection extends ComboBox {
 	 * 
 	 */
 	public TableSelection(Database db) {
+		this.setHeight(90, Unit.PERCENTAGE);
 		addContainerProperty("Table", Relation.class, null);
 		setFilteringMode(FilteringMode.CONTAINS);
-		db.getDbHelper().getTables();
-		Set<Relation> relations = null;
+		Set<Relation> relations = db.getDbHelper().getTables();
 		this.addItems(relations);
 	}
 	

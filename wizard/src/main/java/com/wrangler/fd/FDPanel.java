@@ -20,11 +20,12 @@ public class FDPanel extends HorizontalSplitPanel {
 	 * 
 	 */
 	public FDPanel(User user) {
+		initLayout();
 		addComponent(new TableAttributeSelection(user));
 	}
 	
 	private void initLayout(){
-		setSplitPosition(20, Unit.PERCENTAGE);
+		setSplitPosition(10, Unit.PERCENTAGE);
 		setLocked(true);
 	}
 
