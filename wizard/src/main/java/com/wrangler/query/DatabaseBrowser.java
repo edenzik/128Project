@@ -1,20 +1,10 @@
-/**
- * 
- */
 package com.wrangler.query;
 
 import java.sql.SQLException;
 
-import com.vaadin.data.util.sqlcontainer.query.TableQuery;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.VerticalSplitPanel;
-import com.wrangler.load.Database;
 import com.wrangler.login.User;
 
 /**
@@ -25,6 +15,8 @@ public class DatabaseBrowser extends HorizontalSplitPanel {
 	private final TablesList tablesList;
 
 	/**
+	 * The main browser for browsing the database, includes a tables list
+	 * on the left and the componenets to view a table on the right.
 	 * @throws SQLException 
 	 * @throws UnsupportedOperationException 
 	 * 
@@ -42,8 +34,6 @@ public class DatabaseBrowser extends HorizontalSplitPanel {
 				window.displayQuery("SELECT * FROM " + event.getItem().getItemProperty("Table").getValue());
 			}
 		});
-		
-		
 		setSizeFull();
 	}
 	

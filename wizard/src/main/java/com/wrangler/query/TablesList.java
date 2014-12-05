@@ -5,10 +5,6 @@ package com.wrangler.query;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Table;
 import com.wrangler.load.Database;
 
@@ -21,6 +17,7 @@ public class TablesList extends Table {
 
 	/**
 	 * Gets the list of tables in this database schema
+	 * Dynamically reloads.
 	 * @throws SQLException 
 	 * @throws UnsupportedOperationException 
 	 * 
