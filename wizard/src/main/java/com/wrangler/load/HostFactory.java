@@ -1,7 +1,12 @@
 package com.wrangler.load;
 
-public class HostFactory {
+public final class HostFactory {
 	
+	// Used to enforce non-instantiability
+	private HostFactory() {
+		throw new AssertionError();
+	}
+
 	/**
 	 * Creates a host with the passed parameters
 	 * 

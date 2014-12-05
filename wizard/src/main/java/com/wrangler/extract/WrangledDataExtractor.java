@@ -90,21 +90,28 @@ public class WrangledDataExtractor {
 
 	/**
 	 * Creates the initial table with inferred types and populates it
-	 * with all of the passed data.
+	 * with all of the data. Returns true if the operation was
+	 * successful
+	 * 
 	 * @throws CSVFormatException 
+	 * @return whether or not the operation was successful
 	 * 
 	 */
-	public void createAndPopulateInitialTable() {
+	public boolean createAndPopulateInitialTable() {
 		Relation rel = null;
 		try {
 			rel = createInitialTable(this.wrangledData);
 			populateInitialTable(rel);
 			LOG.info("Finished populating {}!", rel);
+			return true;
 		} catch(IOException e) {
 			LOG.error("Failed to populate table: {}", rel, e);
 		} catch (CSVFormatException e) {
 			LOG.error("", e);
+		} catch (SQLException e) {
+			LOG.error("", e);
 		} 
+		return false;
 	}
 
 	/**
@@ -140,18 +147,14 @@ public class WrangledDataExtractor {
 	 * @param tableName
 	 * @param sc
 	 * @throws IOException
+	 * @throws SQLException 
 	 */
-	private void populateInitialTable(Relation rel) throws IOException {
+	private void populateInitialTable(Relation rel) throws IOException, SQLException {
 		if(!db.getDbHelper().tableExists(rel)) {
 			LOG.error("{} does not exist as a table in the database!", rel);
 		}
-		for(List<String> nextTuple : wrangledData) {
-			String insertQuery = null;
-			if(nextTuple.size() != 0) {
-				insertQuery = QueryHelper.getInsertQuery(inferredTypes, nextTuple, rel);
-				db.getDbHelper().executeUpdate(insertQuery);
-			}
-		}
+		String insertQuery = QueryHelper.getMultipleInsertQuery(wrangledData, rel);
+		db.getDbHelper().executeUpdate(insertQuery);
 	}
 
 	/**

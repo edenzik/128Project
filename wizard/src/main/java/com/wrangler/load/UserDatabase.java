@@ -5,6 +5,9 @@ package com.wrangler.load;
 
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wrangler.login.IncorrectPasswordException;
 import com.wrangler.login.UserNotFoundException;
 
@@ -14,6 +17,7 @@ import com.wrangler.login.UserNotFoundException;
  */
 public class UserDatabase extends Database {
 
+	private static final Logger LOG = LoggerFactory.getLogger(UserDatabase.class);
 	private static final String USER_DB_NAME = "default"; 
 	protected UserDatabase()
 			throws ClassNotFoundException, SQLException {
@@ -33,11 +37,16 @@ public class UserDatabase extends Database {
 	public boolean verifyUser(String userName, String userPass) throws UserNotFoundException, IncorrectPasswordException{
 		String NAME_QUERY = String.format("SELECT * FROM users WHERE email='%s'", userName);
 		String NAME_AND_PASS_QUERY = String.format("SELECT * FROM users WHERE email='%s' and password='%s'", userName, userPass);
-		if(!getDbHelper().exists(NAME_QUERY)) {
-			throw new UserNotFoundException();
-		}
-		else if(!getDbHelper().exists(NAME_AND_PASS_QUERY)) {
-			throw new IncorrectPasswordException();
+		try {
+			if(!getDbHelper().exists(NAME_QUERY)) {
+				throw new UserNotFoundException();
+			}
+			else if(!getDbHelper().exists(NAME_AND_PASS_QUERY)) {
+				throw new IncorrectPasswordException();
+			}
+		} catch (SQLException e) {
+			LOG.error("", e);
+			return false;
 		}
 		return true;
 	}

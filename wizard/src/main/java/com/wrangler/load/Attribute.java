@@ -13,12 +13,12 @@ public class Attribute {
 	private final Relation sourceTable;
 	private final String attType;
 	
-	protected Attribute(String name, String attType, Relation sourceTable) {
+	public Attribute(String name, String attType, Relation sourceTable) {
 		this.name = name;
 		this.attType = attType;
 		this.sourceTable = sourceTable;
 	}
-
+	
 	/**
 	 * @return the name
 	 */

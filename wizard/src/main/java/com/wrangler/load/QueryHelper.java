@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.wrangler.extract.CSVFormatException;
 
 /**
  * Class to ease in the generation of queries (i.e. update and create table queries
@@ -35,32 +38,39 @@ public class QueryHelper {
 	 * @throws SQLException 
 	 */
 	public static void main(String[] args) throws IOException, SQLException {
-		String[] test = {"4", "4.9", ".65", ".65.7", "7.33", "S23", "07.21", "Jerry", "$415", "415.000"};
-		for(String s: test) {
-			System.out.println(s + " : " + inferValueType(s));
+		//		String[] test = {"4", "4.9", ".65", ".65.7", "7.33", "S23", "07.21", "Jerry", "$415", "415.000"};
+		//		for(String s: test) {
+		//			System.out.println(s + " : " + inferValueType(s));
+		//		}
+		//
+		//		String header1 = "ShouldBeDecimal1";
+		//		List<String> values1 = Arrays.asList(new String[] {"43", "45", "12", "13", "5"});
+		//		String header2 = "ShouldBeVarchar1";
+		//		List<String> values2 = Arrays.asList(new String[] {"Jerry", "John", "K-dawg"});
+		//		String header3 = "ShouldBeVarchar2";
+		//		List<String> values3 = Arrays.asList(new String[] {"4", "53.2", ".79", "$5"});
+		//
+		//		Map<String, List<String>> headersToValues = new HashMap<String, List<String>>();
+		//		headersToValues.put(header1, values1);
+		//		headersToValues.put(header2, values2);
+		//		headersToValues.put(header3, values3);
+		//
+		//		Map<String, PostgresAttType> inferredTypes = inferTableTypes(headersToValues);
+		//		System.out.println(inferredTypes);
+		//
+		//		System.out.println(getInsertQuery(inferredTypes, new ArrayList<String>(Arrays.asList(new String[] {"6", "Jerry", "John"})), new Relation("PERSON", null)));
+		//
+		//		for(String s: headersToValues.keySet()) {
+		//			System.out.println(s + " : " + QueryHelper.inferColumnType(s, headersToValues.get(s)));
+		//		}
+
+		String[] test = {"varchar", "Varchar", "VARCHAR", "v@rchar"};
+		for(String s : test) {
+			if(s.matches("(?i)varchar")) {
+				System.out.println(s);
+			}
 		}
-
-		String header1 = "ShouldBeDecimal1";
-		List<String> values1 = Arrays.asList(new String[] {"43", "45", "12", "13", "5"});
-		String header2 = "ShouldBeVarchar1";
-		List<String> values2 = Arrays.asList(new String[] {"Jerry", "John", "K-dawg"});
-		String header3 = "ShouldBeVarchar2";
-		List<String> values3 = Arrays.asList(new String[] {"4", "53.2", ".79", "$5"});
-
-		Map<String, List<String>> headersToValues = new HashMap<String, List<String>>();
-		headersToValues.put(header1, values1);
-		headersToValues.put(header2, values2);
-		headersToValues.put(header3, values3);
-
-		Map<String, PostgresAttType> inferredTypes = inferTableTypes(headersToValues);
-		System.out.println(inferredTypes);
-
-		System.out.println(getInsertQuery(inferredTypes, new ArrayList<String>(Arrays.asList(new String[] {"6", "Jerry", "John"})), new Relation("PERSON", null)));
-
-		for(String s: headersToValues.keySet()) {
-			System.out.println(s + " : " + QueryHelper.inferColumnType(s, headersToValues.get(s)));
-		}
-
+		
 	}
 	/**
 	 * Returns a create table command with the passed table name and
@@ -201,6 +211,100 @@ public class QueryHelper {
 		}
 		LOG.debug("Inferred types are: {}", columnTypes);
 		return columnTypes;
+	}
+	/**
+	 * Given a List of Lists of Strings representing a CSV file
+	 * and a relation to generate the insert statement for, returns
+	 * one insert statement of the form:
+	 * 
+	 * INSERT INTO foo (bar, baz) 
+	 * VALUES ('bar1', 'baz1'), 
+     * 		('bar1', 'baz1'),
+     * 		('bar2', 'baz2'),
+     * 		('bar3', 'baz3');
+     * 
+	 * @param csvData
+	 * @param rel
+	 * @return
+	 * @throws SQLException
+	 */
+	public static String getMultipleInsertQuery(
+			List<List<String>> csvData, Relation rel) throws SQLException {
+		Set<Attribute> cols = rel.getAttributes();
+		if(cols.size() < 1) {
+			throw new AssertionError("Relation should have at least one attribute!");
+		}
+		StringBuilder query = new StringBuilder();
+
+		// Build up the grossness that is an SQL query...
+		Iterator<Attribute> attrIter = cols.iterator();
+		query.append(String.format("INSERT INTO %s (%s", rel.getName(), attrIter.next().getName()));
+		while(attrIter.hasNext()) {
+			query.append(String.format(", %s", attrIter.next().getName()));
+		}
+		query.append(")\nVALUES\t");
+
+		Iterator<List<String>> tupleIter = csvData.iterator();
+		query.append(listToInsert(tupleIter.next(), cols));
+		while(tupleIter.hasNext()) {
+			query.append(",\n\t");
+			query.append(listToInsert(tupleIter.next(), cols));
+		}
+		query.append(";");
+		return query.toString();
+	}
+	/**
+	 * Takes a list of strings for the next row and an iterator over the
+	 * attributes of the tables (for the types), and generates the inline
+	 * SQL values statement, i.e. (x, y) or ('x', 'y')
+	 * 
+	 * @param tuple
+	 * @param headerIter
+	 * @return
+	 */
+	private static String listToInsert(List<String> tuple,
+			Set<Attribute> headers) {
+		if(tuple.size() == 0) {
+			LOG.warn("Ignored empty CSV row!");
+			return "";
+		} else if(tuple.size() != headers.size()) {
+			LOG.warn("Tuple {} does not match schema {}!", tuple, headers);
+		}
+
+		// Iterate through values concurrently with iteration through headers
+		// to know which types the values are (i.e. if they need quotes around
+		// them)
+		Iterator<Attribute> headerIter = headers.iterator();
+		Iterator<String> valueIter = tuple.iterator();
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("(");
+
+		String surrounding = getSurroundingChar(headerIter.next());
+		sql.append(String.format("%s%s%s", surrounding, valueIter.next(), surrounding));
+
+		while(valueIter.hasNext()) {
+			surrounding = getSurroundingChar(headerIter.next());
+			sql.append(String.format(", %s%s%s", surrounding, valueIter.next(), surrounding));
+		}
+		
+		sql.append(")");
+		
+		return sql.toString();
+	}
+	/**
+	 * Given an attribute a, determines based on the type whether insert
+	 * statements around values for this attribute need be surrounded
+	 * by any special characters (i.e. ' for varchar)
+	 * 
+	 * @param a
+	 * @return
+	 */
+	private static String getSurroundingChar(Attribute a) {
+		if(a.getAttType().matches("(?i)varchar")) {
+			return "'";
+		}
+		return "";
 	}
 
 }

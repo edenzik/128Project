@@ -20,14 +20,15 @@ import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
  *
  */
 public class DBHelper {
-	
+
 	private SimpleJDBCConnectionPool pool;
-	private Statement stmt;
-	private Connection conn;
 	private final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
 	private final Database db;
 
-	
+	// Log message for all connection errors. Notably, this reserves space in the logging
+	// escape sequence to pass the db
+	private static final String CONNECTION_ERROR = "COULD NOT GET CONNECTION TO {}\n";
+
 	/**
 	 * Constructs a DatabaseHelper object to help with the passed Database
 	 * 
@@ -37,18 +38,25 @@ public class DBHelper {
 	 */
 	public DBHelper(Database db) throws ClassNotFoundException, SQLException {
 		this.db = db;
-		
 		Class.forName("org.postgresql.Driver");
 		LOG.info("Initialized postgresql JDBC Driver");
 		String uri = "jdbc:postgresql://" + db.getHost().getIp() + "/" + db.getName();
-		LOG.info("Connecting to {}", uri);
+		LOG.info("Connecting to {}...", uri);
 		pool = new SimpleJDBCConnectionPool("org.postgresql.Driver", uri, db.getHost().getRole(), db.getHost().getPass());
-		//conn = DriverManager.getConnection(uri, db.getHost().getRole(), db.getHost().getPass());
-		conn = pool.reserveConnection();
-		// Separates sql statements into multiple transactions
+		LOG.info("Connected to {}!", db);
+	}
+
+	/**
+	 * Returns a new Connection from the Connection pool that
+	 * auto-commits
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	private Connection getConnection() throws SQLException {
+		Connection conn = pool.reserveConnection();
 		conn.setAutoCommit(true);
-		LOG.info("Connected to database at {}", uri);
-		stmt = conn.createStatement();
+		return conn;
 	}
 
 	/**
@@ -58,24 +66,35 @@ public class DBHelper {
 	 * @throws SQLException
 	 */
 	public void executeUpdate(String query) {
+		Connection conn = null;
 		try {
+			conn = getConnection();
+			Statement stmt = conn.createStatement();
 			stmt.executeUpdate(query);
 			LOG.info("{}: {}", getDb(), query);
 		} catch(SQLException e) {
-			LOG.error("Could not run update: {}", query, e);
+			LOG.error("", e);
+		} finally {
+			if(conn != null) {
+				pool.releaseConnection(conn);
+			}
 		}
 	}
-	
+
 	/**
 	 * Gets a list of all the tables in the specified schema
 	 * @return
+	 * @throws SQLException 
 	 */
-	public ResultSet getTables(){
+	public ResultSet getTables() throws SQLException{
+		Connection conn = null;
 		try {
+			conn = getConnection();
 			return conn.getMetaData().getTables(null, "public", null, new String[] {"TABLE"});
 		} catch (SQLException e) {
-			LOG.error("Cannot get Metadata");
-			return null;
+			throw e;
+		} finally {
+			pool.releaseConnection(conn);
 		}
 	}
 
@@ -86,16 +105,20 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ResultSet executeQuery(String query) {
+	public ResultSet executeQuery(String query) throws SQLException {
 		LOG.info(query);
+		Connection conn = null;
 		try {
+			conn = getConnection();
+			Statement stmt = conn.createStatement();
 			return stmt.executeQuery(query);
 		} catch (SQLException e) {
-			LOG.error("Could not run query: {}", query, e);
-			return null;
+			throw e;
+		} finally {
+			pool.releaseConnection(conn);
 		}
 	}
-	
+
 	/**
 	 * Checks if the result of this query exists
 	 * 
@@ -103,13 +126,17 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean exists(String query) {
+	public boolean exists(String query) throws SQLException {
 		LOG.info(query);
+		Connection conn = null;
 		try {
+			conn = getConnection();
+			Statement stmt = conn.createStatement();
 			return stmt.executeQuery(query).next();
 		} catch (SQLException e) {
-			LOG.error(query);
-			return false;
+			throw e;
+		} finally {
+			pool.releaseConnection(conn);
 		}
 	}
 
@@ -120,10 +147,10 @@ public class DBHelper {
 	 */
 	public void close() throws SQLException {
 		LOG.info("Closed database connection!");
-		conn.close();
+		pool.destroy();
 	}
-	
-	
+
+
 
 	/**
 	 * Returns true if a given table exists and false if it does not
@@ -132,8 +159,10 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean tableExists(Relation rel) {
+	public boolean tableExists(Relation rel) throws SQLException {
+		Connection conn = null;
 		try {
+			conn = getConnection();
 			DatabaseMetaData dbm = conn.getMetaData();
 			ResultSet tables = dbm.getTables(null, null, rel.getName().toLowerCase(), null);
 			// Table exists
@@ -142,11 +171,13 @@ public class DBHelper {
 			}
 		}
 		catch(SQLException e) {
-			LOG.error("Could not check if table {} exists or not!", rel, e);
+			throw e;
+		} finally {
+			pool.releaseConnection(conn);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if a given database exists
 	 * 
@@ -154,21 +185,25 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean databaseExists(String databaseName) {
+	public boolean databaseExists(String databaseName) throws SQLException {
+		Connection conn = null; 
 		try {
+			conn = getConnection();
 			DatabaseMetaData dbm = conn.getMetaData();
 			ResultSet databases = dbm.getCatalogs();
 			// Table exists
 			if(databases.next()) {
 				if (databases.getString(1).equals(databaseName)) return true;
 			}
+			return false;
 		}
 		catch(SQLException e) {
-			LOG.error("Could not check if database {} exists or not!", databaseName, e);
+			throw e;
+		} finally {
+			pool.releaseConnection(conn);
 		}
-		return false;
 	}
-	
+
 	/**
 	 * Creates a databse
 	 * 
@@ -176,7 +211,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean createDatabase(String databaseName) {
+	public boolean createDatabase(String databaseName) throws SQLException {
 		return executeQuery("CREATE DATABASE " + databaseName)!=null;
 	}
 
@@ -231,6 +266,7 @@ public class DBHelper {
 	public Set<Attribute> getTableAttributes(Relation rel) throws SQLException {
 		Set<Attribute> attrSet = new LinkedHashSet<Attribute>();
 
+		Connection conn = getConnection();
 		DatabaseMetaData meta = conn.getMetaData();
 		ResultSet rs = meta.getColumns(null, null, rel.getName().toLowerCase(), null);
 		while(rs.next()) {
@@ -241,13 +277,13 @@ public class DBHelper {
 		}
 
 		return attrSet;
-		
+
 	}
-	
+
 	/**
 	 * @return the JDBC connection pool
 	 */
 	public SimpleJDBCConnectionPool getPool(){return pool;}
-	
+
 }
 

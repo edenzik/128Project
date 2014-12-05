@@ -79,12 +79,20 @@ public class FDHelper {
 	 * @return
 	 */
 	public boolean isHardFd(Attribute fromAtt, Attribute toAtt) {
-		LOG.info("Checking if {} is functionally dependent on {}...", fromAtt, toAtt);
-		if(getFdViolationCount(fromAtt, toAtt) == 0) {
-			LOG.info("Confirmed {} as functionally dependent on {}!", fromAtt, toAtt);
-			return true;
+		LOG.info("Checking if {} -> {} is hard fd...", fromAtt, toAtt);
+		try {
+			if(getFdViolationCount(fromAtt, toAtt) == 0) {
+				LOG.info("Confirmed {} -> {} as hard fd", fromAtt, toAtt);
+				return true;
+			}
+			else {
+				LOG.info("Denied {} -> {} as hard fd");
+				return false;
+			}
+		} catch (SQLException e) {
+			LOG.error("", e);
+			return false;
 		}
-		return false;
 	}
 
 	/**
@@ -94,8 +102,9 @@ public class FDHelper {
 	 * @param fromAtt
 	 * @param toAtt
 	 * @return
+	 * @throws SQLException 
 	 */
-	private int getFdViolationCount(Attribute fromAtt, Attribute toAtt) {
+	private int getFdViolationCount(Attribute fromAtt, Attribute toAtt) throws SQLException {
 		// Make sure both attributes are from the same table
 		if(!fromAtt.getSourceTable().equals(toAtt.getSourceTable())) {
 			LOG.error("Trying to calculate hard FDs for relations from two separate relations: {} and {}",

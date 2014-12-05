@@ -9,8 +9,12 @@ import java.sql.SQLException;
  * @author kahliloppenheimer
  *
  */
-public class DatabaseFactory {
+public final class DatabaseFactory {
 	
+	// Used to enforce non-instantiablility
+	private DatabaseFactory() {
+		throw new AssertionError();
+	}
 	/**
 	 * Returns a new database for this host with the given dbName
 	 * 

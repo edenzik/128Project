@@ -9,8 +9,12 @@ package com.wrangler.load;
  * @author kahliloppenheimer
  *
  */
-public class AttributeFactory {
+public final class AttributeFactory {
 	
+	// Used to enforce non-instantiability
+	private AttributeFactory() {
+		throw new AssertionError();
+	}
 	/**
 	 * Factory method to return a new Attribute object.
 	 * 

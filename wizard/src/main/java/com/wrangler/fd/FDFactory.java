@@ -8,7 +8,12 @@ import com.wrangler.load.Attribute;
  * @author kahliloppenheimer
  *
  */
-public class FDFactory {
+public final class FDFactory {
+	
+	// Used to enforce non-instantiability
+	private FDFactory() {
+		throw new AssertionError();
+	}
 	
 	public static FunctionalDependency createHardFD(Attribute fromAtt, Attribute toAtt) {
 		return new HardFD(fromAtt, toAtt);

@@ -8,8 +8,13 @@ import java.sql.SQLException;
  * @author kahliloppenheimer
  *
  */
-public class RelationFactory {
+public final class RelationFactory {
 	
+	// Used to enforce non-instantiability
+	private RelationFactory() {
+		throw new AssertionError();
+	}
+
 	/**
 	 * Factory method for returning new Relation object.
 	 * 
