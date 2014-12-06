@@ -54,21 +54,19 @@ public class DataWrangler extends BrowserFrame {
 					else response.getWriter().append("FALSE");
 					return true;
 				} if ("/sendData".equals(request.getPathInfo())) {
-					result.append(request.getParameter("CHART_VALUE"));
+					synchronized(result) {
+						result.append(request.getParameter("CHART_VALUE"));
+					}
 					return true;
 				} if ("/allDone".equals(request.getPathInfo())) {
-					loadData(user.getDB());
+					WrangledDataExtractor wde = new WrangledDataExtractor(result.toString(), user.getDB());
+					wde.createAndPopulateInitialTable();
 					done = true;
 					return true;
 				} else return false;
 			}
 		};
 		VaadinSession.getCurrent().addRequestHandler(handler);
-	}
-	
-	public void loadData(Database db) throws IOException{
-		WrangledDataExtractor wde = new WrangledDataExtractor(result.toString(), db);
-		wde.createAndPopulateInitialTable();
 	}
 	
 	String getResult(){return result.toString();}

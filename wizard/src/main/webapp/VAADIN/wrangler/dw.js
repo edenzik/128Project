@@ -8427,24 +8427,30 @@ dw.JSON = {};
 										if (data==="TRUE") {
 											recievedUpload();
 											var chunkResult = chunkString(dw.wrangler_export(table, {}),20000);
-											for (var i = 0; i < chunkResult.length; i++) {
+											var i = 0;
+											for (i; i < chunkResult.length; i++) {
 												$.ajax(
 														{
 															type : "POST",
 															url  :"/app/sendData",
 															data : {"CHART_VALUE": chunkResult[i]},
-															dataType : "json"
+															dataType : "json",
+															async: false
 														});
 											};
-											$.ajax(
-													{
-														type : "POST",
-														url  :"/app/allDone",
-														data : {"CHART_VALUE": "-5193766318144593205L"},
-														dataType : "json"
-													});
+											if (i===chunkResult.length){
+												$.ajax(
+														{
+															type : "POST",
+															url  :"/app/allDone",
+															data : {"CHART_VALUE": "-5193766318144593205L"},
+															dataType : "json",
+															async: false
+														});
+											}
 										}
-									}
+									},
+									async: true
 								})
 							}, 1000);
 						}
