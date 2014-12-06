@@ -16,7 +16,7 @@ public class FDSelectionLayout extends HorizontalSplitPanel {
 	 * 
 	 */
 	public FDSelectionLayout() {
-		addComponent(new PotentialFDTable());
+		addComponent(new FDTable());
 	}
 
 }

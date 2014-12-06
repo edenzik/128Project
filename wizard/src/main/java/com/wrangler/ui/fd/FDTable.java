@@ -9,12 +9,12 @@ import com.wrangler.fd.FunctionalDependency;
  * @author edenzik
  *
  */
-public class PotentialFDTable extends Table {
+public class FDTable extends Table {
 
 	/**
 	 * 
 	 */
-	public PotentialFDTable() {
+	public FDTable() {
 		initLayout();
 		addContainerProperty("From Attribute", String.class, null);
 		addContainerProperty("To Attribute", String.class, null);

@@ -27,39 +27,42 @@ import com.wrangler.ui.login.User;
  *
  */
 public class TableAttributeSelection extends VerticalSplitPanel{
+	private final ComboBox cbox;
 
 	/**
 	 * 
 	 */
 	public TableAttributeSelection(final User user) {
 		initLayout();
-		TableSelection cbox = new TableSelection(user.getDB());
-		
+		cbox = new TableSelection(user.getDB());
+
 		final AttributeTable atable = new AttributeTable();
 		HorizontalLayout hl = new HorizontalLayout(cbox);
 		addComponent(hl);
-		
+
 		hl.setSizeFull();
 		hl.setMargin(new MarginInfo(true, false, false, false));
 		cbox.addValueChangeListener(new ComboBox.ValueChangeListener() {
-			
+
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-					if (event.getProperty().getValue()!=null){
-						atable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
-					}
-				
+				if (event.getProperty().getValue()!=null){
+					atable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
+				}
+
 			}
 		});
 		addComponent(atable);
-		
+
 	}
-	
-	
+
+
 	private void initLayout(){
 		setSplitPosition(6, Unit.PERCENTAGE);
 		setLocked(true);
 	}
+	
+	ComboBox getCbox(){return cbox;}
 
 
 }
