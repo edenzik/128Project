@@ -1,4 +1,4 @@
-package com.wrangler.ui.FDSelection;
+package com.wrangler.ui.fd;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
 
