@@ -66,8 +66,8 @@ public class DBHelper {
 		try {
 			conn = getConnection();
 			Statement stmt = conn.createStatement();
-			stmt.executeUpdate(query);
 			LOG.info("{}: {}", getDb(), query);
+			stmt.executeUpdate(query);
 		} catch(SQLException e) {
 			LOG.error("", e);
 		} finally {
@@ -281,7 +281,10 @@ public class DBHelper {
 			while(rs.next()) {
 				String colName = rs.getString("COLUMN_NAME");
 				String colType = rs.getString("TYPE_NAME");
-				Attribute attr = AttributeFactory.createAttribute(colName, colType, rel);
+				int colSize = rs.getInt("COLUMN_SIZE");
+				PostgresAttType type = PostgresAttType.valueOf(colType, colSize);
+
+				Attribute attr = AttributeFactory.createAttribute(colName, type, rel);
 				attrSet.add(attr);
 			}
 		} catch (SQLException e){

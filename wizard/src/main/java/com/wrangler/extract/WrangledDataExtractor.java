@@ -51,7 +51,6 @@ public class WrangledDataExtractor {
 	 * @throws IOException
 	 */
 	private void loadInputData(String inputData, List<String> colNames, List<List<String>> wrangledData) throws IOException {
-		LOG.debug("Input data = \n{}", inputData);
 		LOG.info("Reading input data into memory buffer...");
 		CSVParser parser = CSVParser.parse(inputData, CSVFormat.DEFAULT);
 		for (CSVRecord tuple : parser.getRecords()){

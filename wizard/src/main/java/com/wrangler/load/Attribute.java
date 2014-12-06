@@ -11,9 +11,9 @@ public class Attribute {
 	
 	private final String name;
 	private final Relation sourceTable;
-	private final String attType;
+	private final PostgresAttType attType;
 	
-	public Attribute(String name, String attType, Relation sourceTable) {
+	public Attribute(String name, PostgresAttType attType, Relation sourceTable) {
 		this.name = name;
 		this.attType = attType;
 		this.sourceTable = sourceTable;
@@ -29,7 +29,7 @@ public class Attribute {
 	/**
 	 * @return the attType
 	 */
-	public String getAttType() {
+	public PostgresAttType getAttType() {
 		return attType;
 	}
 

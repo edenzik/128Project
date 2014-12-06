@@ -1,7 +1,6 @@
 package com.wrangler.load;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -24,7 +23,6 @@ import com.wrangler.extract.CSVFormatException;
 public class QueryHelper {
 
 	public static final String DEFAULT_TABLE_NAME = "TABLE";
-	public static final PostgresAttType DEFAULT_ATT_TYPE = PostgresAttType.VARCHAR;
 	private static final Logger LOG = LoggerFactory.getLogger(QueryHelper.class);
 
 	/**
@@ -107,34 +105,29 @@ public class QueryHelper {
 	private static PostgresAttType inferColumnType(String colName, List<String> columnVals) {
 		if(columnVals == null || columnVals.size() == 0) {
 			LOG.warn("No sample data for column {}! Assuming varchar...", colName);
-			return DEFAULT_ATT_TYPE;
+			return PostgresAttType.newVarchar(100);
 		}
 		// Check to see if any elements differ in inference type.
 		// If so, just assume default type for all
+		boolean typesDiffer = false;
+		int maxLength = -1;
+		// Go through, check to see if any types mismatch (i.e. we should just assume varchar),
+		// and calculate the max string length to use for varchar size
 		for(int i = 0; i < columnVals.size() - 1; ++i) {
-			if(!inferValueType(columnVals.get(i)).equals(inferValueType(columnVals.get(i + 1)))) {
-				return DEFAULT_ATT_TYPE;
+			maxLength = Math.max(maxLength, columnVals.get(i).length());
+			// Check if the types differ
+			if(!PostgresAttType.valueOf(columnVals.get(i), -1).equals(PostgresAttType.valueOf(columnVals.get(i + 1), -1))) {
+				typesDiffer = true;
 			}
 		}
-		// If there are no mismatches, simply return the common type
-		return inferValueType(columnVals.get(0));
-	}
+		// Must check last column value because we did not check in loop
+		maxLength = Math.max(maxLength, columnVals.get(columnVals.size() - 1).length());
 
-	/**
-	 * Does basic pattern matching to infer the data type of the given value
-	 * 
-	 * @param string
-	 * @return
-	 */
-	@SuppressWarnings("unused")
-	private static PostgresAttType inferValueType(String string) {
-		// First try to read it as BigDecimal
-		try {
-			BigDecimal asDecimal = new BigDecimal(string);
-			return PostgresAttType.DECIMAL;
-		} catch(NumberFormatException e) {
-			// If that didn't work just return default
-			return DEFAULT_ATT_TYPE;
+		if(typesDiffer) {
+			return PostgresAttType.newVarchar(maxLength);
+		} else {
+			// If there are no mismatches, simply return the common type
+			return PostgresAttType.valueOf(columnVals.get(0), maxLength);
 		}
 	}
 
@@ -189,7 +182,7 @@ public class QueryHelper {
 	 */
 	private static boolean isCharType(String header,
 			Map<String, PostgresAttType> inferredTypes) {
-		return inferredTypes.get(header).equals(PostgresAttType.VARCHAR);
+		return inferredTypes.get(header).isCharType();
 	}
 
 	/**
@@ -299,7 +292,7 @@ public class QueryHelper {
 	 * @return
 	 */
 	private static String getSurroundingChar(Attribute a) {
-		if(a.getAttType().matches("(?i)varchar")) {
+		if(a.getAttType().isCharType()) {
 			return "'";
 		}
 		return "";

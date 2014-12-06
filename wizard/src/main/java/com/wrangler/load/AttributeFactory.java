@@ -23,7 +23,7 @@ public final class AttributeFactory {
 	 * @param sourceTable
 	 * @return
 	 */
-	public static Attribute createAttribute(String name, String attType, Relation sourceTable) {
+	public static Attribute createAttribute(String name, PostgresAttType attType, Relation sourceTable) {
 		return new Attribute(name, attType, sourceTable);
 	}
 
