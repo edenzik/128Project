@@ -24,7 +24,7 @@ import com.wrangler.ui.login.User;
  */
 public class DataWrangler extends BrowserFrame {
 
-	private StringBuffer result = new StringBuffer();
+
 	private boolean ready = false;
 	private boolean done = false;
 	private static final String URI = "/VAADIN/wrangler/index.html";
@@ -40,10 +40,10 @@ public class DataWrangler extends BrowserFrame {
 	 */
 	DataWrangler(UI ui, final User user) {
 		super("", new ExternalResource(URI));
-		
+
 		RequestHandler handler = new RequestHandler(){
 			private static final long serialVersionUID = -5193766318144593205L;
-
+			private StringBuffer result = new StringBuffer();
 			public boolean handleRequest(VaadinSession session,
 					VaadinRequest request,
 					VaadinResponse response)
@@ -54,11 +54,12 @@ public class DataWrangler extends BrowserFrame {
 					else response.getWriter().append("FALSE");
 					return true;
 				} if ("/sendData".equals(request.getPathInfo())) {
-					synchronized(result) {
-						result.append(request.getParameter("CHART_VALUE"));
-					}
+					result.append(request.getParameter("CHART_VALUE"));
 					return true;
 				} if ("/allDone".equals(request.getPathInfo())) {
+					System.out.println("RESULT");
+					System.out.println(result.toString());
+					System.out.println("DONE");
 					WrangledDataExtractor wde = new WrangledDataExtractor(result.toString(), user.getDB());
 					wde.createAndPopulateInitialTable();
 					done = true;
@@ -68,10 +69,8 @@ public class DataWrangler extends BrowserFrame {
 		};
 		VaadinSession.getCurrent().addRequestHandler(handler);
 	}
-	
-	String getResult(){return result.toString();}
 
 	void setReady(){ready = true;}
-	
+
 	boolean isDone(){return done;}
 }

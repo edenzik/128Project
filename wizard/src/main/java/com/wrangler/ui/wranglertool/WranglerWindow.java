@@ -31,8 +31,6 @@ import com.wrangler.ui.login.User;
  */
 public class WranglerWindow extends Window {
 	
-	private final DataWrangler wrangler;
-	
 
 	/**
 	 * This is the actual window for data wrangler
@@ -44,7 +42,7 @@ public class WranglerWindow extends Window {
 		initLayout();
 		
 		final Button submit = new Button("Load");
-
+		final DataWrangler wrangler = new DataWrangler(ui, user);
 		GridLayout buttonLayout = new GridLayout();
 		submit.setSizeFull();
 		submit.addClickListener(new Button.ClickListener() {
@@ -54,12 +52,11 @@ public class WranglerWindow extends Window {
 				if (wrangler.isDone()) {
 					close();
 				}
-				
 			}
 		});
 		buttonLayout.addComponent(submit);
 		buttonLayout.setComponentAlignment(submit, Alignment.TOP_CENTER);
-		wrangler = new DataWrangler(ui, user);
+		
 		VerticalSplitPanel layout = new VerticalSplitPanel(wrangler, buttonLayout);
 		layout.setSplitPosition(90, Unit.PERCENTAGE);
 		layout.setLocked(true);
