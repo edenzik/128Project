@@ -25,6 +25,7 @@ public class FDPanel extends HorizontalSplitPanel {
 	}
 	
 	private void initLayout(){
+		setSizeFull();
 		setSplitPosition(20, Unit.PERCENTAGE);
 		setLocked(true);
 	}
