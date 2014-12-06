@@ -1,4 +1,0 @@
-SELECT (SELECT a
-FROM (SELECT DISTINCT a,b FROM test) AS poop
-GROUP BY a
-HAVING count(b)>1) IS NULL
