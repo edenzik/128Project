@@ -18,18 +18,18 @@ import com.wrangler.load.RelationFactory;
 import com.wrangler.load.TableNotFoundException;
 
 /**
- * Object to help detect and analyze functional dependencies in a given database
+ * Object to help detect functional dependencies in a given database
  * 
  * @author kahliloppenheimer
  *
  */
-public class FDHelper {
+public class FDDetector {
 
 	// The database to which this FDHelper is applied
 	private final Database db;
-	private final Logger LOG = LoggerFactory.getLogger(FDHelper.class);
+	private final Logger LOG = LoggerFactory.getLogger(FDDetector.class);
 
-	public FDHelper(Database db) {
+	public FDDetector(Database db) {
 		this.db = db;
 	}
 
@@ -140,7 +140,7 @@ public class FDHelper {
 		try {
 			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", host);
 			Relation rel = RelationFactory.createRelation("fdtest", db);
-			FDHelper fdHelper = new FDHelper(db);
+			FDDetector fdHelper = new FDDetector(db);
 			Set<FunctionalDependency> fds = fdHelper.findAllHardFds(rel);
 			System.out.println(fds);
 		} catch (ClassNotFoundException e) {

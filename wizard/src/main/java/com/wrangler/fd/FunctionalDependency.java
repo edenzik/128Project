@@ -31,4 +31,5 @@ public abstract class FunctionalDependency {
 	public Attribute getToAtt() {
 		return toAtt;
 	}
+
 }
