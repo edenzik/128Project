@@ -17,10 +17,12 @@ import com.wrangler.load.Relation;
 public class TableSelection extends ComboBox {
 
 	/**
+	 * A table ComBO selector enabling you to choose 
+	 * a table to display its attributes
 	 * 
 	 */
 	public TableSelection(Database db) {
-		this.setHeight(90, Unit.PERCENTAGE);
+		setSizeFull();
 		addContainerProperty("Table", Relation.class, null);
 		setFilteringMode(FilteringMode.CONTAINS);
 		Set<Relation> relations = db.getDbHelper().getRelations();

@@ -24,7 +24,7 @@ public class FDWindow extends Window {
 	 * 
 	 */
 	public FDWindow(UI ui, User user) {
-		super("Functional Dependency Window");
+		super("Functional Dependency Detection");
 		initLayout();
 		setContent(new FDPanel(user));
 		

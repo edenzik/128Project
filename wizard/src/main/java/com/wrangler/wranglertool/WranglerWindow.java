@@ -11,6 +11,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
@@ -45,6 +46,7 @@ public class WranglerWindow extends Window {
 		final Button submit = new Button("Load");
 
 		GridLayout buttonLayout = new GridLayout();
+		submit.setSizeFull();
 		submit.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				wrangler.setReady();
@@ -63,8 +65,6 @@ public class WranglerWindow extends Window {
 		layout.setLocked(true);
 		buttonLayout.setWidth("100%");
 		buttonLayout.setHeight("100%");
-		submit.setHeight(50, Unit.PERCENTAGE);
-		submit.setSizeUndefined();
 		wrangler.setWidth("100%");
 		wrangler.setHeight("100%");
 		layout.setSplitPosition(90, Unit.PERCENTAGE);
