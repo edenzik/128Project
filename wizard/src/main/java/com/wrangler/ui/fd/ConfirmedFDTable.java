@@ -1,25 +1,20 @@
-/**
- * 
- */
 package com.wrangler.ui.fd;
 
 import java.util.Set;
 
-import com.vaadin.data.Container;
 import com.vaadin.ui.Table;
 import com.wrangler.fd.FunctionalDependency;
-import com.wrangler.load.Attribute;
 
 /**
  * @author edenzik
  *
  */
-public class FDTable extends Table {
+public class ConfirmedFDTable extends Table {
 
 	/**
 	 * 
 	 */
-	public FDTable() {
+	public ConfirmedFDTable() {
 		initLayout();
 		addContainerProperty("From Attribute", String.class, null);
 		addContainerProperty("To Attribute", String.class, null);
