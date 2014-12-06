@@ -5,9 +5,6 @@ package com.wrangler.load;
 
 import java.sql.SQLException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.wrangler.ui.login.IncorrectPasswordException;
 import com.wrangler.ui.login.UserNotFoundException;
 
@@ -17,7 +14,6 @@ import com.wrangler.ui.login.UserNotFoundException;
  */
 public class UserDatabase extends Database {
 
-	private static final Logger LOG = LoggerFactory.getLogger(UserDatabase.class);
 	private static final String USER_DB_NAME = "default"; 
 	protected UserDatabase()
 			throws ClassNotFoundException, SQLException {

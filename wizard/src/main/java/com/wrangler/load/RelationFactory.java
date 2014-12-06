@@ -1,6 +1,5 @@
 package com.wrangler.load;
 
-import java.sql.SQLException;
 
 /**
  * Factory for returning new Relation objects.
