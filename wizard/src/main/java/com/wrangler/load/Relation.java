@@ -3,6 +3,9 @@ package com.wrangler.load;
 import java.sql.SQLException;
 import java.util.Set;
 
+import com.wrangler.fd.FDDetector;
+import com.wrangler.fd.FunctionalDependency;
+
 /**
  * Represents a single relation within a database.
  * 
@@ -12,6 +15,7 @@ import java.util.Set;
 public class Relation {
 	private final String name;
 	private final Database sourceDb;
+	private Set<FunctionalDependency> fds;
 	/**
 	 * @param name
 	 * @param attributes
@@ -21,6 +25,8 @@ public class Relation {
 	protected Relation(String name, Database sourceDb) {
 		this.name = name;
 		this.sourceDb = sourceDb;
+		// Null until client actually queries for FDs
+		this.fds = null;
 	}
 	/**
 	 * @return the name
@@ -47,6 +53,19 @@ public class Relation {
 	 */
 	public Database getSourceDb() {
 		return sourceDb;
+	}
+	/**
+	 * Returns the set of functional dependencies (FDs) for this Relation.
+	 * The FDs are cached after the first access, so subsequent accesses
+	 * are not expensive.
+	 * 
+	 * @return the fds
+	 */
+	public Set<FunctionalDependency> findAllHardFds() {
+		if(fds == null) {
+			fds = FDDetector.findAllHardFds(this);
+		} 
+		return fds;
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

@@ -58,7 +58,6 @@ public class WrangledDataExtractor {
 		CSVParser parser = CSVParser.parse(inputData, CSVFormat.DEFAULT);
 		Iterator<CSVRecord> iter = parser.iterator();
 		// For some reason, the iterator has two of the header values
-		iter.next();
 		while(iter.hasNext()) {
 			CSVRecord tuple = iter.next();
 			// Add header row to header collection
