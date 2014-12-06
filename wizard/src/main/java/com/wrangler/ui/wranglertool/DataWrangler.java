@@ -5,6 +5,8 @@ package com.wrangler.ui.wranglertool;
 
 import java.io.IOException;
 
+import org.seleniumhq.jetty7.util.log.Log;
+
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
@@ -57,6 +59,7 @@ public class DataWrangler extends BrowserFrame {
 					result.append(request.getParameter("CHART_VALUE"));
 					return true;
 				} if ("/allDone".equals(request.getPathInfo())) {
+					System.out.printf("INPUT DATA 1 = \n%s\n", result.toString());
 					WrangledDataExtractor wde = new WrangledDataExtractor(result.toString(), user.getDB());
 					wde.createAndPopulateInitialTable();
 					done = true;

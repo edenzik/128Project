@@ -3,6 +3,7 @@ package com.wrangler.extract;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,10 @@ public class WrangledDataExtractor {
 	private Map<String, PostgresAttType> inferredTypes;
 
 	public WrangledDataExtractor(String inputData, Database db) throws IOException {
+		LOG.debug("INPUT DATA 2 = \n{}", inputData);
 		this.headers = new ArrayList<String>();
 		this.wrangledData = new ArrayList<List<String>>();
+		LOG.debug("INPUT DATA 3 = \n{}", inputData);
 		loadInputData(inputData, headers, wrangledData);
 		this.db = db;
 	}
@@ -53,7 +56,11 @@ public class WrangledDataExtractor {
 	private void loadInputData(String inputData, List<String> colNames, List<List<String>> wrangledData) throws IOException {
 		LOG.info("Reading input data into memory buffer...");
 		CSVParser parser = CSVParser.parse(inputData, CSVFormat.DEFAULT);
-		for (CSVRecord tuple : parser.getRecords()){
+		Iterator<CSVRecord> iter = parser.iterator();
+		// For some reason, the iterator has two of the header values
+		iter.next();
+		while(iter.hasNext()) {
+			CSVRecord tuple = iter.next();
 			// Add header row to header collection
 			if(tuple.getRecordNumber() == 1) {
 				for(String attName : tuple) {
