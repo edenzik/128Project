@@ -74,14 +74,14 @@ public class FDDetector {
 	 * @return
 	 */
 	public boolean isHardFd(Attribute fromAtt, Attribute toAtt) {
-		LOG.info("Checking if {} -> {} is hard fd...", fromAtt, toAtt);
+		LOG.info("Checking {} -> {} as hard fd...", fromAtt, toAtt);
 		try {
 			if(getFdViolationCount(fromAtt, toAtt) == 0) {
 				LOG.info("Confirmed {} -> {} as hard fd", fromAtt, toAtt);
 				return true;
 			}
 			else {
-				LOG.info("Denied {} -> {} as hard fd");
+				LOG.info("Denied {} -> {} as hard fd", fromAtt, toAtt);
 				return false;
 			}
 		} catch (SQLException e) {
@@ -110,7 +110,7 @@ public class FDDetector {
 		String relName = fromAtt.getSourceTable().getName();
 		String query = 
 				String.format("SELECT COUNT(*) FROM (SELECT %s FROM (SELECT DISTINCT %s,%s FROM %s) AS temp GROUP BY %s HAVING count(%s)>1) as FDViolationCount;",
-						toAtt.getName(), toAtt.getName(), fromAtt.getName(), relName, toAtt.getName(), fromAtt.getName());
+						fromAtt.getName(), fromAtt.getName(), toAtt.getName(), relName, fromAtt.getName(), toAtt.getName());
 		ResultSet rs = fromAtt.getSourceTable().getSourceDb().getDbHelper().executeQuery(query);
 		try {
 			if(rs.next()) {
@@ -138,8 +138,8 @@ public class FDDetector {
 	public static void main(String[] args) {
 		Host host = HostFactory.createDefaultHost();
 		try {
-			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", host);
-			Relation rel = RelationFactory.createRelation("fdtest", db);
+			Database db = DatabaseFactory.createDatabase("cosi128a", host);
+			Relation rel = RelationFactory.createRelation("cities_extended", db);
 			FDDetector fdHelper = new FDDetector(db);
 			Set<FunctionalDependency> fds = fdHelper.findAllHardFds(rel);
 			System.out.println(fds);
