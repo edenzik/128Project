@@ -21,9 +21,8 @@ public final class RelationFactory {
 	 * @param name
 	 * @param sourceDb
 	 * @return
-	 * @throws SQLException
 	 */
-	public static Relation createRelation(String name, Database sourceDb) throws SQLException {
+	public static Relation createRelation(String name, Database sourceDb) {
 		return new Relation(name, sourceDb);
 	}
 

@@ -35,8 +35,8 @@ public class AttributeTable extends Table {
 	
 	void fill(Set<Attribute> attributes){
 		removeAllItems();
-		for (Attribute a: attributes){
-			addItem(a);
+		for (Attribute att: attributes){
+			addItem(new String[]{att.getName()}, null);
 		}
 	}
 

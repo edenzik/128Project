@@ -34,19 +34,14 @@ public class UserDatabase extends Database {
 	 * @throws UserNotFoundException 
 	 * @throws IncorrectPasswordException 
 	 */
-	public boolean verifyUser(String userName, String userPass) throws UserNotFoundException, IncorrectPasswordException{
+	public boolean verifyUser(String userName, String userPass) throws UserNotFoundException, IncorrectPasswordException, SQLException{
 		String NAME_QUERY = String.format("SELECT * FROM users WHERE email='%s'", userName);
 		String NAME_AND_PASS_QUERY = String.format("SELECT * FROM users WHERE email='%s' and password='%s'", userName, userPass);
-		try {
-			if(!getDbHelper().exists(NAME_QUERY)) {
-				throw new UserNotFoundException();
-			}
-			else if(!getDbHelper().exists(NAME_AND_PASS_QUERY)) {
-				throw new IncorrectPasswordException();
-			}
-		} catch (SQLException e) {
-			LOG.error("", e);
-			return false;
+		if(!getDbHelper().exists(NAME_QUERY)) {
+			throw new UserNotFoundException();
+		}
+		else if(!getDbHelper().exists(NAME_AND_PASS_QUERY)) {
+			throw new IncorrectPasswordException();
 		}
 		return true;
 	}

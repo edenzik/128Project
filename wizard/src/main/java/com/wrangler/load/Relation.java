@@ -18,7 +18,7 @@ public class Relation {
 	 * @param sourceDb
 	 * @throws SQLException 
 	 */
-	protected Relation(String name, Database sourceDb) throws SQLException {
+	protected Relation(String name, Database sourceDb) {
 		this.name = name;
 		this.sourceDb = sourceDb;
 	}
@@ -38,7 +38,7 @@ public class Relation {
 	 * @return the attributes
 	 * @throws SQLException 
 	 */
-	public Set<Attribute> getAttributes() throws SQLException {
+	public Set<Attribute> getAttributes() {
 		return sourceDb.getDbHelper().getRelationAttributes(this);
 	}
 

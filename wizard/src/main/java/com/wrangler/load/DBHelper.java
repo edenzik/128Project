@@ -136,7 +136,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean exists(String query) throws SQLException {
+	public boolean exists(String query) {
 		LOG.info(query);
 		Connection conn = null;
 		try {
@@ -144,10 +144,11 @@ public class DBHelper {
 			Statement stmt = conn.createStatement();
 			return stmt.executeQuery(query).next();
 		} catch (SQLException e) {
-			throw e;
+			LOG.error("", e);
 		} finally {
 			pool.releaseConnection(conn);
 		}
+		return false;
 	}
 
 	/**
@@ -195,7 +196,7 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean databaseExists(String databaseName) throws SQLException {
+	public boolean databaseExists(String databaseName){
 		Connection conn = null; 
 		try {
 			conn = getConnection();
@@ -208,10 +209,11 @@ public class DBHelper {
 			return false;
 		}
 		catch(SQLException e) {
-			throw e;
+			LOG.error("", e);
 		} finally {
 			pool.releaseConnection(conn);
 		}
+		return false;
 	}
 
 	/**
@@ -274,17 +276,20 @@ public class DBHelper {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public Set<Attribute> getRelationAttributes(Relation rel) throws SQLException {
+	public Set<Attribute> getRelationAttributes(Relation rel) {
 		Set<Attribute> attrSet = new LinkedHashSet<Attribute>();
-
-		Connection conn = getConnection();
-		DatabaseMetaData meta = conn.getMetaData();
-		ResultSet rs = meta.getColumns(null, null, rel.getName().toLowerCase(), null);
-		while(rs.next()) {
-			String colName = rs.getString("COLUMN_NAME");
-			String colType = rs.getString("TYPE_NAME");
-			Attribute attr = AttributeFactory.createAttribute(colName, colType, rel);
-			attrSet.add(attr);
+		try {
+			Connection conn = getConnection();
+			DatabaseMetaData meta = conn.getMetaData();
+			ResultSet rs = meta.getColumns(null, null, rel.getName().toLowerCase(), null);
+			while(rs.next()) {
+				String colName = rs.getString("COLUMN_NAME");
+				String colType = rs.getString("TYPE_NAME");
+				Attribute attr = AttributeFactory.createAttribute(colName, colType, rel);
+				attrSet.add(attr);
+			}
+		} catch (SQLException e){
+			LOG.error("", e);
 		}
 
 		return attrSet;

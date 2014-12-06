@@ -49,12 +49,7 @@ public class FDHelper {
 		}
 
 		Set<Attribute> attrs;
-		try {
-			attrs = rel.getAttributes();
-		} catch (SQLException e) {
-			LOG.error("Could not access {}'s attributes", rel, e);
-			throw e;
-		}
+		attrs = rel.getAttributes();
 
 		// Check hard FDs for every possible pairing of atts
 		for(Attribute fromAtt : attrs) {
