@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.ui.FDSelection;
+package com.wrangler.ui.fd;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
