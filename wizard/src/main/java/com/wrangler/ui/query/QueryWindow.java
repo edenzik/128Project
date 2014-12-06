@@ -33,7 +33,9 @@ public class QueryWindow extends VerticalSplitPanel {
 		field.getButton().addClickListener(new Button.ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
-				displayQuery(field.getQuery());
+				if (field.getQuery()!=""){
+					displayQuery(field.getQuery());
+				}
 			}
 		});
 		addComponent(result);

@@ -34,7 +34,7 @@ public class QueryExecutionField extends HorizontalSplitPanel {
 	 * 
 	 */
 	private void initLayout(){
-		setSplitPosition(93, Unit.PERCENTAGE);
+		setSplitPosition(91, Unit.PERCENTAGE);
 		setLocked(true);
 		setSizeFull();
 	}

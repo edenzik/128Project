@@ -40,12 +40,12 @@ public class FDDetector {
 	 * @throws TableNotFoundException if passed table does not exist in db
 	 * @throws SQLException 
 	 */
-	public Set<FunctionalDependency> findAllHardFds(Relation rel) throws TableNotFoundException, SQLException {
+	public Set<FunctionalDependency> findAllHardFds(Relation rel)  {
 		Set<FunctionalDependency> hardFdSet = new HashSet<FunctionalDependency>();
 		// Check to see if table doesn't exist
 		if(!db.getDbHelper().tableExists(rel)) {
 			LOG.warn("Attempted to find hard fds of non-existant table {}", rel.getName());
-			throw new TableNotFoundException();
+			//throw new TableNotFoundException();
 		}
 
 		Set<Attribute> attrs;
@@ -147,9 +147,6 @@ public class FDDetector {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TableNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

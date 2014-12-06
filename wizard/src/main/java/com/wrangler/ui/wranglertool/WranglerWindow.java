@@ -23,6 +23,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
+import com.wrangler.ui.callback.Callback;
 import com.wrangler.ui.login.User;
 
 /**
@@ -31,20 +32,18 @@ import com.wrangler.ui.login.User;
  */
 public class WranglerWindow extends Window {
 	
-	private final DataWrangler wrangler;
-	
 
 	/**
 	 * This is the actual window for data wrangler
 	 * Adds button to close this window when the CSV is done uploading
 	 * 
 	 */
-	public WranglerWindow(final UI ui, final User user) {
+	public WranglerWindow(final UI ui, final User user, final Callback callback) {
 		super("Data Wrangler");
 		initLayout();
 		
 		final Button submit = new Button("Load");
-
+		final DataWrangler wrangler = new DataWrangler(ui, user);
 		GridLayout buttonLayout = new GridLayout();
 		submit.setSizeFull();
 		submit.addClickListener(new Button.ClickListener() {
@@ -53,13 +52,13 @@ public class WranglerWindow extends Window {
 				submit.setCaption("Done");
 				if (wrangler.isDone()) {
 					close();
+					callback.execute();
 				}
-				
 			}
 		});
 		buttonLayout.addComponent(submit);
 		buttonLayout.setComponentAlignment(submit, Alignment.TOP_CENTER);
-		wrangler = new DataWrangler(ui, user);
+		
 		VerticalSplitPanel layout = new VerticalSplitPanel(wrangler, buttonLayout);
 		layout.setSplitPosition(90, Unit.PERCENTAGE);
 		layout.setLocked(true);

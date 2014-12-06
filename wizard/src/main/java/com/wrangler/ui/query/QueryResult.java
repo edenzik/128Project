@@ -17,7 +17,6 @@ public class QueryResult extends Table {
 		setSelectable(false);
 		setImmediate(true);
 		setSizeFull();
-
 	}
 
 }

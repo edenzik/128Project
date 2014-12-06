@@ -27,13 +27,13 @@ public class FDWindow extends Window {
 		super("Functional Dependency Detection");
 		initLayout();
 		setContent(new FDPanel(user));
-		
 	}
 	
 	private void initLayout(){
 		setHeight("90%");
 		setWidth("90%");
 		setDraggable(false);
+		setResizable(false);
 		center();
 	}
 
