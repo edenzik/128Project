@@ -25,10 +25,6 @@ public class DBHelper {
 	private final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
 	private final Database db;
 
-	// Log message for all connection errors. Notably, this reserves space in the logging
-	// escape sequence to pass the db
-	private static final String CONNECTION_ERROR = "COULD NOT GET CONNECTION TO {}\n";
-
 	/**
 	 * Constructs a DatabaseHelper object to help with the passed Database
 	 * 

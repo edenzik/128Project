@@ -3,9 +3,6 @@ package com.wrangler.load;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,12 +78,13 @@ public class QueryHelper {
 	 * @param rel
 	 * @param inferredTypes 
 	 * @return
+	 * @throws CSVFormatException 
 	 */
-	public static String getCreateTableQuery(Relation rel, Map<String, PostgresAttType> inferredTypes) {
+	public static String getCreateTableQuery(Relation rel, Map<String, PostgresAttType> inferredTypes) throws CSVFormatException {
 		// Ugliest but apparently most effective way to convert a set to an array
 		String[] headers = inferredTypes.keySet().toArray(new String[inferredTypes.keySet().size()]);
 		if(headers.length == 0) {
-			throw new IllegalArgumentException("Trying to create table with blank list of attributes!");
+			throw new CSVFormatException("Trying to create table with blank list of attributes!");
 		}
 		StringBuilder attList = new StringBuilder();
 		attList.append("(");
