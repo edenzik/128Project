@@ -31,5 +31,8 @@ public abstract class FunctionalDependency {
 	public Attribute getToAtt() {
 		return toAtt;
 	}
-
+	
+	public String toString() {
+		return String.format("%s -> %s", fromAtt, toAtt);
+	}
 }
