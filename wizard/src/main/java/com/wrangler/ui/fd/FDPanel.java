@@ -4,6 +4,7 @@
 package com.wrangler.ui.fd;
 
 import java.sql.SQLException;
+import java.util.Set;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.server.Sizeable.Unit;
@@ -12,6 +13,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.UI;
 import com.wrangler.fd.FDDetector;
+import com.wrangler.load.Relation;
 import com.wrangler.load.RelationFactory;
 import com.wrangler.load.TableNotFoundException;
 import com.wrangler.ui.login.User;
@@ -29,12 +31,14 @@ class FDPanel extends HorizontalSplitPanel {
 	FDPanel(final User user) {
 		initLayout();
 		
-		ComboBox tableSelection = new TableSelection(user.getDB());
+		Set<Relation > relations = user.getDB().getDbHelper().getRelations();
+		
+		TableSelection tableSelection = new TableSelection(relations);
 		final AttributeTable attributeTable = new AttributeTable();
 		
 		TableAttributeSelection tableAttributeSelection = new TableAttributeSelection(tableSelection, attributeTable);
 		final FDTable fdTable = new FDTable();
-		FDSelectionLayout fdSelectionLayout = new FDSelectionLayout(fdTable);
+		FDSelectionLayout fdSelectionLayout = new FDSelectionLayout(fdTable, tableSelection, user.getDB());
 		
 
 
@@ -44,7 +48,8 @@ class FDPanel extends HorizontalSplitPanel {
 				if (event.getProperty().getValue()!=null){
 					attributeTable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
 					FDDetector detector = new FDDetector(user.getDB());
-					fdTable.fill(detector.findAllHardFds(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
+					Relation relation = RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB());
+					fdTable.fill(detector.findAllHardFds(relation));
 				}
 
 			}

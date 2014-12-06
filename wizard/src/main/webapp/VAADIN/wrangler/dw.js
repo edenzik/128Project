@@ -8418,7 +8418,6 @@ dw.JSON = {};
 
 
 						var uploadInterval;
-
 						function waitForUpload(){
 							uploadInterval = setInterval(function() {
 								$.ajax({

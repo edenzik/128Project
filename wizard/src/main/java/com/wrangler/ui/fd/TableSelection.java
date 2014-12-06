@@ -21,11 +21,10 @@ class TableSelection extends ComboBox {
 	 * a table to display its attributes
 	 * 
 	 */
-	TableSelection(Database db) {
+	TableSelection(Set<Relation> relations) {
 		setSizeFull();
 		addContainerProperty("Table", Relation.class, null);
 		setFilteringMode(FilteringMode.CONTAINS);
-		Set<Relation> relations = db.getDbHelper().getRelations();
 		this.addItems(relations);
 	}
 	
