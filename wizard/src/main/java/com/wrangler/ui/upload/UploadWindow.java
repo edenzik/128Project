@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.upload;
+package com.wrangler.ui.upload;
 
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
@@ -10,8 +10,8 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FinishedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
-import com.wrangler.login.User;
-import com.wrangler.wranglertool.WranglerWindow;
+import com.wrangler.ui.login.User;
+import com.wrangler.ui.wranglertool.WranglerWindow;
 
 /**
  * @author edenzik

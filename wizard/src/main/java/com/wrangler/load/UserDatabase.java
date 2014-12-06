@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wrangler.login.IncorrectPasswordException;
-import com.wrangler.login.UserNotFoundException;
+import com.wrangler.ui.login.IncorrectPasswordException;
+import com.wrangler.ui.login.UserNotFoundException;
 
 /**
  * @author kahliloppenheimer

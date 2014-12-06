@@ -1,4 +1,4 @@
-package com.wrangler.query;
+package com.wrangler.ui.query;
 
 import java.sql.SQLException;
 
@@ -9,7 +9,7 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Button.ClickEvent;
 import com.wrangler.load.Database;
-import com.wrangler.query.QueryExecutionField;
+import com.wrangler.ui.query.QueryExecutionField;
 
 /**
  * Main window containing the table panel and the running panel

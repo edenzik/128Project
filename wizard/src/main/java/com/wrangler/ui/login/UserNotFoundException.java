@@ -1,4 +1,4 @@
-package com.wrangler.login;
+package com.wrangler.ui.login;
 
 public class UserNotFoundException extends Exception {
 

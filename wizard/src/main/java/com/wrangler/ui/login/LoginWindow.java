@@ -1,21 +1,19 @@
 /**
  * 
  */
-package com.wrangler.login;
+package com.wrangler.ui.login;
 
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
-import com.wrangler.app.MainMenu;
-import com.wrangler.query.DatabaseBrowser;
+import com.wrangler.ui.main.MainMenu;
+import com.wrangler.ui.query.DatabaseBrowser;
 
 /**
  * @author edenzik

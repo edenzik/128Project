@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.fd;
+package com.wrangler.ui.FDSelection;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,7 +19,7 @@ import com.vaadin.ui.VerticalSplitPanel;
 import com.wrangler.load.Database;
 import com.wrangler.load.Relation;
 import com.wrangler.load.RelationFactory;
-import com.wrangler.login.User;
+import com.wrangler.ui.login.User;
 
 /**
  * A selection which chooses all the attributes of a table

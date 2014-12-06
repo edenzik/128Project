@@ -1,8 +1,10 @@
-package com.wrangler.app;
+package com.wrangler.ui.main;
 
 import javax.servlet.annotation.WebServlet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -11,7 +13,7 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 import com.wrangler.load.Host;
 import com.wrangler.load.HostFactory;
-import com.wrangler.login.LoginWindow;
+import com.wrangler.ui.login.LoginWindow;
 /**
  *
  * Created by edenzik on 11/27/14.

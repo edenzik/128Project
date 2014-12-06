@@ -1,11 +1,11 @@
-package com.wrangler.query;
+package com.wrangler.ui.query;
 
 import java.sql.SQLException;
 
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.wrangler.login.User;
+import com.wrangler.ui.login.User;
 
 /**
  * @author edenzik

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.login;
+package com.wrangler.ui.login;
 
 import java.sql.SQLException;
 

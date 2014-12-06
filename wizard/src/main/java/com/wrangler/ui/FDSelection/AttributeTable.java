@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.fd;
+package com.wrangler.ui.FDSelection;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

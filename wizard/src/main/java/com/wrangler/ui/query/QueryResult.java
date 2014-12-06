@@ -1,4 +1,4 @@
-package com.wrangler.query;
+package com.wrangler.ui.query;
 
 import java.sql.SQLException;
 import com.vaadin.ui.Table;

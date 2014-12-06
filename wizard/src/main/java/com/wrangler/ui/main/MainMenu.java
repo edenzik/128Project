@@ -1,13 +1,13 @@
 /**
  * 
  */
-package com.wrangler.app;
+package com.wrangler.ui.main;
 
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.UI;
-import com.wrangler.fd.FDWindow;
-import com.wrangler.login.User;
-import com.wrangler.upload.UploadWindow;
+import com.wrangler.ui.FDSelection.FDWindow;
+import com.wrangler.ui.login.User;
+import com.wrangler.ui.upload.UploadWindow;
 
 /**
  * @author edenzik

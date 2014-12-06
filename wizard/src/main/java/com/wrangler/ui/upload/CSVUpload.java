@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.upload;
+package com.wrangler.ui.upload;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

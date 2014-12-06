@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.query;
+package com.wrangler.ui.query;
 
 import java.sql.SQLException;
 import java.util.Set;

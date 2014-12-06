@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.wranglertool;
+package com.wrangler.ui.wranglertool;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.wrangler.extract.WrangledDataExtractor;
 import com.wrangler.load.Database;
-import com.wrangler.login.User;
+import com.wrangler.ui.login.User;
 
 /**
  * @author edenzik

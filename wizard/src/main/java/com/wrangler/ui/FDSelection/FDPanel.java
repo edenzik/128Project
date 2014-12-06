@@ -1,13 +1,13 @@
 /**
  * 
  */
-package com.wrangler.fd;
+package com.wrangler.ui.FDSelection;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.UI;
-import com.wrangler.login.User;
+import com.wrangler.ui.login.User;
 
 /**
  * @author edenzik

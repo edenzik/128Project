@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.fd;
+package com.wrangler.ui.FDSelection;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -9,7 +9,7 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
-import com.wrangler.login.User;
+import com.wrangler.ui.login.User;
 
 /**
  * The window containing all of the functional dependency
