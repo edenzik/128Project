@@ -43,8 +43,7 @@ class FDPanel extends HorizontalSplitPanel {
 			public void valueChange(ValueChangeEvent event) {
 				if (event.getProperty().getValue()!=null){
 					attributeTable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
-					FDDetector detector = new FDDetector(user.getDB());
-					fdTable.fill(detector.findAllHardFds(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
+					fdTable.fill(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB()).findAllHardFds());
 				}
 
 			}

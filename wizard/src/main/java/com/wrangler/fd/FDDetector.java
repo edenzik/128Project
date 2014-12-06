@@ -26,11 +26,15 @@ import com.wrangler.load.TableNotFoundException;
 public class FDDetector {
 
 	// The database to which this FDHelper is applied
-	private final Database db;
-	private final Logger LOG = LoggerFactory.getLogger(FDDetector.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FDDetector.class);
 
-	public FDDetector(Database db) {
-		this.db = db;
+	/**
+	 * USED TO ENFORCE NON-INSTANTIABILITY
+	 * 
+	 * @param db
+	 */
+	private FDDetector(Database db) {
+		throw new AssertionError();
 	}
 
 	/**
@@ -40,12 +44,13 @@ public class FDDetector {
 	 * @throws TableNotFoundException if passed table does not exist in db
 	 * @throws SQLException 
 	 */
-	public Set<FunctionalDependency> findAllHardFds(Relation rel)  {
+	public static Set<FunctionalDependency> findAllHardFds(Relation rel)  {
 		Set<FunctionalDependency> hardFdSet = new HashSet<FunctionalDependency>();
+		Database db = rel.getSourceDb();
 		// Check to see if table doesn't exist
 		if(!db.getDbHelper().tableExists(rel)) {
-			LOG.warn("Attempted to find hard fds of non-existant table {}", rel.getName());
-			//throw new TableNotFoundException();
+			LOG.error("Attempted to find hard fds of non-existant table {}", rel.getName());
+			throw new IllegalArgumentException("Attempted to find hard fds of non-existant table");
 		}
 
 		Set<Attribute> attrs;
@@ -73,7 +78,7 @@ public class FDDetector {
 	 * @param toAtt
 	 * @return
 	 */
-	public boolean isHardFd(Attribute fromAtt, Attribute toAtt) {
+	public static boolean isHardFd(Attribute fromAtt, Attribute toAtt) {
 		LOG.info("Checking {} -> {} as hard fd...", fromAtt, toAtt);
 		try {
 			if(getFdViolationCount(fromAtt, toAtt) == 0) {
@@ -99,7 +104,7 @@ public class FDDetector {
 	 * @return
 	 * @throws SQLException 
 	 */
-	private int getFdViolationCount(Attribute fromAtt, Attribute toAtt) throws SQLException {
+	private static int getFdViolationCount(Attribute fromAtt, Attribute toAtt) throws SQLException {
 		// Make sure both attributes are from the same table
 		if(!fromAtt.getSourceTable().equals(toAtt.getSourceTable())) {
 			LOG.error("Trying to calculate hard FDs for relations from two separate relations: {} and {}",
@@ -123,12 +128,6 @@ public class FDDetector {
 		return -1;
 	}
 
-	/**
-	 * @return the db
-	 */
-	public Database getDb() {
-		return db;
-	}
 
 	/**
 	 * Used for unit testing only
@@ -140,9 +139,13 @@ public class FDDetector {
 		try {
 			Database db = DatabaseFactory.createDatabase("cosi128a", host);
 			Relation rel = RelationFactory.createRelation("cities_extended", db);
-			FDDetector fdHelper = new FDDetector(db);
-			Set<FunctionalDependency> fds = fdHelper.findAllHardFds(rel);
-			System.out.println(fds);
+			Set<FunctionalDependency> fds = rel.findAllHardFds();
+			System.out.println("fds = " + fds);
+			for(FunctionalDependency fd: fds) {
+				Attribute att = fd.getFromAtt();
+				Set<Attribute> closure = Normalizer.findFdClosure(att, fds);
+				System.out.printf("Closure for %s = %s\n", att, closure);
+			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
