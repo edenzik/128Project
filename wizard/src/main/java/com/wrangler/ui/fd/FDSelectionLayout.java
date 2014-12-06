@@ -1,7 +1,9 @@
 package com.wrangler.ui.fd;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 
 /**
  * 
@@ -11,14 +13,27 @@ import com.vaadin.ui.HorizontalSplitPanel;
  * @author edenzik
  *
  */
-public class FDSelectionLayout extends HorizontalSplitPanel {
+class FDSelectionLayout extends VerticalSplitPanel {
 
 	/**
+	 * Enables the user to see all functional dependencies and add/remove some
 	 * 
 	 */
-	public FDSelectionLayout() {
-		addComponent(new FDTable());
-		addComponent(new Button("Remove Selected Functional Dependencies"));
+	FDSelectionLayout(FDTable fdTable) {
+		initLayout();
+		HorizontalLayout hl = new HorizontalLayout(fdTable);
+		addComponent(hl);
+		hl.setSizeFull();
+		hl.setMargin(new MarginInfo(true, false, false, false));
+		addComponent(new FDAddRemovePanel(fdTable));
 	}
+	
+	private void initLayout(){
+		setSizeFull();
+		setSplitPosition(80, Unit.PERCENTAGE);
+		setLocked(true);
+	}
+	
+	
 
 }

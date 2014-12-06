@@ -20,30 +20,37 @@ import com.wrangler.ui.login.User;
  * @author edenzik
  *
  */
-public class FDPanel extends HorizontalSplitPanel {
+class FDPanel extends HorizontalSplitPanel {
 
 	/**
 	 * A panel containng the whole content of the window
 	 * 
 	 */
-	public FDPanel(final User user) {
+	FDPanel(final User user) {
 		initLayout();
-		TableAttributeSelection tas = new TableAttributeSelection(user);
-		final FDTable fds = new FDTable();
-		final FDDetector detector = new FDDetector(user.getDB());
+		
+		ComboBox tableSelection = new TableSelection(user.getDB());
+		final AttributeTable attributeTable = new AttributeTable();
+		
+		TableAttributeSelection tableAttributeSelection = new TableAttributeSelection(tableSelection, attributeTable);
+		final FDTable fdTable = new FDTable();
+		FDSelectionLayout fdSelectionLayout = new FDSelectionLayout(fdTable);
+		
 
-		ComboBox cbox = tas.getCbox();
-		cbox.addValueChangeListener(new ComboBox.ValueChangeListener() {
+
+		tableSelection.addValueChangeListener(new ComboBox.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				if (event.getProperty().getValue()!=null){
-					fds.fill(detector.findAllHardFds(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
+					attributeTable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
+					FDDetector detector = new FDDetector(user.getDB());
+					fdTable.fill(detector.findAllHardFds(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
 				}
 
 			}
 		});
-		addComponent(tas);
-		addComponent(fds);
+		addComponent(tableAttributeSelection);
+		addComponent(fdSelectionLayout);
 		
 	}
 

@@ -12,6 +12,7 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
@@ -26,33 +27,20 @@ import com.wrangler.ui.login.User;
  * @author edenzik
  *
  */
-public class TableAttributeSelection extends VerticalSplitPanel{
-	private final ComboBox cbox;
+class TableAttributeSelection extends VerticalSplitPanel{
 
 	/**
 	 * 
 	 */
-	public TableAttributeSelection(final User user) {
+	TableAttributeSelection(Component cbox, Component attributeTable)  {
 		initLayout();
-		cbox = new TableSelection(user.getDB());
-
-		final AttributeTable atable = new AttributeTable();
 		HorizontalLayout hl = new HorizontalLayout(cbox);
 		addComponent(hl);
-
 		hl.setSizeFull();
 		hl.setMargin(new MarginInfo(true, false, false, false));
-		cbox.addValueChangeListener(new ComboBox.ValueChangeListener() {
+		
 
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				if (event.getProperty().getValue()!=null){
-					atable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB())));
-				}
-
-			}
-		});
-		addComponent(atable);
+		addComponent(attributeTable);
 
 	}
 
@@ -61,8 +49,5 @@ public class TableAttributeSelection extends VerticalSplitPanel{
 		setSplitPosition(6, Unit.PERCENTAGE);
 		setLocked(true);
 	}
-	
-	ComboBox getCbox(){return cbox;}
-
 
 }

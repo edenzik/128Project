@@ -12,12 +12,12 @@ import com.wrangler.load.Attribute;
  * @author edenzik
  *
  */
-public class AttributeTable extends Table {
+class AttributeTable extends Table {
 
 	/**
 	 * 
 	 */
-	public AttributeTable() {
+	AttributeTable() {
 		initLayout();
 		addContainerProperty("Attributes", String.class, null);
 	}

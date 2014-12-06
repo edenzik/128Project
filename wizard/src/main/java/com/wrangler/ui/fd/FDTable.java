@@ -10,12 +10,13 @@ import com.wrangler.fd.FunctionalDependency;
  * @author edenzik
  *
  */
-public class FDTable extends Table {
+class FDTable extends Table {
+	HashMap<Object, FunctionalDependency> fdSet;
 
 	/**
 	 * 
 	 */
-	public FDTable() {
+	FDTable() {
 		initLayout();
 		addContainerProperty("From Attribute", String.class, null);
 		addContainerProperty("To Attribute", String.class, null);
@@ -28,10 +29,16 @@ public class FDTable extends Table {
 	
 	void fill(Set<FunctionalDependency> functionalDependencies){
 		removeAllItems();
-		HashMap<Integer, FunctionalDependency> fdSet = new HashMap<Integer, FunctionalDependency>();
+		fdSet = new HashMap<Object, FunctionalDependency>();
 		for (FunctionalDependency fd: functionalDependencies){
-			fdSet.put((Integer) addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null), fd);
+			fdSet.put(addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null), fd);
 		}
+	}
+	
+	void removeSelectedValue(){
+		Object currentValue = getValue();
+		removeItem(currentValue);
+		if (currentValue!=null) fdSet.remove(currentValue);
 	}
 
 }
