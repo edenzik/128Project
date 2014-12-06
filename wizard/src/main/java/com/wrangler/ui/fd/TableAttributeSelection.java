@@ -32,9 +32,11 @@ class TableAttributeSelection extends VerticalSplitPanel{
 	/**
 	 * 
 	 */
-	TableAttributeSelection(Component cbox, Component attributeTable)  {
+	TableAttributeSelection(ComboBox cbox, Component attributeTable)  {
 		initLayout();
 		HorizontalLayout hl = new HorizontalLayout(cbox);
+		cbox.setInvalidAllowed(false);
+		cbox.setInputPrompt("Select table here...");
 		addComponent(hl);
 		hl.setSizeFull();
 		hl.setMargin(new MarginInfo(true, false, false, false));
