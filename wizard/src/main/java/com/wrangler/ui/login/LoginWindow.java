@@ -12,6 +12,7 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
+import com.wrangler.ui.callback.Callback;
 import com.wrangler.ui.main.MainMenu;
 import com.wrangler.ui.query.DatabaseBrowser;
 
@@ -84,8 +85,13 @@ public class LoginWindow extends Window {
 		VerticalSplitPanel mainSplitPanel = new VerticalSplitPanel();
 		mainSplitPanel.setLocked(true);
 		mainSplitPanel.setSplitPosition(5, Unit.PERCENTAGE);
-		DatabaseBrowser browser = new DatabaseBrowser(user);
-		mainSplitPanel.addComponent(new MainMenu(ui, user));
+		final DatabaseBrowser browser = new DatabaseBrowser(user);
+		Callback callback = new Callback(){
+			public void execute(){
+				browser.reload();
+			}
+		};
+		mainSplitPanel.addComponent(new MainMenu(ui, user, callback));
 		mainSplitPanel.addComponent(browser);
 		ui.setContent(mainSplitPanel);
 	}
