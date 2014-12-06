@@ -5,7 +5,7 @@ package com.wrangler.app;
 
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.UI;
-import com.wrangler.fd.FDWindow;
+import com.wrangler.FDSelection.FDWindow;
 import com.wrangler.login.User;
 import com.wrangler.upload.UploadWindow;
 

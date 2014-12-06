@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wrangler.fd;
+package com.wrangler.FDSelection;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
