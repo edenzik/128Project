@@ -42,7 +42,9 @@ public class FDPanel extends HorizontalSplitPanel {
 
 			}
 		});
+		addComponent(tas);
 		addComponent(fds);
+		
 	}
 
 	private void initLayout(){

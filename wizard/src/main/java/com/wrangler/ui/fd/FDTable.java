@@ -1,5 +1,6 @@
 package com.wrangler.ui.fd;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import com.vaadin.ui.Table;
@@ -22,12 +23,14 @@ public class FDTable extends Table {
 	
 	private void initLayout(){
 		setSizeFull();
+		setSelectable(true);
 	}
 	
 	void fill(Set<FunctionalDependency> functionalDependencies){
 		removeAllItems();
+		HashMap<Integer, FunctionalDependency> fdSet = new HashMap<Integer, FunctionalDependency>();
 		for (FunctionalDependency fd: functionalDependencies){
-			addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null);
+			fdSet.put((Integer) addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null), fd);
 		}
 	}
 
