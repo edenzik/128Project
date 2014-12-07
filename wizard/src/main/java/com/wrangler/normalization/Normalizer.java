@@ -1,5 +1,6 @@
 package com.wrangler.normalization;
 
+import java.sql.SQLException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -12,6 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import com.wrangler.fd.FunctionalDependency;
 import com.wrangler.load.Attribute;
+import com.wrangler.load.Database;
+import com.wrangler.load.DatabaseFactory;
+import com.wrangler.load.Host;
+import com.wrangler.load.HostFactory;
 import com.wrangler.load.Relation;
 import com.wrangler.load.RelationFactory;
 
@@ -27,14 +32,17 @@ public final class Normalizer {
 	private Set<Relation> bcnf;
 	// Set of relations for this table to be broken into 3nf,
 	// cached for repeated computation
-//	private Set<Relation> threeNF;
-
-	private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
+	//	private Set<Relation> threeNF;
 	
+	// Table counter mainted for unique naming
+	private int tableCounter;
+	private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
+
 	private Normalizer(Relation r) {
 		this.rel = r;
+		tableCounter = 0;
 	}
-	
+
 	/**
 	 * Constructs new Normalizer instances for a particular relation.
 	 * Because relation objects tend to cache particular results, using
@@ -102,27 +110,28 @@ public final class Normalizer {
 		Set<Attribute> tableAttrs = rel.getAttributes();
 		// Check if each attr is a superkey of r
 		for(Attribute a: tableAttrs) {
-			if(isSuperKey(a)) {
+			if(isSuperKey(a, rel)) {
 				sKeys.add(a);
 			}
 		}
 		this.superKeys = sKeys;
 		return this.superKeys;
 	}
-	
+
 	/**
 	 * Returns true iff a given Attribute a is a superkey of the
 	 * Relation r
 	 * 
 	 * @param a
+	 * @param r 
 	 * @param rel
 	 * @return
 	 */
-	public boolean isSuperKey(Attribute a) {
-		Set<Attribute> tableAttrs = rel.getAttributes();
-		Set<FunctionalDependency> fds = rel.findAllHardFds();
+	public boolean isSuperKey(Attribute a, Relation r) {
+		Set<Attribute> tableAttrs = r.getAttributes();
+		Set<FunctionalDependency> fds = r.findAllHardFds();
 		Set<Attribute> fdClosure = findFdClosure(a, fds);
-		
+
 		// Compare the closure of functional dependencies of a with
 		// the attributes of r to see if a -> r
 		return tableAttrs.equals(fdClosure);
@@ -142,6 +151,7 @@ public final class Normalizer {
 	public Set<Relation> bcnf() {
 		// If we've already computed this result then just return it
 		if(bcnf != null) {
+			LOG.info("Using cached bcnf result..");
 			return bcnf;
 		}
 
@@ -156,15 +166,15 @@ public final class Normalizer {
 			Entry<Relation, Relation> decomposed = decomposeOn(violating.getKey(), violating.getValue());
 			normalized.add(decomposed.getKey());
 			normalized.add(decomposed.getValue());
-			
+
 			// Check to see if we still have any violating FDs
 			violating = findAndRemoveBcnfViolation(normalized);
 		}
-		
+
 		bcnf = normalized;
 		return normalized;
 	}
-	
+
 	/**
 	 * Given a Relation r and a Functional Depdendency x -> y s.t. fd
 	 * causes r to not be in BCNF, returns two tables:
@@ -180,16 +190,34 @@ public final class Normalizer {
 		Set<Attribute> rMinusYAtts = new LinkedHashSet<Attribute>();
 		rMinusYAtts.addAll(rel.getAttributes());
 		rMinusYAtts.remove(fd.getToAtt());
-		Relation rMinusY = RelationFactory.createNewRelation(rel.getName(), rMinusYAtts);
+		Relation rMinusY = RelationFactory.createNewRelation(getNewName(), rMinusYAtts);
+		// Make sure {r - y} inherits all the FDs x -> y iff {r - y} contains both x and y
+		for(FunctionalDependency f : rel.findAllHardFds()) {
+			if(rMinusYAtts.contains(f.getFromAtt()) && rMinusYAtts.contains(f.getToAtt())) {
+				rMinusY.addFd(f);
+			}
+		}
 
 		// Initialize xy decomposed table
 		Set<Attribute> xyAtts = new LinkedHashSet<Attribute>();
 		xyAtts.add(fd.getFromAtt());
 		xyAtts.add(fd.getToAtt());
-		String xyName = fd.getFromAtt().getName() + "_" + fd.getToAtt().getName();
-		Relation xy = RelationFactory.createNewRelation(xyName, xyAtts);
-		
+		Relation xy = RelationFactory.createNewRelation(getNewName(), xyAtts);
+		// Make sure xy inherits the x -> y fd
+		xy.addFd(fd);
+
+		LOG.info("Decomposed {} on {} into {} and {}", rel.getAttributes(), fd, rMinusYAtts, xyAtts);
 		return new SimpleEntry<Relation, Relation>(rMinusY, xy);
+	}
+
+	/**
+	 * Returns a new name for decomposition using the source table as the base
+	 * @param name
+	 * @return
+	 */
+	private String getNewName() {
+		tableCounter++;
+		return rel.getName() + "_" + tableCounter;
 	}
 
 	/**
@@ -201,8 +229,12 @@ public final class Normalizer {
 	private Entry<Relation, FunctionalDependency> findAndRemoveBcnfViolation(
 			Set<Relation> normalized) {
 		Entry<Relation, FunctionalDependency> violation = findBcnfViolation(normalized);
-		normalized.remove(violation.getKey());
-		return violation;
+		if(violation == null) {
+			return null;
+		} else {
+			normalized.remove(violation.getKey());
+			return violation;
+		}
 	}
 
 	/**
@@ -215,7 +247,7 @@ public final class Normalizer {
 	 */
 	private Entry<Relation, FunctionalDependency> findBcnfViolation(Set<Relation> normalized) {
 		for(Relation r: normalized) {
-			FunctionalDependency violatingFd = findNonBcnfFd();
+			FunctionalDependency violatingFd = findNonBcnfFd(r);
 			if(violatingFd != null) {
 				return new SimpleEntry<Relation, FunctionalDependency>(r, violatingFd);
 			}
@@ -226,25 +258,38 @@ public final class Normalizer {
 	/**
 	 * Returns a Functional Dependency fd of r iff fd is not
 	 * a superkey of r
+	 * @param r 
 	 * 
 	 * @return
 	 */
-	private FunctionalDependency findNonBcnfFd() {
-		Set<FunctionalDependency> fds = rel.findAllHardFds();
+	private FunctionalDependency findNonBcnfFd(Relation r) {
+		Set<FunctionalDependency> fds = r.findAllHardFds();
 		for(FunctionalDependency fd: fds) {
 			// If any fd a -> b exists in r s.t. a is not a superkey
 			// of r, then return false
-			if(!isSuperKey(fd.getFromAtt())) {
+			if(!isSuperKey(fd.getFromAtt(), r)) {
 				return fd;
 			} 
 		}
 		return null;
 	}
-	
+
 	/**
 	 * USED ONLY FOR UNIT TESTING
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
 	 */
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+		Host host = HostFactory.createDefaultHost();
+		Database db = DatabaseFactory.createDatabase("kahliloppenheimer", host);
+		Relation r = RelationFactory.createExistingRelation("table182", db);
+		Normalizer n = Normalizer.newInstance(r);
+		Set<Relation> set = n.bcnf();
+		for(Relation rel: set) {
+			LOG.debug("Initializing " + rel);
+			rel.initialize(db);
+			LOG.debug("Successfully initialized " + rel + "!");
+		}
+
 	}
 }
