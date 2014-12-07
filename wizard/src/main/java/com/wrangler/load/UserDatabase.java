@@ -14,7 +14,7 @@ import com.wrangler.ui.login.UserNotFoundException;
  */
 public class UserDatabase extends Database {
 
-	private static final String USER_DB_NAME = "default"; 
+	private static final String USER_DB_NAME = "postgres"; 
 	protected UserDatabase()
 			throws ClassNotFoundException, SQLException {
 		super(USER_DB_NAME, HostFactory.createDefaultHost());
@@ -31,8 +31,8 @@ public class UserDatabase extends Database {
 	 * @throws IncorrectPasswordException 
 	 */
 	public boolean verifyUser(String userName, String userPass) throws UserNotFoundException, IncorrectPasswordException, SQLException{
-		String NAME_QUERY = String.format("SELECT * FROM users WHERE email='%s'", userName);
-		String NAME_AND_PASS_QUERY = String.format("SELECT * FROM users WHERE email='%s' and password='%s'", userName, userPass);
+		String NAME_QUERY = String.format("SELECT * FROM users WHERE username='%s'", userName);
+		String NAME_AND_PASS_QUERY = String.format("SELECT * FROM users WHERE username='%s' and password='%s'", userName, userPass);
 		if(!getDbHelper().exists(NAME_QUERY)) {
 			throw new UserNotFoundException();
 		}

@@ -7,6 +7,7 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.UI;
 import com.wrangler.ui.callback.Callback;
 import com.wrangler.ui.fd.FDWindow;
+import com.wrangler.ui.login.LoginWindow;
 import com.wrangler.ui.login.User;
 import com.wrangler.ui.normalize.NormalizeWindow;
 import com.wrangler.ui.query.DatabaseBrowser;
@@ -73,6 +74,13 @@ public class MainMenu extends MenuBar {
 		};
 	}
 	private Command exportData(){return null;}
-	private Command saveLogout(){return null;}
+	private Command saveLogout(){
+		return new MenuBar.Command() {
+		    public void menuSelected(MenuItem selectedItem) {
+		    	ui.setContent(null);
+		    	ui.addWindow(new LoginWindow(ui));
+		    }
+		};
+	}
 	
 }
