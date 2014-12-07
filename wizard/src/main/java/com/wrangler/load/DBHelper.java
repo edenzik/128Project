@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 import com.wrangler.extract.CSVFormatException;
+import com.wrangler.normalization.Normalizer;
 
 /**
  * Class to abstract away from boilerplate of JDBC connection
@@ -27,6 +28,28 @@ public class DBHelper {
 	private SimpleJDBCConnectionPool pool;
 	private final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
 	private final Database db;
+
+	/**
+	 * Used only for unit testing
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		try {
+			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
+			Relation rel = RelationFactory.createExistingRelation("table152", db);
+			Normalizer norm = Normalizer.newInstance(rel);
+			Set<Relation> normalized = norm.bcnf();
+			System.out.println("NORMALIZED = " + normalized);
+			rel.decomposeInto(normalized);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Constructs a DatabaseHelper object to help with the passed Database
@@ -251,56 +274,6 @@ public class DBHelper {
 	}
 
 	/**
-	 * Used only for unit testing
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try {
-			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
-			Relation rel = RelationFactory.createExistingRelation("table154", db);
-			System.out.println(db.getDbHelper().getRelations());
-			Set<Attribute> attrs = db.getDbHelper().getRelationAttributes(rel);
-			System.out.println(attrs);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Returns a Set of all of the attributes for a given table
-	 * 
-	 * @param rel
-	 * @return
-	 * @throws SQLException 
-	 */
-	public Set<Attribute> getRelationAttributes(Relation rel) {
-		Set<Attribute> attrSet = new LinkedHashSet<Attribute>();
-		try {
-			Connection conn = getConnection();
-			DatabaseMetaData meta = conn.getMetaData();
-			ResultSet rs = meta.getColumns(null, null, rel.getName().toLowerCase(), null);
-			while(rs.next()) {
-				String colName = rs.getString("COLUMN_NAME");
-				String colType = rs.getString("TYPE_NAME");
-				PostgresAttType type = PostgresAttType.valueOf(colType);
-
-				Attribute attr = AttributeFactory.createAttribute(colName, type, rel);
-				attrSet.add(attr);
-			}
-		} catch (SQLException e){
-			LOG.error("", e);
-		}
-
-		return attrSet;
-
-	}
-
-	/**
 	 * @return the JDBC connection pool
 	 */
 	public SimpleJDBCConnectionPool getPool(){return pool;}
@@ -341,9 +314,138 @@ public class DBHelper {
 	public boolean populateTable(Relation newRel, Relation sourceRel) {
 		Set<Attribute> atts = newRel.getAttributes();
 		String selectQuery = QueryHelper.getSelectQueryForAtts(sourceRel, atts);
-		String insertQuery = String.format("INSERT INTO %s (%s);", newRel.getName(), selectQuery);
-		executeUpdate(insertQuery);
-		return false;
+		String pk = newRel.getPrimaryKey().getName();
+		String insertQuery = null;
+		if(pk != null) {
+			insertQuery = String.format("INSERT INTO %s (%s) GROUP BY %s;", 
+					newRel.getName(), selectQuery, newRel);
+		} else {
+			insertQuery = String.format("INSERT INTO %s (%s)", newRel.getName(), selectQuery);
+		}
+		return executeUpdate(insertQuery);
+	}
+
+	/**
+	 * Returns a Set of all of the attributes for a given table
+	 * 
+	 * @param rel
+	 * @return
+	 * @throws SQLException 
+	 */
+	public Set<Attribute> getRelationAttributes(Relation rel) {
+		Set<Attribute> attrSet = new LinkedHashSet<Attribute>();
+		try {
+			Connection conn = getConnection();
+			DatabaseMetaData meta = conn.getMetaData();
+			ResultSet rs = meta.getColumns(null, null, rel.getName().toLowerCase(), null);
+			while(rs.next()) {
+				String colName = rs.getString("COLUMN_NAME");
+				String colType = rs.getString("TYPE_NAME");
+				PostgresAttType type = PostgresAttType.valueOf(colType);
+
+				Attribute attr = Attribute.withoutConstraints(colName, type, rel);
+				attrSet.add(attr);
+			}
+		} catch (SQLException e){
+			LOG.error("", e);
+		}
+		return attrSet;
+
+	}
+
+	/**
+	 * Checks and updates all constraints for all attributes of the passed
+	 * relation so that each attribute will now store any constraints that
+	 * it has
+	 * 
+	 * @param relation
+	 * @return
+	 */
+	protected void findAndSetConstraints(Relation relation) {
+		Set<Attribute> attrs = relation.getAttributes();
+		Connection conn = null;
+		try {
+			conn = getConnection();
+			DatabaseMetaData metaData = conn.getMetaData();
+
+			// Add all primary keys to set of constraints
+			ResultSet primaryKeys = metaData.getPrimaryKeys(null, null, relation.getName());
+			int counter = 0;
+			while(primaryKeys.next()) {
+				String pkName = primaryKeys.getString("COLUMN_NAME");
+				String pkTable = primaryKeys.getString("TABLE_NAME");
+				for(Attribute a: attrs ) {
+					if(a.getName().equalsIgnoreCase(pkName) 
+							&& a.getSourceTable().getName().equalsIgnoreCase(pkTable)) {
+						relation.setPrimaryKey(a);
+					}
+				}
+				counter++;
+				if(counter > 1) {
+					throw new AssertionError("Not supporting multiple primary keys!");
+				}
+			}
+
+			// Add all foreign keys to set of constraints
+			ResultSet foreignKeys = metaData.getImportedKeys(conn.getCatalog(), null, relation.getName().toLowerCase());
+			while (foreignKeys.next()) {
+				String fkTableName = foreignKeys.getString("FKTABLE_NAME");
+				String fkColumnName = foreignKeys.getString("FKCOLUMN_NAME");
+				String pkTableName = foreignKeys.getString("PKTABLE_NAME");
+				String pkColumnName = foreignKeys.getString("PKCOLUMN_NAME");
+				//				LOG.debug("{}.{} references {}.{}", fkTableName, fkColumnName, pkTableName, pkColumnName);
+				for(Attribute a: attrs) {
+					// If the foreign key is the same as some attribute in our relation
+					// (i.e. they have the same column name and table name) then add that
+					// foreign key constraint to the attribute in our relation
+					if(a.getName().equalsIgnoreCase(fkColumnName) 
+							&& a.getSourceTable().getName().equalsIgnoreCase(fkTableName)) {
+						//						LOG.debug("{} has fk {} referencing {}.{}", attrs, a, pkTableName, pkColumnName);
+						Database db = a.getSourceTable().getSourceDb();
+						PostgresAttType type = a.getAttType();
+						Relation pkRel = RelationFactory.createExistingRelation(pkTableName, db);
+						Attribute pk = Attribute.withoutConstraints(pkColumnName, type, pkRel);
+						a.addFK(pk);
+					}
+				}
+			}
+		} catch(SQLException e) {
+			LOG.error("", e);
+		}
+	}
+
+	/**
+	 * Deletes the passed relation from the database.
+	 * 
+	 * @param relation
+	 */
+	public void deleteTable(Relation relation) {
+		String query = String.format("DROP TABLE %s;", relation.getName());
+		executeUpdate(query);
+	}
+
+	/**
+	 * Adds the passed attribute as a primary key of the passed relation r
+	 * 
+	 * @param primaryKey
+	 * @param r
+	 */
+	public void addPrimaryKey(Attribute primaryKey, Relation r) {
+		String query = String.format("ALTER TABLE %s ADD PRIMARY KEY(%s)", r.getName(), primaryKey.getName());
+		executeUpdate(query);
+	}
+
+	/**
+	 * Adds a constraint c to a given Attribute a in a relation r like
+	 * a foreign key constraint s.t. a would reference c.pk
+	 * 
+	 * @param r
+	 * @param a
+	 * @param c
+	 */
+	public void addConstraint(Relation r, Attribute a, Constraint c) {
+		String query = String.format("ALTER TABLE %s ADD FOREIGN KEY(%s) %s", r.getName(), a.getName(), c.asSql());
+		executeUpdate(query);
 	}
 }
 

@@ -170,7 +170,6 @@ public final class Normalizer {
 			// Check to see if we still have any violating FDs
 			violating = findAndRemoveBcnfViolation(normalized);
 		}
-
 		bcnf = normalized;
 		return normalized;
 	}
@@ -205,6 +204,8 @@ public final class Normalizer {
 		Relation xy = RelationFactory.createNewRelation(getNewName(), xyAtts);
 		// Make sure xy inherits the x -> y fd
 		xy.addFd(fd);
+		// Set x as pk of xy
+		xy.setPrimaryKey(fd.getFromAtt());
 
 		LOG.info("Decomposed {} on {} into {} and {}", rel.getAttributes(), fd, rMinusYAtts, xyAtts);
 		return new SimpleEntry<Relation, Relation>(rMinusY, xy);
@@ -285,11 +286,6 @@ public final class Normalizer {
 		Relation r = RelationFactory.createExistingRelation("table152", db);
 		Normalizer n = Normalizer.newInstance(r);
 		Set<Relation> set = n.bcnf();
-		for(Relation rel: set) {
-			LOG.debug("Initializing and populating " + rel);
-			rel.initializeAndPopulate(r, db);
-			LOG.debug("Successfully initialized and populated" + rel + "!");
-		}
-
+		r.decomposeInto(set);
 	}
 }

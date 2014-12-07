@@ -95,7 +95,7 @@ public class QueryHelper {
 		attList.append("(");
 		attList.append(headers[0] + " " + inferredTypes.get(headers[0]));
 		for(int i = 1; i < headers.length; ++i) {
-			attList.append(", " + headers[i] + " " + inferredTypes.get(headers[i])); 
+			attList.append(", " + headers[i] + " " + inferredTypes.get(headers[i]));
 		}
 		attList.append(")");
 		return "CREATE TABLE " + rel + attList.toString() + ";";

@@ -1,5 +1,8 @@
 package com.wrangler.load;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * Represents a single attribute within a table
@@ -8,19 +11,45 @@ package com.wrangler.load;
  *
  */
 public class Attribute {
-	
+
 	private final String name;
 	private final Relation sourceTable;
 	private final PostgresAttType attType;
-	private boolean isNull;
-	
-	public Attribute(String name, PostgresAttType attType, Relation sourceTable) {
+	private Set<Constraint> constraints;
+
+	private Attribute(String name, PostgresAttType attType, Relation sourceTable, Set<Constraint> constraints) {
 		this.name = name;
 		this.attType = attType;
 		this.sourceTable = sourceTable;
-		isNull = false;
+		this.setConstraints(constraints);
 	}
-	
+
+	/**
+	 * Returns a new Attribute without any constraints (i.e. primary key or foreign key)
+	 * 
+	 * @param name
+	 * @param attType
+	 * @param sourceTable
+	 * @return
+	 */
+	public static Attribute withoutConstraints(String name, PostgresAttType attType, Relation sourceTable) {
+		return new Attribute(name, attType, sourceTable, new HashSet<Constraint>());
+	}
+
+	/**
+	 * Returns a new Attribute with specified constraints (i.e. primary key or foreign key)
+	 * 
+	 * @param name
+	 * @param attType
+	 * @param sourceTable
+	 * @param constraints
+	 * @return
+	 */
+	public static Attribute withConstraints(String name, PostgresAttType attType, 
+			Relation sourceTable, Set<Constraint> constraints) {
+		return new Attribute(name, attType, sourceTable, constraints);
+	}
+
 	/**
 	 * @return the name
 	 */
@@ -41,6 +70,52 @@ public class Attribute {
 	public Relation getSourceTable() {
 		return sourceTable;
 	}
+
+	/**
+	 * @return the constraints
+	 */
+	public Set<Constraint> getConstraints() {
+		return constraints;
+	}
+
+	/**
+	 * @param constraints the constraints to set
+	 */
+	public void setConstraints(Set<Constraint> constraints) {
+		this.constraints = constraints;
+	}
+	
+	/**
+	 * Adds the passed constraint to this attributes maintained set of
+	 * constraints. Creates the set if it did not exist before.
+	 * 
+	 * @param c
+	 */
+	public void addConstraint(Constraint c) {
+		if(this.constraints == null) {
+			Set<Constraint> cSet = new HashSet<Constraint>();
+			cSet.add(c);
+			setConstraints(cSet);
+		} else {
+			this.constraints.add(c);
+		}
+	}
+	
+	/**
+	 * Adds a new foreign key constraint to this attribute to reference the passed
+	 * primary key
+	 * 
+	 * @param pk
+	 */
+	public void addFK(Attribute pk) {
+		if(pk == null || pk.getSourceTable() == null) {
+			throw new IllegalArgumentException("Invalid pk: " + pk);
+		}
+		
+		Constraint fkpk = Constraint.newForeignKey(this, pk);
+		addConstraint(fkpk);
+	}
+
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -82,12 +157,4 @@ public class Attribute {
 		return getName();
 	}
 
-	/**
-	 * Returns true iff this Attribute is actually null
-	 * 
-	 * @return
-	 */
-	public boolean isNull() {
-		return isNull;
-	}
 }

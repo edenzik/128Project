@@ -29,6 +29,9 @@ public class Relation {
 	// Set of functional dependencies for this relation
 	// (calculated the first time it's requested)
 	private Set<FunctionalDependency> fds = null;
+	// Represents this table's primary key
+	// (currently only one is supported)
+	private Attribute primaryKey;
 
 	private static final Logger LOG = LoggerFactory.getLogger(Relation.class);
 
@@ -61,7 +64,7 @@ public class Relation {
 
 		// Create new Attributes that actually refer to this table as their souce
 		for(Attribute a: attrs) {
-			copy.add(AttributeFactory.createAttribute(a.getName(), a.getAttType(), this));
+			copy.add(Attribute.withConstraints(a.getName(), a.getAttType(), this, a.getConstraints()));
 		}
 		this.attrs = copy;
 	}
@@ -83,23 +86,57 @@ public class Relation {
 		}
 
 	}
-	/**
-	 * Returns the set of functional dependencies (FDs) for this Relation.
-	 * The FDs are cached after the first access, so subsequent accesses
-	 * are not expensive.
-	 * 
-	 * @return the fds
-	 */
-	public Set<FunctionalDependency> findAllHardFds() {
-		if(this.fds == null) {
-			if(!exists()) {
-				return new LinkedHashSet<FunctionalDependency>();
-			}
-			this.fds = FDDetector.findAllHardFds(this);
-		} 
-		return this.fds;
-	}
 
+	/**
+	 * Decomposes the current Relation into the set of passed Relations
+	 * (almost always the result of normalization algorithm like Normalizer::bcnf())
+	 * 
+	 * @param rels
+	 * @return
+	 */
+	public boolean decomposeInto(Set<Relation> rels) {
+		boolean failed = false;
+		// Keep track of all of the relations that completed so that if any
+		// failed we can undo the ones that did complete
+		Set<Relation> succesfullyCompleted = new LinkedHashSet<Relation>();
+		for(Relation r: rels) {
+			if(this.equals(r)) {
+				// If original table still exists, it means no decomposition ocurred
+				// and we can simply return
+				return true;
+			}
+			if(!r.initializeAndPopulate(this, getSourceDb())) {
+				failed = true;
+				break;
+			}
+		}
+		// Delete any residue (normalized tables) if not all finished successfully
+		if(failed) {
+			LOG.error("Failed to initialize decomposed tables {}; deleting any that successfully completed...", rels);
+			for(Relation r: succesfullyCompleted) {
+				r.delete();
+			}
+			return false;
+		}
+		// Set up constraints
+		for(Relation r: rels) {
+			// Add primary key if it exists
+			if(r.getPrimaryKey() != null) {
+				getSourceDb().getDbHelper().addPrimaryKey(r.getPrimaryKey(), r);
+			}
+			Set<Attribute> attrs = r.getAttributes();
+			// Set up attribute specific constraints (i.e. fk or unique)
+			for(Attribute a: attrs) {
+				Set<Constraint> constraints = a.getConstraints();
+				for(Constraint c : constraints) {
+					getSourceDb().getDbHelper().addConstraint(r, a, c);
+				}
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * Creates a relation representing this object in the sourceDb, then populates it with the
 	 * relevant data from the passed source relation. This relation's attributes MUST be a subset
@@ -110,7 +147,7 @@ public class Relation {
 	 * @param sourceDb
 	 * @return
 	 */
-	public boolean initializeAndPopulate(Relation sourceRel, Database sourceDb) {
+	private boolean initializeAndPopulate(Relation sourceRel, Database sourceDb) {
 		// Ensure nothing passed is null
 		if(sourceRel == null || sourceDb == null) {
 			throw new NullPointerException();
@@ -121,7 +158,7 @@ public class Relation {
 			if(populate(sourceRel)) {
 				return true;
 			} else {
-				LOG.warn("Created {} but could not populate with {} as source");
+				LOG.warn("Created {} but could not populate with {} as source", this, sourceDb);
 			}
 		}
 		return false;
@@ -137,8 +174,10 @@ public class Relation {
 		if(sourceDb.getDbHelper().createTable(this)) {
 			this.sourceDb = sourceDb;
 			this.existing = true;
+			LOG.info("Successfully initialized {}", this);
 			return true;
 		}
+		LOG.warn("Failed to initialize {}", this);
 		return false;
 	}
 
@@ -166,6 +205,13 @@ public class Relation {
 		return getSourceDb().getDbHelper().populateTable(this, sourceRel);
 	}
 
+	/**
+	 * Deletes the given relation object from the database
+	 */
+	private void delete() {
+		getSourceDb().getDbHelper().deleteTable(this);
+		this.existing = false;
+	}
 	/**
 	 * @return the name
 	 */
@@ -196,8 +242,34 @@ public class Relation {
 				throw new AssertionError("Database can't both be non-existant and not have attributes!");
 			}
 			this.attrs = sourceDb.getDbHelper().getRelationAttributes(this);
+			findAndSetConstraints();
 		}
 		return this.attrs;
+	}
+
+	/**
+	 * Finds and sets all constraints (i.e. fks and pks) for this relation
+	 */
+	private void findAndSetConstraints() {
+		getSourceDb().getDbHelper().findAndSetConstraints(this);
+	}
+	/**
+	 * Returns the set of functional dependencies (FDs) for this Relation.
+	 * The FDs are cached after the first access, so subsequent accesses
+	 * are not expensive.
+	 * 
+	 * @return the fds
+	 */
+	public Set<FunctionalDependency> findAllHardFds() {
+		if(this.fds == null) {
+			if(!exists()) {
+				return new LinkedHashSet<FunctionalDependency>();
+			}
+			else {
+				this.fds = FDDetector.findAllHardFds(this);
+			}
+		} 
+		return this.fds;
 	}
 	/**
 	 * @return the sourceDb
@@ -255,6 +327,22 @@ public class Relation {
 		} else if (!sourceDb.equals(other.sourceDb))
 			return false;
 		return true;
+	}
+
+	/**
+	 * @return the primaryKey
+	 */
+	public Attribute getPrimaryKey() {
+		return primaryKey;
+	}
+	/**
+	 * @param primaryKey the primaryKey to set
+	 */
+	public void setPrimaryKey(Attribute primaryKey) {
+		if(this.primaryKey != null) {
+			LOG.warn("Replacing pk {} with {}", this.primaryKey, primaryKey);
+		}
+		this.primaryKey = primaryKey;
 	}
 
 }
