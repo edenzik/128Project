@@ -14,14 +14,14 @@ import com.wrangler.load.Relation;
  * @author edenzik
  *
  */
-class TableSelection extends ComboBox {
+public class TableSelection extends ComboBox {
 
 	/**
 	 * A table ComBO selector enabling you to choose 
 	 * a table to display its attributes
 	 * 
 	 */
-	TableSelection(Set<Relation> relations) {
+	public TableSelection(Set<Relation> relations) {
 		setSizeFull();
 		addContainerProperty("Table", Relation.class, null);
 		setFilteringMode(FilteringMode.CONTAINS);

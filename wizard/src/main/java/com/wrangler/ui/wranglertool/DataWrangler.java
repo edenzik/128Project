@@ -56,7 +56,6 @@ public class DataWrangler extends BrowserFrame {
 					return true;
 				} if ("/allDone".equals(request.getPathInfo())) {
 					WrangledDataExtractor wde = new WrangledDataExtractor(result.toString(), user.getDB());
-					//new WrangledDataParser(result.toString());
 					wde.createAndPopulateInitialTable();
 					done = true;
 					return true;

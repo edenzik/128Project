@@ -60,11 +60,6 @@ class FDAddRemovePanel extends HorizontalSplitPanel {
 		VerticalSplitPanel attSelectionAndButton = new VerticalSplitPanel(attSelection, addFD);
 		attSelectionAndButton.setSizeFull();
 		
-		
-		//HorizontalLayout FDSelectionLayout = new HorizontalLayout(selectFrom, selectTo);
-		//FDSelectionLayout.setSizeFull();
-		//FDSelectionLayout.addComponent(addFD);
-		
 		selectFrom.setSizeFull();
 		selectTo.setSizeFull();
 		addFD.setSizeFull();

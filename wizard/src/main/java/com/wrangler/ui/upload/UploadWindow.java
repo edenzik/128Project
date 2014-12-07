@@ -18,10 +18,11 @@ import com.wrangler.ui.wranglertool.WranglerWindow;
  * @author edenzik
  *
  */
-public class UploadWindow extends Window {
-	private final CSVUpload uploader;
+public abstract class UploadWindow extends Window {
+	protected final CSVUpload uploader;
 
 	/**
+	 * 
 	 * 
 	 */
 	public UploadWindow(final UI ui, final User user, final Callback callback) {
@@ -35,17 +36,13 @@ public class UploadWindow extends Window {
 		layout.setMargin(true);
 		uploader = new CSVUpload();
 		layout.addComponent(uploader);
+		setContent(layout);
 		uploader.addFinishedListener(new Upload.FinishedListener() {
 			@Override
 			public void uploadFinished(FinishedEvent event) {
 				close();
-				WranglerWindow wrangler = new WranglerWindow(ui, user, callback);
-				ui.addWindow(wrangler);
 			}
 		});
-		setContent(layout);
 	}
-	
-	public CSVUpload getUploader(){return uploader;}
 
 }
