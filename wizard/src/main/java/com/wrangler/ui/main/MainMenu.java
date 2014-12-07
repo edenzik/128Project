@@ -8,6 +8,7 @@ import com.vaadin.ui.UI;
 import com.wrangler.ui.callback.Callback;
 import com.wrangler.ui.fd.FDWindow;
 import com.wrangler.ui.login.User;
+import com.wrangler.ui.normalize.NormalizeWindow;
 import com.wrangler.ui.query.DatabaseBrowser;
 import com.wrangler.ui.upload.UploadWindow;
 
@@ -30,16 +31,16 @@ public class MainMenu extends MenuBar {
 		this.user = user;
 		this.callback = callback;
 
-		addItem("Start New Project", newProject());
 		addItem("Import Spreadsheet Data", importData());
 		addItem("Wrangle Spreadsheet Data", wrangleData());
 		addItem("Infer Functional Dependencies", inferFD());
+		addItem("Normalize Table", normalizeTable());
 		addItem("Export Relational Data", exportData());
 		addItem("Save Project and Logout", saveLogout());
 		setSizeFull();
 	}
 	
-	private Command newProject(){return null;}
+	
 	private Command importData(){
 		return new MenuBar.Command() {
 		    public void menuSelected(MenuItem selectedItem) {
@@ -53,6 +54,13 @@ public class MainMenu extends MenuBar {
 		return new MenuBar.Command() {
 		    public void menuSelected(MenuItem selectedItem) {
 		        ui.addWindow(new FDWindow(ui, user));
+		    }
+		};
+	}
+	private Command normalizeTable(){
+		return new MenuBar.Command() {
+		    public void menuSelected(MenuItem selectedItem) {
+		        ui.addWindow(new NormalizeWindow(ui, user));
 		    }
 		};
 	}

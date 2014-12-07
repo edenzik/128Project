@@ -11,13 +11,13 @@ import com.wrangler.load.Relation;
  * @author edenzik
  *
  */
-class FDTable extends Table {
+public class FDTable extends Table {
 	private HashMap<Object, FunctionalDependency> fdSet;
 
 	/**
 	 * 
 	 */
-	FDTable() {
+	public FDTable() {
 		initLayout();
 		addContainerProperty("From Attribute", String.class, null);
 		addContainerProperty("To Attribute", String.class, null);
@@ -28,7 +28,7 @@ class FDTable extends Table {
 		setSelectable(true);
 	}
 	
-	void fill(Set<FunctionalDependency> functionalDependencies){
+	public void fill(Set<FunctionalDependency> functionalDependencies){
 		removeAllItems();
 		fdSet = new HashMap<Object, FunctionalDependency>();
 		for (FunctionalDependency fd: functionalDependencies){
@@ -36,13 +36,13 @@ class FDTable extends Table {
 		}
 	}
 	
-	void removeSelectedValue(){
+	public void removeSelectedValue(){
 		Object currentValue = getValue();
 		removeItem(currentValue);
 		if (currentValue!=null) fdSet.remove(currentValue);
 	}
 	
-	void insert(FunctionalDependency fd){
+	public void insert(FunctionalDependency fd){
 		fdSet.put(addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null), fd);
 	}
 

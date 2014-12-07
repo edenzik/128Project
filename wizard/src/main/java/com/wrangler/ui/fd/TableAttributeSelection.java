@@ -27,12 +27,12 @@ import com.wrangler.ui.login.User;
  * @author edenzik
  *
  */
-class TableAttributeSelection extends VerticalSplitPanel{
+public class TableAttributeSelection extends VerticalSplitPanel{
 
 	/**
 	 * 
 	 */
-	TableAttributeSelection(ComboBox cbox, Component attributeTable)  {
+	public TableAttributeSelection(ComboBox cbox, Component attributeTable)  {
 		initLayout();
 		HorizontalLayout hl = new HorizontalLayout(cbox);
 		cbox.setInvalidAllowed(false);
@@ -41,7 +41,6 @@ class TableAttributeSelection extends VerticalSplitPanel{
 		hl.setSizeFull();
 		hl.setMargin(new MarginInfo(true, false, false, false));
 		
-
 		addComponent(attributeTable);
 
 	}
