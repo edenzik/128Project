@@ -207,6 +207,9 @@
 					<httpConnector>
 						<port>9999</port>
 					</httpConnector>
+					 <stopPort>9966</stopPort>
+                <stopKey>stopKey</stopKey>
+                <stopWait>20</stopWait>
 				</configuration>
 			</plugin>
 
