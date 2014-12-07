@@ -61,6 +61,34 @@ public class LoginManager {
 		// Should theoretically never be reached
 		return null;
 	}
+	
+	/**
+	 * Queries user database register a user. If a user exists, sends an error.
+	 * If not, makes a user.
+	 * 
+	 * @param userName
+	 * @param userPass
+	 * @return
+	 * @throws UserNotFoundException
+	 * @throws IncorrectPasswordException
+	 */
+	public User register(String userName, String userPass) throws UserAlreadyExistsException {
+		try {
+			if(getUserDb().userExists(userName)) {
+				throw new UserAlreadyExistsException();
+			} else {
+				getUserDb().addUser(userName, userPass);
+				Database db = userDb.getDatabaseForUser(userName);
+				return UserFactory.createUser(userName, userPass, db);
+			}
+		} catch (ClassNotFoundException e) {
+			LOG.error("", e);
+		} catch (SQLException e) {
+			LOG.error("", e);
+		}
+		// Should theoretically never be reached
+		return null;
+	}
 
 	/**
 	 * @return the userDb

@@ -226,7 +226,7 @@ public class DBHelper {
 	 * @throws SQLException
 	 */
 	public boolean createDatabase(String databaseName) throws SQLException {
-		return executeQuery("CREATE DATABASE " + databaseName)!=null;
+		return executeUpdate("CREATE DATABASE " + databaseName);
 	}
 
 

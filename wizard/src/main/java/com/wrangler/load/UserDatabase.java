@@ -15,6 +15,7 @@ import com.wrangler.ui.login.UserNotFoundException;
 public class UserDatabase extends Database {
 
 	private static final String USER_DB_NAME = "postgres"; 
+	private static final String USER_TABLE_NAME = "users"; 
 	protected UserDatabase()
 			throws ClassNotFoundException, SQLException {
 		super(USER_DB_NAME, HostFactory.createDefaultHost());
@@ -43,14 +44,30 @@ public class UserDatabase extends Database {
 	}
 	
 	/**
+	 * Returns true if the user exists
+	 * 
+	 * @param userName
+	 * @return true if user exists
+	 * @throws SQLException
+	 */
+	public boolean userExists(String userName) throws SQLException{
+		String NAME_QUERY = String.format("SELECT * FROM users WHERE username='%s'", userName);
+		if(getDbHelper().exists(NAME_QUERY)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Creates a new user
 	 * 
 	 * @param user to be created, their password
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean addUser(String userName, String userPassword) {
+	public boolean addUser(String userName, String userPassword) throws SQLException {
 		getDbHelper().executeUpdate("INSERT INTO users VALUES('" +  userName + "', '" + userPassword + "')");
+		getDbHelper().createDatabase(userName.split("@")[0]);
 		return true;
 	}
 

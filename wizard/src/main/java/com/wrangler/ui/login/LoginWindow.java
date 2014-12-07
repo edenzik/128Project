@@ -5,6 +5,7 @@ package com.wrangler.ui.login;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Notification;
@@ -38,19 +39,30 @@ public class LoginWindow extends Window {
 		final TextField nameField = new TextField("Username");
 		form.addComponent(nameField);
 		final PasswordField passwordField = new PasswordField("Password");
+
 		form.addComponent(passwordField);
 		Button submit = new Button("Login");
-		form.addComponent(submit);
+		//form.addComponent(submit);
 		form.setMargin(true);
-		
+		Button register = new Button("Register");
+		//form.addComponent(register);
+		HorizontalLayout submitRegisterButtons = new HorizontalLayout(submit, register);
+		form.addComponent(submitRegisterButtons);
+
 		//Click listener on the submit user interface button
 		submit.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				try {
-					LoginManager lm = new LoginManager();	//Logs in the user
-					User user = lm.login(nameField.getValue(), passwordField.getValue());
-					close();
-					next(ui, user);						//Initializes the actual window
+					if (!nameField.getValue().isEmpty() && !passwordField.getValue().isEmpty()){
+						LoginManager lm = new LoginManager();	//Logs in the user
+						User user = lm.login(nameField.getValue(), passwordField.getValue());
+						close();
+						next(ui, user);						//Initializes the actual window
+					} else {
+						Notification.show("Login",
+								"Please enter a valid Username and Password.",
+								Notification.Type.ERROR_MESSAGE);
+					}
 				} catch (UserNotFoundException e) {
 					Notification.show("User not found!",
 							e.getMessage(),
@@ -62,9 +74,34 @@ public class LoginWindow extends Window {
 				}
 			}
 		});
+		register.addClickListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				User user = null;
+				try {
+					if (!nameField.getValue().isEmpty() && !passwordField.getValue().isEmpty()){
+						LoginManager lm = new LoginManager();	//Logs in the user
+						user = lm.register(nameField.getValue(), passwordField.getValue());
+						Notification.show("Registration",
+								"Welcome, " + nameField.getValue() + "!",
+								Notification.Type.TRAY_NOTIFICATION);
+						close();
+						next(ui, user);						//Initializes the actual window
+					} else {
+						Notification.show("Login",
+								"Please enter a valid Username and Password.",
+								Notification.Type.ERROR_MESSAGE);
+					}
+				} catch (UserAlreadyExistsException e) {
+					Notification.show("The user already exists!",
+							e.getMessage(),
+							Notification.Type.ERROR_MESSAGE);				
+				}
+
+			}
+		});
 		setContent(form);
 	}
-	
+
 	private void initLayout(){
 		setClosable(false);
 		setDraggable(false);
@@ -73,7 +110,7 @@ public class LoginWindow extends Window {
 		setWidth("24%");
 		center();
 	}
-	
+
 	/**
 	 * Initializes the next components of the UI - including the query browser
 	 * and the main menu.
