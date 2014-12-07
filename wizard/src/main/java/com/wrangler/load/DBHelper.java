@@ -5,13 +5,16 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
+import com.wrangler.extract.CSVFormatException;
 
 /**
  * Class to abstract away from boilerplate of JDBC connection
@@ -56,20 +59,23 @@ public class DBHelper {
 	}
 
 	/**
-	 * Executes the given update query (i.e. "insert into foo values ("bar");")
+	 * Executes the given update query (i.e. "insert into foo values ("bar");").
+	 * Returns true if it was successful, false otherwise.
 	 * 
 	 * @param updateQuery update Query to be executed
 	 * @throws SQLException
 	 */
-	public void executeUpdate(String query) {
+	public boolean executeUpdate(String query) {
 		Connection conn = null;
 		try {
 			conn = getConnection();
 			Statement stmt = conn.createStatement();
 			LOG.info("{}: {}", getDb(), query);
 			stmt.executeUpdate(query);
+			return true;
 		} catch(SQLException e) {
 			LOG.error("", e);
+			return false;
 		} finally {
 			if(conn != null) {
 				pool.releaseConnection(conn);
@@ -92,7 +98,7 @@ public class DBHelper {
 			ResultSet tableRS = m.getTables(null, "public", "%", new String[] {"TABLE"} );
 			while(tableRS.next()) {
 				String tableName = tableRS.getString(3);
-				Relation rel = RelationFactory.createRelation(tableName, getDb());
+				Relation rel = RelationFactory.createExistingRelation(tableName, getDb());
 				tableSet.add(rel);
 			}
 			return tableSet;
@@ -252,7 +258,7 @@ public class DBHelper {
 	public static void main(String[] args) {
 		try {
 			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
-			Relation rel = RelationFactory.createRelation("table154", db);
+			Relation rel = RelationFactory.createExistingRelation("table154", db);
 			System.out.println(db.getDbHelper().getRelations());
 			Set<Attribute> attrs = db.getDbHelper().getRelationAttributes(rel);
 			System.out.println(attrs);
@@ -300,5 +306,26 @@ public class DBHelper {
 	 */
 	public SimpleJDBCConnectionPool getPool(){return pool;}
 
+	/**
+	 * Creates a table in the database for this given relation object. Returns true
+	 * if the operation was successful.
+	 * 
+	 * @param relation
+	 * @return
+	 */
+	public boolean createTable(Relation relation) {
+		Map<String, PostgresAttType> types = new HashMap<String, PostgresAttType>();
+		for(Attribute a: relation.getAttributes()) {
+			types.put(a.getName(), a.getAttType());
+		}
+		String query;
+		try {
+			query = QueryHelper.getCreateTableQuery(relation, types);
+		} catch (CSVFormatException e) {
+			LOG.error("", e);
+			return false;
+		}
+		return executeUpdate(query);
+	}
 }
 

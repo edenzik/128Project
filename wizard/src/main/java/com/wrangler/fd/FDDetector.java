@@ -138,13 +138,21 @@ public class FDDetector {
 		Host host = HostFactory.createDefaultHost();
 		try {
 			Database db = DatabaseFactory.createDatabase("cosi128a", host);
-			Relation rel = RelationFactory.createRelation("cities_extended", db);
-			Set<FunctionalDependency> fds = rel.findAllHardFds();
-			System.out.println("fds = " + fds);
-			for(FunctionalDependency fd: fds) {
-				Attribute att = fd.getFromAtt();
-				Set<Attribute> closure = Normalizer.findFdClosure(att, fds);
-				System.out.printf("Closure for %s = %s\n", att, closure);
+			Relation rel = RelationFactory.createExistingRelation("cities_extended", db);
+//			Set<FunctionalDependency> fds = rel.findAllHardFds();
+//			System.out.println("fds = " + fds);
+//			Normalizer n = Normalizer.newInstance(rel);
+//			for(FunctionalDependency fd: fds) {
+//				Attribute att = fd.getFromAtt();
+//				Set<Attribute> closure = n.findFdClosure(att, fds);
+//				System.out.printf("Closure for %s = %s\n", att, closure);
+//			}
+//			
+			for(int i = 0; i < 100; ++i) {
+				long start = System.currentTimeMillis();
+				Set<FunctionalDependency> fds = rel.findAllHardFds();
+				long end = System.currentTimeMillis();
+				System.out.printf("%d:\t%d\n", i, (end - start));
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
