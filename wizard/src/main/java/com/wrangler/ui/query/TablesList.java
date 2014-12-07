@@ -27,17 +27,16 @@ public class TablesList extends Table {
 	public TablesList(Database db) {
 		this.db = db;
 		initLayout();
-		load();
+		reload();
 	}
 	
 	void reload(){
 		removeAllItems();
-		load();
+		load(db.getDbHelper().getRelations());
 	}
 	
-	void load(){
+	public void load(Set<Relation> relations){
 		try {
-			Set<Relation> relations = db.getDbHelper().getRelations();
 			for(Relation rel : relations) {
 				addItem(new String[]{rel.getName()}, null);
 			}

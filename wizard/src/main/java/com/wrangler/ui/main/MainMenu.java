@@ -5,7 +5,9 @@ package com.wrangler.ui.main;
 
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 import com.wrangler.ui.callback.Callback;
+import com.wrangler.ui.export.ExportWindow;
 import com.wrangler.ui.fd.FDWindow;
 import com.wrangler.ui.login.LoginWindow;
 import com.wrangler.ui.login.User;
@@ -42,45 +44,51 @@ public class MainMenu extends MenuBar {
 		addItem("Save Project and Logout", saveLogout());
 		setSizeFull();
 	}
-	
-	
+
+
 	private Command importData(){
 		return new MenuBar.Command() {
-		    public void menuSelected(MenuItem selectedItem) {
-		        ui.addWindow(new DirectUploadWindow(ui, user, callback));
-		    }
+			public void menuSelected(MenuItem selectedItem) {
+				ui.addWindow(new DirectUploadWindow(ui, user, callback));
+			}
 		};
 	}
 	private Command wrangleData(){
 		return new MenuBar.Command() {
-		    public void menuSelected(MenuItem selectedItem) {
-		    	WranglerUploadWindow upload = new WranglerUploadWindow(ui, user, callback);
-		        ui.addWindow(upload);
-		    }
+			public void menuSelected(MenuItem selectedItem) {
+				WranglerUploadWindow upload = new WranglerUploadWindow(ui, user, callback);
+				ui.addWindow(upload);
+			}
 		};
 	}
 	private Command inferFD(){
 		return new MenuBar.Command() {
-		    public void menuSelected(MenuItem selectedItem) {
-		        ui.addWindow(new FDWindow(ui, user));
-		    }
+			public void menuSelected(MenuItem selectedItem) {
+				ui.addWindow(new FDWindow(ui, user));
+			}
 		};
 	}
 	private Command normalizeTable(){
 		return new MenuBar.Command() {
-		    public void menuSelected(MenuItem selectedItem) {
-		        ui.addWindow(new NormalizeWindow(ui, user));
-		    }
+			public void menuSelected(MenuItem selectedItem) {
+				ui.addWindow(new NormalizeWindow(ui, user, callback));
+			}
 		};
 	}
-	private Command exportData(){return null;}
+	private Command exportData(){
+		return new MenuBar.Command() {
+			public void menuSelected(MenuItem selectedItem) {
+				ui.addWindow(new ExportWindow(ui, user));
+			}
+		};}
 	private Command saveLogout(){
 		return new MenuBar.Command() {
-		    public void menuSelected(MenuItem selectedItem) {
-		    	ui.setContent(null);
-		    	ui.addWindow(new LoginWindow(ui));
-		    }
+			public void menuSelected(MenuItem selectedItem) {
+				ui.setContent(null);
+				for (Window w : ui.getWindows()){w.close();}
+				ui.addWindow(new LoginWindow(ui));
+			}
 		};
 	}
-	
+
 }
