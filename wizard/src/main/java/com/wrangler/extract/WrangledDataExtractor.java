@@ -36,10 +36,9 @@ public class WrangledDataExtractor {
 	private Map<String, PostgresAttType> inferredTypes;
 
 	public WrangledDataExtractor(String inputData, Database db) throws IOException {
-		LOG.debug("INPUT DATA 2 = \n{}", inputData);
+		//LOG.debug("INPUT DATA = \n{}", inputData);
 		this.headers = new ArrayList<String>();
 		this.wrangledData = new ArrayList<List<String>>();
-		LOG.debug("INPUT DATA 3 = \n{}", inputData);
 		loadInputData(inputData, headers, wrangledData);
 		this.db = db;
 	}
@@ -55,7 +54,7 @@ public class WrangledDataExtractor {
 	 */
 	private void loadInputData(String inputData, List<String> colNames, List<List<String>> wrangledData) throws IOException {
 		LOG.info("Reading input data into memory buffer...");
-		CSVParser parser = CSVParser.parse(inputData, CSVFormat.DEFAULT);
+		CSVParser parser = CSVParser.parse(inputData, CSVFormat.EXCEL);
 		Iterator<CSVRecord> iter = parser.iterator();
 		// For some reason, the iterator has two of the header values
 		while(iter.hasNext()) {

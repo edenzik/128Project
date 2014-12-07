@@ -7,15 +7,13 @@ import java.io.IOException;
 
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.RequestHandler;
-import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
 import com.wrangler.extract.WrangledDataExtractor;
-import com.wrangler.load.Database;
+import com.wrangler.extract.WrangledDataParser;
 import com.wrangler.ui.login.User;
 
 /**
@@ -58,6 +56,7 @@ public class DataWrangler extends BrowserFrame {
 					return true;
 				} if ("/allDone".equals(request.getPathInfo())) {
 					WrangledDataExtractor wde = new WrangledDataExtractor(result.toString(), user.getDB());
+					//new WrangledDataParser(result.toString());
 					wde.createAndPopulateInitialTable();
 					done = true;
 					return true;
