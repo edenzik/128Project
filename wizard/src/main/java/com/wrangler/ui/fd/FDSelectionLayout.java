@@ -15,13 +15,13 @@ import com.wrangler.load.Relation;
  * @author edenzik
  *
  */
-class FDSelectionLayout extends VerticalSplitPanel {
+public class FDSelectionLayout extends VerticalSplitPanel {
 
 	/**
 	 * Enables the user to see all functional dependencies and add/remove some
 	 * 
 	 */
-	FDSelectionLayout(FDTable fdTable, TableSelection tableSelection, Database db) {
+	public FDSelectionLayout(FDTable fdTable, TableSelection tableSelection, Database db) {
 		initLayout();
 		HorizontalLayout hl = new HorizontalLayout(fdTable);
 		addComponent(hl);

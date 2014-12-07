@@ -3,6 +3,7 @@
  */
 package com.wrangler.ui.upload;
 
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
@@ -20,6 +21,7 @@ import com.wrangler.ui.wranglertool.WranglerWindow;
  */
 public abstract class UploadWindow extends Window {
 	protected final CSVUpload uploader;
+	protected final CheckBox hasHeaders;
 
 	/**
 	 * 
@@ -36,6 +38,9 @@ public abstract class UploadWindow extends Window {
 		layout.setMargin(true);
 		uploader = new CSVUpload();
 		layout.addComponent(uploader);
+		hasHeaders = new CheckBox("Has headers?", true);
+		layout.addComponent(hasHeaders);
+		hasHeaders.setVisible(false);
 		setContent(layout);
 		uploader.addFinishedListener(new Upload.FinishedListener() {
 			@Override
