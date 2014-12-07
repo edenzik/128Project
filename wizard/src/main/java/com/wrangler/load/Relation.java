@@ -1,6 +1,7 @@
 package com.wrangler.load;
 
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.wrangler.fd.FDDetector;
@@ -51,8 +52,14 @@ public class Relation {
 	 */
 	protected Relation(String name, Set<Attribute> attrs) {
 		this.name = name;
-		this.attrs = attrs;
 		this.existing = false;
+		Set<Attribute> copy = new LinkedHashSet<Attribute>();
+		
+		// Create new Attributes that actually refer to this table as their souce
+		for(Attribute a: attrs) {
+			copy.add(AttributeFactory.createAttribute(a.getName(), a.getAttType(), this));
+		}
+		this.attrs = copy;
 	}
 	/**
 	 * Returns the set of functional dependencies (FDs) for this Relation.

@@ -160,7 +160,7 @@ public final class Normalizer {
 			violating = findAndRemoveBcnfViolation(normalized);
 		}
 		
-		
+		bcnf = normalized;
 		return normalized;
 	}
 	
@@ -180,9 +180,6 @@ public final class Normalizer {
 		rMinusYAtts.addAll(rel.getAttributes());
 		rMinusYAtts.remove(fd.getToAtt());
 		Relation rMinusY = RelationFactory.createNewRelation(rel.getName(), rMinusYAtts);
-		if(!rMinusY.initialize(rel.getSourceDb())) {
-			LOG.error("Failed to create decomposition: {}", rMinusY);
-		}
 
 		// Initialize xy decomposed table
 		Set<Attribute> xyAtts = new LinkedHashSet<Attribute>();
@@ -190,9 +187,6 @@ public final class Normalizer {
 		xyAtts.add(fd.getToAtt());
 		String xyName = fd.getFromAtt().getName() + "_" + fd.getToAtt().getName();
 		Relation xy = RelationFactory.createNewRelation(xyName, xyAtts);
-		if(!xy.initialize(rel.getSourceDb())) {
-			LOG.error("Failed to create decomposition: {}", xy);
-		}
 		
 		return new SimpleEntry<Relation, Relation>(rMinusY, xy);
 	}
