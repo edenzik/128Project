@@ -80,7 +80,9 @@ public class WrangledDataExtractor {
 				tupleList.add(value.trim());
 			}
 			// Only add tuples that did not have any blank values
-			wrangledData.add(tupleList);
+			if(!hasBlankValue) {
+				wrangledData.add(tupleList);
+			}
 		}
 		LOG.debug("Loading data...");
 		LOG.info("Finished reading input data into memory buffer!");
