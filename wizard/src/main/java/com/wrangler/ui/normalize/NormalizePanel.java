@@ -43,7 +43,7 @@ class NormalizePanel extends HorizontalSplitPanel {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				if (event.getProperty().getValue()!=null){
-					fdTable.fill(RelationFactory.createRelation(event.getProperty().getValue().toString(), user.getDB()).findAllHardFds());
+					fdTable.fill(RelationFactory.createExistingRelation(event.getProperty().getValue().toString(), user.getDB()).findAllHardFds());
 
 				}
 

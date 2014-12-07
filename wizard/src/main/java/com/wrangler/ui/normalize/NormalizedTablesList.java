@@ -3,8 +3,11 @@
  */
 package com.wrangler.ui.normalize;
 
+import java.util.Set;
+
 import com.vaadin.data.Container;
 import com.vaadin.ui.Table;
+import com.wrangler.load.Relation;
 
 /**
  * @author edenzik
@@ -18,22 +21,9 @@ class NormalizedTablesList extends Table {
 	public NormalizedTablesList() {
 		// TODO Auto-generated constructor stub
 	}
-
-	/**
-	 * @param caption
-	 */
-	public NormalizedTablesList(String caption) {
-		super(caption);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param caption
-	 * @param dataSource
-	 */
-	public NormalizedTablesList(String caption, Container dataSource) {
-		super(caption, dataSource);
-		// TODO Auto-generated constructor stub
+	
+	void fill(Set<Relation> relations){
+		
 	}
 
 }
