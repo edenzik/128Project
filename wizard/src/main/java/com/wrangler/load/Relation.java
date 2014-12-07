@@ -1,9 +1,11 @@
 package com.wrangler.load;
 
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.wrangler.fd.FDDetector;
 import com.wrangler.fd.FunctionalDependency;
@@ -28,6 +30,7 @@ public class Relation {
 	// (calculated the first time it's requested)
 	private Set<FunctionalDependency> fds = null;
 
+	private static final Logger LOG = LoggerFactory.getLogger(Relation.class);
 
 	/**
 	 * Constructor for a Relation object that maps to a Relation which
@@ -55,7 +58,7 @@ public class Relation {
 		this.name = name;
 		this.existing = false;
 		Set<Attribute> copy = new LinkedHashSet<Attribute>();
-		
+
 		// Create new Attributes that actually refer to this table as their souce
 		for(Attribute a: attrs) {
 			copy.add(AttributeFactory.createAttribute(a.getName(), a.getAttType(), this));
@@ -71,14 +74,14 @@ public class Relation {
 		if(exists()) {
 			throw new AssertionError("Cannot add functional dependency to existing table!");
 		}
-		
+
 		if(this.fds == null) {
 			this.fds = new LinkedHashSet<FunctionalDependency>();
 			this.fds.add(fd);
 		} else {
 			this.fds.add(fd);
 		}
-		
+
 	}
 	/**
 	 * Returns the set of functional dependencies (FDs) for this Relation.
@@ -96,7 +99,33 @@ public class Relation {
 		} 
 		return this.fds;
 	}
-	
+
+	/**
+	 * Creates a relation representing this object in the sourceDb, then populates it with the
+	 * relevant data from the passed source relation. This relation's attributes MUST be a subset
+	 * of the passed relation's attributes so that the population can work correctly. The passed
+	 * relation and db must, of course, be existing and populated. 
+	 * 
+	 * @param sourceRel
+	 * @param sourceDb
+	 * @return
+	 */
+	public boolean initializeAndPopulate(Relation sourceRel, Database sourceDb) {
+		// Ensure nothing passed is null
+		if(sourceRel == null || sourceDb == null) {
+			throw new NullPointerException();
+		}
+
+		// If we're sure that everything else is correct, go ahead and try to initialize and populate the relation
+		if(initialize(sourceDb)) {
+			if(populate(sourceRel)) {
+				return true;
+			} else {
+				LOG.warn("Created {} but could not populate with {} as source");
+			}
+		}
+		return false;
+	}
 	/**
 	 * Creates a table in the passed Database for this Relation object. Returns true if
 	 * successful, false otherwise.
@@ -104,14 +133,39 @@ public class Relation {
 	 * @param sourceDb
 	 * @return
 	 */
-	public boolean initialize(Database sourceDb) {
+	private boolean initialize(Database sourceDb) {
 		if(sourceDb.getDbHelper().createTable(this)) {
+			this.sourceDb = sourceDb;
 			this.existing = true;
 			return true;
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Given a source relation, populates this relation with the attributes it shares with
+	 * the source relation.
+	 * 
+	 * @param sourceRel
+	 * @return
+	 */
+	private boolean populate(Relation sourceRel) {
+		// Validate passed source relation
+		if(!sourceRel.exists()) {
+			throw new AssertionError("Source relation must exist to be used as a source for populating another relation!");
+		}
+		if(sourceRel.getAttributes() == null) {
+			throw new AssertionError("Source relation had no initialized attributes!");
+		}
+		// Make sure that this relation has subset of attributes from source relation
+		if(!sourceRel.getAttributes().containsAll(getAttributes())) {
+			throw new AssertionError(String.format("%s%s does not contain all attributes from %s%s", 
+					sourceRel.getName(), sourceRel.getAttributes(), getName(), getAttributes()));
+		}
+		
+		return getSourceDb().getDbHelper().populateTable(this, sourceRel);
+	}
+
 	/**
 	 * @return the name
 	 */

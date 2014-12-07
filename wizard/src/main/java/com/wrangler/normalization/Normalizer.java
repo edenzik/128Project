@@ -282,13 +282,13 @@ public final class Normalizer {
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
 		Host host = HostFactory.createDefaultHost();
 		Database db = DatabaseFactory.createDatabase("kahliloppenheimer", host);
-		Relation r = RelationFactory.createExistingRelation("table182", db);
+		Relation r = RelationFactory.createExistingRelation("table152", db);
 		Normalizer n = Normalizer.newInstance(r);
 		Set<Relation> set = n.bcnf();
 		for(Relation rel: set) {
-			LOG.debug("Initializing " + rel);
-			rel.initialize(db);
-			LOG.debug("Successfully initialized " + rel + "!");
+			LOG.debug("Initializing and populating " + rel);
+			rel.initializeAndPopulate(r, db);
+			LOG.debug("Successfully initialized and populated" + rel + "!");
 		}
 
 	}

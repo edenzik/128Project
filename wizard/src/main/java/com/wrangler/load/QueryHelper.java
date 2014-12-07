@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.wrangler.extract.CSVFormatException;
+import com.wrangler.normalization.Normalizer;
 
 /**
  * Class to ease in the generation of queries (i.e. update and create table queries
@@ -59,13 +60,19 @@ public class QueryHelper {
 		//			System.out.println(s + " : " + QueryHelper.inferColumnType(s, headersToValues.get(s)));
 		//		}
 
-		String[] test = {"varchar", "Varchar", "VARCHAR", "v@rchar"};
-		for(String s : test) {
-			if(s.matches("(?i)varchar")) {
-				System.out.println(s);
-			}
+		Host host = HostFactory.createDefaultHost();
+		Database db = null;
+		try {
+			db = DatabaseFactory.createDatabase("kahliloppenheimer", host);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
+		Relation rel = RelationFactory.createExistingRelation("table152", db);
+		Set<Relation> normalized = (Normalizer.newInstance(rel)).bcnf();
+		Relation rel1 = normalized.iterator().next();
+		System.out.println(rel1.getAttributes());
+		System.out.println(getSelectQueryForAtts(rel, rel1.getAttributes()));
 	}
 	/**
 	 * Returns a create table command with the passed table name and
@@ -104,30 +111,24 @@ public class QueryHelper {
 	 */
 	private static PostgresAttType inferColumnType(String colName, List<String> columnVals) {
 		if(columnVals == null || columnVals.size() == 0) {
-			LOG.warn("No sample data for column {}! Assuming varchar...", colName);
-			return PostgresAttType.newVarchar(100);
+			LOG.warn("No sample data for column {}! Assuming text...", colName);
+			return PostgresAttType.newText();
 		}
 		// Check to see if any elements differ in inference type.
 		// If so, just assume default type for all
 		boolean typesDiffer = false;
-		int maxLength = -1;
-		// Go through, check to see if any types mismatch (i.e. we should just assume varchar),
-		// and calculate the max string length to use for varchar size
+		// Go through, check to see if any types mismatch (i.e. we should just assume text)
 		for(int i = 0; i < columnVals.size() - 1; ++i) {
-			maxLength = Math.max(maxLength, columnVals.get(i).length());
 			// Check if the types differ
-			if(!PostgresAttType.valueOf(columnVals.get(i), -1).equals(PostgresAttType.valueOf(columnVals.get(i + 1), -1))) {
+			if(!PostgresAttType.valueOf(columnVals.get(i)).equals(PostgresAttType.valueOf(columnVals.get(i + 1)))) {
 				typesDiffer = true;
 			}
 		}
-		// Must check last column value because we did not check in loop
-		maxLength = Math.max(maxLength, columnVals.get(columnVals.size() - 1).length());
-
 		if(typesDiffer) {
-			return PostgresAttType.newVarchar(maxLength);
+			return PostgresAttType.newText();
 		} else {
 			// If there are no mismatches, simply return the common type
-			return PostgresAttType.valueOf(columnVals.get(0), maxLength);
+			return PostgresAttType.valueOf(columnVals.get(0));
 		}
 	}
 
@@ -172,6 +173,30 @@ public class QueryHelper {
 		valueList.append(")");
 		String query = "INSERT INTO " + rel + " " + columnList + " VALUES " + valueList.toString() + ";";
 		return query;
+	}
+	
+	/**
+	 * Returns the selection query to select atts from rel with only a select
+	 * and from clause (i.e. no where clause). TODO: Add Java-8 style lambda
+	 * passing for where clause predicates?
+	 * 
+	 * @param rel
+	 * @param atts
+	 * @return
+	 */
+	public static String getSelectQueryForAtts(Relation rel, Set<Attribute> atts) {
+		if(atts.size() < 1) {
+			throw new IllegalArgumentException("Attributes must have at least one element!");
+		}
+		Iterator<Attribute> iter = atts.iterator();
+		StringBuilder query = new StringBuilder();
+		query.append(String.format("SELECT %s", iter.next()));
+		while(iter.hasNext()) {
+			query.append(String.format(", %s" ,iter.next().getName()));
+		}
+		query.append(String.format(" FROM %s" ,rel.getName()));
+
+		return query.toString();
 	}
 
 	/**

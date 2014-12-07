@@ -287,8 +287,7 @@ public class DBHelper {
 			while(rs.next()) {
 				String colName = rs.getString("COLUMN_NAME");
 				String colType = rs.getString("TYPE_NAME");
-				int colSize = rs.getInt("COLUMN_SIZE");
-				PostgresAttType type = PostgresAttType.valueOf(colType, colSize);
+				PostgresAttType type = PostgresAttType.valueOf(colType);
 
 				Attribute attr = AttributeFactory.createAttribute(colName, type, rel);
 				attrSet.add(attr);
@@ -314,6 +313,10 @@ public class DBHelper {
 	 * @return
 	 */
 	public boolean createTable(Relation relation) {
+		// If the relation already exists, no need to create it
+		if(relation.exists()) {
+			return false;
+		}
 		Map<String, PostgresAttType> types = new HashMap<String, PostgresAttType>();
 		for(Attribute a: relation.getAttributes()) {
 			types.put(a.getName(), a.getAttType());
@@ -326,6 +329,21 @@ public class DBHelper {
 			return false;
 		}
 		return executeUpdate(query);
+	}
+
+	/**
+	 * Populates the newRel with its shared attributes from sourceRel
+	 * 	
+	 * @param newRel
+	 * @param sourceRel
+	 * @return
+	 */
+	public boolean populateTable(Relation newRel, Relation sourceRel) {
+		Set<Attribute> atts = newRel.getAttributes();
+		String selectQuery = QueryHelper.getSelectQueryForAtts(sourceRel, atts);
+		String insertQuery = String.format("INSERT INTO %s (%s);", newRel.getName(), selectQuery);
+		executeUpdate(insertQuery);
+		return false;
 	}
 }
 

@@ -14,17 +14,14 @@ import java.util.Set;
 public class PostgresAttType {
 
 	// Ugliest but only way to initialize final set with initial values
-	private static final Set<String> POSSIBLE_TYPES = new HashSet<String>(Arrays.asList(new String[] {"varchar", "numeric"}));
+	private static final Set<String> POSSIBLE_TYPES = new HashSet<String>(Arrays.asList(new String[] {"text", "numeric"}));
 	// The type, i.e. 'NUMERIC', 'VARCHAR(X)', 'DATE', etc.
 	private final String type;
 	
-	// Only ever release one instance for most types (except varchar)
+	// Only ever release one instance for all types where possible 
 	private static final PostgresAttType NUMERIC = new PostgresAttType("NUMERIC");
+	private static final PostgresAttType TEXT = new PostgresAttType("TEXT");
 	
-	// The varchar string to be used in String.format() to escape the
-	// length of the varchar
-	private static final String VARCHAR_STR = "VARCHAR(%d)";
-
 	private PostgresAttType(String type) {
 		if(!isValidType(type)) {
 			throw new IllegalArgumentException(type + " is not a recognized type!");
@@ -37,10 +34,6 @@ public class PostgresAttType {
 	 */
 	private static boolean isValidType(String type) {
 		type = type.toLowerCase().trim();
-		// Handles the case of varchar(x)
-		if(type.contains("(")) {
-			type = type.split("[(]")[0];
-		}
 		return POSSIBLE_TYPES.contains(type);
 	}
 
@@ -58,27 +51,26 @@ public class PostgresAttType {
 	 * @param size
 	 * @return
 	 */
-	public static PostgresAttType newVarchar(int size) {
-		return new PostgresAttType(String.format(VARCHAR_STR, size));
+	public static PostgresAttType newText() {
+		return PostgresAttType.TEXT;
 	}
 
 	/**
 	 * Does basic pattern matching to infer the data type of the given value.
-	 * If varchar, uses the passed maxLength arg as size
 	 * 
 	 * @param string
 	 * @param maxLength 
 	 * @return
 	 */
 	@SuppressWarnings("unused")
-	public static PostgresAttType valueOf(String string, int maxLength) {
+	public static PostgresAttType valueOf(String string) {
 		// First try to read it as BigDecimal
 		try {
 			BigDecimal asDecimal = new BigDecimal(string);
 			return newNumeric();
 		} catch(NumberFormatException e) {
 			// If that didn't work, just return varchar
-			return newVarchar(maxLength);
+			return newText();
 		}
 	}
 
@@ -89,10 +81,7 @@ public class PostgresAttType {
 	 * @return
 	 */
 	public boolean isCharType() {
-		if(!type.contains("(")) {
-			return false;
-		}
-		return type.split("[(]")[0].toLowerCase().trim().matches("varchar");
+		return type.toLowerCase().matches("text");
 	}
 	
 	/**
@@ -104,22 +93,6 @@ public class PostgresAttType {
 		return type;
 	}
 	
-	/**
-	 * USED ONLY FOR UNIT TESTING
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		PostgresAttType numeric1 = newNumeric();
-		PostgresAttType numeric2 = newNumeric();
-		System.out.printf("numeric1 = %s\nnumeric2 = %s\n", numeric1, numeric2);
-		
-		System.out.println("numeric1.equals(numeric2):\t" + numeric1.equals(numeric2));
-		System.out.println("numeric1 == numeric2:\t" + (numeric1 == numeric2));
-		
-		PostgresAttType varchar = newVarchar(100);
-		System.out.println("varchar = " + varchar);
-	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -151,7 +124,20 @@ public class PostgresAttType {
 		return true;
 	}
 
-
-
+	/**
+	 * USED ONLY FOR UNIT TESTING
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		PostgresAttType numeric1 = newNumeric();
+		PostgresAttType numeric2 = newNumeric();
+		System.out.printf("numeric1 = %s\nnumeric2 = %s\n", numeric1, numeric2);
+		
+		System.out.println("numeric1.equals(numeric2):\t" + numeric1.equals(numeric2));
+		System.out.println("numeric1 == numeric2:\t" + (numeric1 == numeric2));
+		
+		PostgresAttType text = newText();
+		System.out.println("Text = " + text);
+	}
 
 }
