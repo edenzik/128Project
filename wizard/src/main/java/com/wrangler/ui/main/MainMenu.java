@@ -10,7 +10,9 @@ import com.wrangler.ui.fd.FDWindow;
 import com.wrangler.ui.login.User;
 import com.wrangler.ui.normalize.NormalizeWindow;
 import com.wrangler.ui.query.DatabaseBrowser;
+import com.wrangler.ui.upload.DirectUploadWindow;
 import com.wrangler.ui.upload.UploadWindow;
+import com.wrangler.ui.upload.WranglerUploadWindow;
 
 /**
  * @author edenzik
@@ -44,12 +46,18 @@ public class MainMenu extends MenuBar {
 	private Command importData(){
 		return new MenuBar.Command() {
 		    public void menuSelected(MenuItem selectedItem) {
-		    	UploadWindow upload = new UploadWindow(ui, user, callback);
+		        ui.addWindow(new DirectUploadWindow(ui, user, callback));
+		    }
+		};
+	}
+	private Command wrangleData(){
+		return new MenuBar.Command() {
+		    public void menuSelected(MenuItem selectedItem) {
+		    	WranglerUploadWindow upload = new WranglerUploadWindow(ui, user, callback);
 		        ui.addWindow(upload);
 		    }
 		};
 	}
-	private Command wrangleData(){return null;}
 	private Command inferFD(){
 		return new MenuBar.Command() {
 		    public void menuSelected(MenuItem selectedItem) {
