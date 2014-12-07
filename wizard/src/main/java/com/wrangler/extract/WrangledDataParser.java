@@ -11,7 +11,6 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.collections.IteratorUtils;
 
 /**
  * @author edenzik
@@ -27,7 +26,7 @@ public class WrangledDataParser {
 	public WrangledDataParser(String file) throws IOException {
 		CSVParser parser = CSVParser.parse(file, format);
 		List<CSVRecord> recordList = parser.getRecords();
-		List<String> headers = IteratorUtils.toList(recordList.get(0).iterator());
+		//List<String> headers = IteratorUtils.toList(recordList.get(0).iterator());
 		System.out.println("MAP");
 		System.out.println(parser.getHeaderMap());
 		System.out.println("NOW OTHER");
