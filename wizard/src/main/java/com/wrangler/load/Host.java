@@ -18,7 +18,7 @@ public class Host {
 	private static final String DEFAULT_IP = "wrangler.cqt8za2u22th.us-east-1.rds.amazonaws.com";
 	private static final String DEFAULT_PORT = "5432";
 	private static final String DEFAULT_ROLE = "edenzik";
-	private static final String DEFAULT_PASS = "postgres";
+	private static final String DEFAULT_PASS = "superglue1994";
 	/**
 	 * @param hostIp
 	 * @param port
