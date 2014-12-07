@@ -1,4 +1,4 @@
-package com.wrangler.fd;
+package com.wrangler.normalization;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.HashSet;
@@ -10,6 +10,7 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.wrangler.fd.FunctionalDependency;
 import com.wrangler.load.Attribute;
 import com.wrangler.load.Relation;
 import com.wrangler.load.RelationFactory;
@@ -238,5 +239,12 @@ public final class Normalizer {
 			} 
 		}
 		return null;
+	}
+	
+	/**
+	 * USED ONLY FOR UNIT TESTING
+	 */
+	public static void main(String[] args) {
+		
 	}
 }

@@ -270,18 +270,38 @@ public class QueryHelper {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("(");
-
-		String surrounding = getSurroundingChar(headerIter.next());
-		sql.append(String.format("%s%s%s", surrounding, valueIter.next(), surrounding));
+		sql.append(getNextTuple(headerIter.next(), valueIter.next(), true));
 
 		while(valueIter.hasNext()) {
-			surrounding = getSurroundingChar(headerIter.next());
-			sql.append(String.format(", %s%s%s", surrounding, valueIter.next(), surrounding));
+			sql.append(getNextTuple(headerIter.next(), valueIter.next(), false));
 		}
 		
 		sql.append(")");
 		
 		return sql.toString();
+	}
+	/**
+	 * Given a column and a value, returns the next tuple in an insert friendly
+	 * way (i.e. as NULL, surrounded by quotes, or just the value
+	 * 
+	 * @param column
+	 * @param value
+	 * @return
+	 */
+	private static String getNextTuple(Attribute column, String value, boolean firstTuple) {
+		String s = null;
+		if(value.matches("NULL")) {
+			s = "NULL";
+		} else {
+			String surrounding = getSurroundingChar(column);
+			s = String.format("%s%s%s", surrounding, value, surrounding);
+		}
+		// First tuple is just the value, other tuples need comma first
+		if(firstTuple) {
+			return s;
+		} else {
+			return ", " + s;
+		}
 	}
 	/**
 	 * Given an attribute a, determines based on the type whether insert
