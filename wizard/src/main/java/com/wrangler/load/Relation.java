@@ -1,6 +1,7 @@
 package com.wrangler.load;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -62,6 +63,24 @@ public class Relation {
 		this.attrs = copy;
 	}
 	/**
+	 * Adds a functional dependency to relations that do not already exist in a db
+	 * 
+	 * @param fd
+	 */
+	public void addFd(FunctionalDependency fd) {
+		if(exists()) {
+			throw new AssertionError("Cannot add functional dependency to existing table!");
+		}
+		
+		if(this.fds == null) {
+			this.fds = new LinkedHashSet<FunctionalDependency>();
+			this.fds.add(fd);
+		} else {
+			this.fds.add(fd);
+		}
+		
+	}
+	/**
 	 * Returns the set of functional dependencies (FDs) for this Relation.
 	 * The FDs are cached after the first access, so subsequent accesses
 	 * are not expensive.
@@ -71,7 +90,7 @@ public class Relation {
 	public Set<FunctionalDependency> findAllHardFds() {
 		if(this.fds == null) {
 			if(!exists()) {
-				throw new AssertionError("Cannot find FDs for non-existant relation!");
+				return new LinkedHashSet<FunctionalDependency>();
 			}
 			this.fds = FDDetector.findAllHardFds(this);
 		} 
