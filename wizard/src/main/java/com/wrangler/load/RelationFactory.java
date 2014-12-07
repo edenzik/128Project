@@ -1,5 +1,7 @@
 package com.wrangler.load;
 
+import java.util.Set;
+
 
 /**
  * Factory for returning new Relation objects.
@@ -15,14 +17,27 @@ public final class RelationFactory {
 	}
 
 	/**
-	 * Factory method for returning new Relation object.
+	 * Factory method for returning new Relation object that already exists
+	 * in the database.
 	 * 
 	 * @param name
 	 * @param sourceDb
 	 * @return
 	 */
-	public static Relation createRelation(String name, Database sourceDb) {
+	public static Relation createExistingRelation(String name, Database sourceDb) {
 		return new Relation(name, sourceDb);
+	}
+	
+	/**
+	 * Factory method for creating new Relation objects that do not already exist
+	 * in any database.
+	 * 
+	 * @param name
+	 * @param attrs
+	 * @return
+	 */
+	public static Relation createNewRelation(String name, Set<Attribute> attrs) {
+		return new Relation(name, attrs);
 	}
 
 }

@@ -68,21 +68,15 @@ public class WrangledDataExtractor {
 			}
 
 			List<String> tupleList = new ArrayList<String>();
-			// Keeps track of whether or not we have seen any
-			// blank values in a given tuple
-			boolean hasBlankValue = false;
 			for(String value : tuple) {
-				// If we see blank tuple, exit loop
+				// If we see blank value in tuple, pad with null
 				if(value.length() == 0) {
-					hasBlankValue = true;
-					break;
+					tupleList.add("NULL");
+				} else {
+					tupleList.add(value.trim());
 				}
-				tupleList.add(value.trim());
 			}
-			// Only add tuples that did not have any blank values
-			if(!hasBlankValue) {
-				wrangledData.add(tupleList);
-			}
+			wrangledData.add(tupleList);
 		}
 		LOG.debug("Loading data...");
 		LOG.info("Finished reading input data into memory buffer!");
@@ -131,7 +125,7 @@ public class WrangledDataExtractor {
 		// Now we need to figure out a unique name for this new table
 		try {
 			String tableName = QueryHelper.DEFAULT_TABLE_NAME + db.getDbHelper().countTables();
-			rel = RelationFactory.createRelation(tableName, db);
+			rel = RelationFactory.createExistingRelation(tableName, db);
 		} catch (SQLException e) {
 			LOG.error("Failed to count tables!", e);
 		}

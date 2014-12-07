@@ -71,7 +71,7 @@ class FDAddRemovePanel extends HorizontalSplitPanel {
 				if (event.getProperty().getValue()!=null){
 					selectFrom.removeAllItems();
 					selectTo.removeAllItems();
-					for (Attribute att : db.getDbHelper().getRelationAttributes(RelationFactory.createRelation(event.getProperty().getValue().toString(), db))){
+					for (Attribute att : db.getDbHelper().getRelationAttributes(RelationFactory.createExistingRelation(event.getProperty().getValue().toString(), db))){
 						selectFrom.addItem(att);
 						selectTo.addItem(att);
 					}

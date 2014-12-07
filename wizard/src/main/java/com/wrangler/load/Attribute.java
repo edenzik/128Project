@@ -12,11 +12,13 @@ public class Attribute {
 	private final String name;
 	private final Relation sourceTable;
 	private final PostgresAttType attType;
+	private boolean isNull;
 	
 	public Attribute(String name, PostgresAttType attType, Relation sourceTable) {
 		this.name = name;
 		this.attType = attType;
 		this.sourceTable = sourceTable;
+		isNull = false;
 	}
 	
 	/**
@@ -78,5 +80,14 @@ public class Attribute {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	/**
+	 * Returns true iff this Attribute is actually null
+	 * 
+	 * @return
+	 */
+	public boolean isNull() {
+		return isNull;
 	}
 }
