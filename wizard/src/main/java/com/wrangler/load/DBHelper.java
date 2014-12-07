@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -37,10 +38,9 @@ public class DBHelper {
 	public static void main(String[] args) {
 		try {
 			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
-			Relation rel = RelationFactory.createExistingRelation("table152", db);
+			Relation rel = RelationFactory.createExistingRelation("table157", db);
 			Normalizer norm = Normalizer.newInstance(rel);
 			Set<Relation> normalized = norm.bcnf();
-			System.out.println("NORMALIZED = " + normalized);
 			rel.decomposeInto(normalized);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -313,15 +313,17 @@ public class DBHelper {
 	 */
 	public boolean populateTable(Relation newRel, Relation sourceRel) {
 		Set<Attribute> atts = newRel.getAttributes();
-		String selectQuery = QueryHelper.getSelectQueryForAtts(sourceRel, atts);
-		String pk = newRel.getPrimaryKey().getName();
-		String insertQuery = null;
-		if(pk != null) {
-			insertQuery = String.format("INSERT INTO %s (%s) GROUP BY %s;", 
-					newRel.getName(), selectQuery, newRel);
-		} else {
-			insertQuery = String.format("INSERT INTO %s (%s)", newRel.getName(), selectQuery);
+		// Build list of atts for insert query
+		StringBuilder attList = new StringBuilder();
+		Iterator<Attribute> iter = atts.iterator();
+		attList.append(iter.next());
+		while(iter.hasNext()) {
+			attList.append(", " + iter.next());
 		}
+		
+		String selectQuery = QueryHelper.getSelectQueryForAtts(sourceRel, atts);
+		String insertQuery = null;
+		insertQuery = String.format("INSERT INTO %s (%s) (%s)", newRel.getName(), attList, selectQuery);
 		return executeUpdate(insertQuery);
 	}
 

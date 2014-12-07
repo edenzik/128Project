@@ -185,18 +185,7 @@ public final class Normalizer {
 	 */
 	private Entry<Relation, Relation> decomposeOn(Relation rel,
 			FunctionalDependency fd) {
-		// Initialize rMinusY table
-		Set<Attribute> rMinusYAtts = new LinkedHashSet<Attribute>();
-		rMinusYAtts.addAll(rel.getAttributes());
-		rMinusYAtts.remove(fd.getToAtt());
-		Relation rMinusY = RelationFactory.createNewRelation(getNewName(), rMinusYAtts);
-		// Make sure {r - y} inherits all the FDs x -> y iff {r - y} contains both x and y
-		for(FunctionalDependency f : rel.findAllHardFds()) {
-			if(rMinusYAtts.contains(f.getFromAtt()) && rMinusYAtts.contains(f.getToAtt())) {
-				rMinusY.addFd(f);
-			}
-		}
-
+		
 		// Initialize xy decomposed table
 		Set<Attribute> xyAtts = new LinkedHashSet<Attribute>();
 		xyAtts.add(fd.getFromAtt());
@@ -206,6 +195,22 @@ public final class Normalizer {
 		xy.addFd(fd);
 		// Set x as pk of xy
 		xy.setPrimaryKey(fd.getFromAtt());
+		
+		// Initialize rMinusY table
+		Set<Attribute> rMinusYAtts = new LinkedHashSet<Attribute>();
+		rMinusYAtts.addAll(rel.getAttributes());
+		rMinusYAtts.remove(fd.getToAtt());
+		Relation rMinusY = RelationFactory.createNewRelation(getNewName(), rMinusYAtts);
+		// Set foreign key between xMinusY.x and xy.x
+		Attribute fk = Attribute.withoutConstraints(fd.getFromAtt().getName(), 
+				fd.getFromAtt().getAttType(), rMinusY);
+		fk.addFK(xy.getPrimaryKey());
+		// Make sure {r - y} inherits all the FDs x -> y iff {r - y} contains both x and y
+		for(FunctionalDependency f : rel.findAllHardFds()) {
+			if(rMinusYAtts.contains(f.getFromAtt()) && rMinusYAtts.contains(f.getToAtt())) {
+				rMinusY.addFd(f);
+			}
+		}
 
 		LOG.info("Decomposed {} on {} into {} and {}", rel.getAttributes(), fd, rMinusYAtts, xyAtts);
 		return new SimpleEntry<Relation, Relation>(rMinusY, xy);

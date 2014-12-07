@@ -3,6 +3,9 @@ package com.wrangler.load;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Represents a single attribute within a table
@@ -16,6 +19,8 @@ public class Attribute {
 	private final Relation sourceTable;
 	private final PostgresAttType attType;
 	private Set<Constraint> constraints;
+	
+	private static final Logger LOG = LoggerFactory.getLogger(Attribute.class);
 
 	private Attribute(String name, PostgresAttType attType, Relation sourceTable, Set<Constraint> constraints) {
 		this.name = name;
@@ -113,6 +118,7 @@ public class Attribute {
 		}
 		
 		Constraint fkpk = Constraint.newForeignKey(this, pk);
+		LOG.debug("Adding fk constraint {} to {}.{}", fkpk, getSourceTable(), getName());
 		addConstraint(fkpk);
 	}
 

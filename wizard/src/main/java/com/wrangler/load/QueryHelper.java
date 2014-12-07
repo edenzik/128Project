@@ -176,7 +176,7 @@ public class QueryHelper {
 	}
 	
 	/**
-	 * Returns the selection query to select atts from rel with only a select
+	 * Returns the select distinct query to select atts from rel with only a select
 	 * and from clause (i.e. no where clause). TODO: Add Java-8 style lambda
 	 * passing for where clause predicates?
 	 * 
@@ -190,7 +190,7 @@ public class QueryHelper {
 		}
 		Iterator<Attribute> iter = atts.iterator();
 		StringBuilder query = new StringBuilder();
-		query.append(String.format("SELECT %s", iter.next()));
+		query.append(String.format("SELECT DISTINCT %s", iter.next()));
 		while(iter.hasNext()) {
 			query.append(String.format(", %s" ,iter.next().getName()));
 		}

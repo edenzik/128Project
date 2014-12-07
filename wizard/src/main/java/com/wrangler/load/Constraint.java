@@ -128,7 +128,7 @@ final class ForeignKey extends Constraint {
 
 	@Override
 	public String asSql() {
-		return String.format("REFERENCES %s", pk.getSourceTable().getName(), pk.getName());
+		return String.format("REFERENCES %s.%s", pk.getSourceTable().getName(), pk.getName());
 	}
 
 	/**

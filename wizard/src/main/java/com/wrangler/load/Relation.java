@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.wrangler.fd.FDDetector;
+import com.wrangler.fd.FDFactory;
 import com.wrangler.fd.FunctionalDependency;
 
 /**
@@ -78,11 +79,17 @@ public class Relation {
 			throw new AssertionError("Cannot add functional dependency to existing table!");
 		}
 
+		Attribute oldFrom = fd.getFromAtt();
+		Attribute oldTo = fd.getToAtt();
+		Attribute newFrom = Attribute.withoutConstraints(oldFrom.getName(), oldFrom.getAttType(), this);
+		Attribute newTo = Attribute.withoutConstraints(oldTo.getName(), oldTo.getAttType(), this);
+		FunctionalDependency newFd = FDFactory.createHardFD(newFrom, newTo);
+
 		if(this.fds == null) {
 			this.fds = new LinkedHashSet<FunctionalDependency>();
-			this.fds.add(fd);
+			this.fds.add(newFd);
 		} else {
-			this.fds.add(fd);
+			this.fds.add(newFd);
 		}
 
 	}
@@ -105,9 +112,14 @@ public class Relation {
 				// and we can simply return
 				return true;
 			}
-			if(!r.initializeAndPopulate(this, getSourceDb())) {
-				failed = true;
-				break;
+			// Only create relation if it doesn't already exist
+			if(!getSourceDb().getDbHelper().tableExists(r)) {
+				if(!r.initializeAndPopulate(this, getSourceDb())) {
+					failed = true;
+					break;
+				} else {
+					succesfullyCompleted.add(r);
+				}
 			}
 		}
 		// Delete any residue (normalized tables) if not all finished successfully
@@ -120,23 +132,29 @@ public class Relation {
 		}
 		// Set up constraints
 		for(Relation r: rels) {
-			// Add primary key if it exists
-			if(r.getPrimaryKey() != null) {
-				getSourceDb().getDbHelper().addPrimaryKey(r.getPrimaryKey(), r);
-			}
-			Set<Attribute> attrs = r.getAttributes();
-			// Set up attribute specific constraints (i.e. fk or unique)
-			for(Attribute a: attrs) {
-				Set<Constraint> constraints = a.getConstraints();
-				for(Constraint c : constraints) {
-					getSourceDb().getDbHelper().addConstraint(r, a, c);
+			// Only look at tables that were actually created (i.e. not tables that
+			// already existed
+			if(succesfullyCompleted.contains(r)) {
+				// Add primary key if it exists
+				if(r.getPrimaryKey() != null) {
+					LOG.debug("Adding {}.{} as pk...", r.getName(), r.getPrimaryKey().getName());
+					getSourceDb().getDbHelper().addPrimaryKey(r.getPrimaryKey(), r);
+				}
+				Set<Attribute> attrs = r.getAttributes();
+				// Set up attribute specific constraints (i.e. fk or unique)
+				for(Attribute a: attrs) {
+					Set<Constraint> constraints = a.getConstraints();
+					LOG.debug("Found set of constraints {} for {}", constraints, a);
+					for(Constraint c : constraints) {
+						LOG.debug("Adding constraint {} {}", a.getName(), c.asSql());
+						getSourceDb().getDbHelper().addConstraint(r, a, c);
+					}
 				}
 			}
 		}
-		
 		return true;
+
 	}
-	
 	/**
 	 * Creates a relation representing this object in the sourceDb, then populates it with the
 	 * relevant data from the passed source relation. This relation's attributes MUST be a subset
@@ -201,7 +219,7 @@ public class Relation {
 			throw new AssertionError(String.format("%s%s does not contain all attributes from %s%s", 
 					sourceRel.getName(), sourceRel.getAttributes(), getName(), getAttributes()));
 		}
-		
+
 		return getSourceDb().getDbHelper().populateTable(this, sourceRel);
 	}
 
@@ -336,13 +354,13 @@ public class Relation {
 		return primaryKey;
 	}
 	/**
-	 * @param primaryKey the primaryKey to set
+	 * @param pk the primaryKey to set
 	 */
-	public void setPrimaryKey(Attribute primaryKey) {
+	public void setPrimaryKey(Attribute pk) {
 		if(this.primaryKey != null) {
-			LOG.warn("Replacing pk {} with {}", this.primaryKey, primaryKey);
+			LOG.warn("Replacing pk {} with {}", this.primaryKey, pk);
 		}
-		this.primaryKey = primaryKey;
+		this.primaryKey = Attribute.withoutConstraints(pk.getName(), pk.getAttType(), this);
 	}
 
 }
