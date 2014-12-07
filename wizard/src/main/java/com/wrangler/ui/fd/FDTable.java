@@ -5,13 +5,14 @@ import java.util.Set;
 
 import com.vaadin.ui.Table;
 import com.wrangler.fd.FunctionalDependency;
+import com.wrangler.load.Relation;
 
 /**
  * @author edenzik
  *
  */
 class FDTable extends Table {
-	HashMap<Object, FunctionalDependency> fdSet;
+	private HashMap<Object, FunctionalDependency> fdSet;
 
 	/**
 	 * 
@@ -31,7 +32,7 @@ class FDTable extends Table {
 		removeAllItems();
 		fdSet = new HashMap<Object, FunctionalDependency>();
 		for (FunctionalDependency fd: functionalDependencies){
-			fdSet.put(addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null), fd);
+			insert(fd);
 		}
 	}
 	
@@ -39,6 +40,10 @@ class FDTable extends Table {
 		Object currentValue = getValue();
 		removeItem(currentValue);
 		if (currentValue!=null) fdSet.remove(currentValue);
+	}
+	
+	void insert(FunctionalDependency fd){
+		fdSet.put(addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null), fd);
 	}
 
 }

@@ -79,7 +79,10 @@ public class Relation {
 	 * @return
 	 */
 	public boolean initialize(Database sourceDb) {
-		sourceDb.getDbHelper().createTable(this);
+		if(sourceDb.getDbHelper().createTable(this)) {
+			this.existing = true;
+			return true;
+		}
 		return false;
 	}
 	
