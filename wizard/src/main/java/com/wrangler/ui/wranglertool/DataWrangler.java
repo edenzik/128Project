@@ -5,8 +5,6 @@ package com.wrangler.ui.wranglertool;
 
 import java.io.IOException;
 
-import org.seleniumhq.jetty7.util.log.Log;
-
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
