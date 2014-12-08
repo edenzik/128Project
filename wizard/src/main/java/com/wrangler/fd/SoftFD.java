@@ -37,7 +37,7 @@ public class SoftFD extends FunctionalDependency {
 	 * 
 	 * @return
 	 */
-	public Map<String, Double> getViolations() {
+	public Map<String, Map<String, Double>> getViolations() {
 		return getFromAtt().getSourceTable().getSourceDb().getDbHelper().getViolations(this);
 	}
 

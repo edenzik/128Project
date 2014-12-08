@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,6 @@ import com.wrangler.constraint.ForeignKey;
 import com.wrangler.extract.CSVFormatException;
 import com.wrangler.fd.FDFactory;
 import com.wrangler.fd.SoftFD;
-import com.wrangler.normalization.Normalizer;
 
 /**
  * Class to abstract away from boilerplate of JDBC connection
@@ -42,8 +42,8 @@ public class DBHelper {
 	 * @throws ClassNotFoundException 
 	 */
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
-		Database db = DatabaseFactory.createDatabase("test", HostFactory.createDefaultHost());
-		Relation rel = RelationFactory.createExistingRelation("kahlil2", db);
+		Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
+		Relation rel = RelationFactory.createExistingRelation("kahlil3", db);
 		Set<Attribute> attrs = rel.getAttributes();
 		Attribute from = null, to = null;
 		for(Attribute a : attrs) {
@@ -54,7 +54,7 @@ public class DBHelper {
 			}
 		}
 		SoftFD soft = FDFactory.createSoftFD(from, to);
-		Map<String, Double> violations = soft.getViolations();
+		Map<String, Map<String, Double>> violations = soft.getViolations();
 		System.out.println("VIOLATIONS = " + violations);
 
 		//			Normalizer norm = Normalizer.newInstance(rel);
@@ -536,17 +536,17 @@ public class DBHelper {
 	 * 
 	 * @return
 	 */
-	public Map<String, Double> getViolations(SoftFD softFD) {
+	public Map<String, Map<String, Double>> getViolations(SoftFD softFD) {
 		// Generate query for finding violations
-		Map<String, Double> violations = new HashMap<String, Double>();
+		Map<String, Map<String, Double>> violations = new HashMap<String,Map<String, Double>>();
 		String from = softFD.getFromAtt().getName();
 		String to = softFD.getToAtt().getName();
 		String rel = softFD.getFromAtt().getSourceTable().getName();
 		String violationRelName = rel + "_fdviolations";
 		// First store violating relations in temp table
 		String query1 = String.format(
-			"CREATE TEMP TABLE %s AS SELECT %s FROM (SELECT DISTINCT %s, %s FROM %s) AS foo GROUP BY %s HAVING COUNT(*) > 1;",
-			violationRelName, from, from, to, rel, from);
+				"CREATE TEMP TABLE %s AS SELECT %s FROM (SELECT DISTINCT %s, %s FROM %s) AS foo GROUP BY %s HAVING COUNT(*) > 1;",
+				violationRelName, from, from, to, rel, from);
 		// Then join with that table to only get results for violating attributes
 		String query2 = String.format("SELECT %s,%s,count(*) FROM %s natural join %s GROUP BY %s, %s;",
 				from, to, rel, violationRelName, from, to);
@@ -567,31 +567,52 @@ public class DBHelper {
 
 		// Iterate through results of query and build up violation map
 		String violation = null;
+		String fdLeft = null;
 		try {
 			while(rs.next()) {
+				fdLeft = rs.getString(1);
 				violation = rs.getString(2);
 				int numViolations = rs.getInt(3);
-				violations.put(violation, Double.valueOf(numViolations));
+				if(violations.containsKey(fdLeft)) {
+					Map<String, Double> singleViolations = violations.get(fdLeft);
+					singleViolations.put(violation,  Double.valueOf(numViolations));
+				} else {
+					Map<String, Double> singleViolations = new TreeMap<String, Double>();
+					singleViolations.put(violation, Double.valueOf(numViolations));
+					violations.put(fdLeft, singleViolations);
+				}
 			}
 		} catch(SQLException e) {
 			LOG.error("", e);
 		}
 
 		// Normalize the values of the map so that each is a percentage, rather than a count
-		Set<String> keys = violations.keySet();
-		// First calculate the total sum
-		double total = 0.0;
-		for(String s: keys) {
-			total += violations.get(s);
+		Set<String> determinants = violations.keySet();
+		for(String d: determinants) {
+			Set<String> determinedVals = violations.get(d).keySet();
+			double total = 0.0;
+			// First calculate the total count of possible vals for a given
+			// determinant
+			for(String possibleVal: determinedVals) {
+				total += violations.get(d).get(possibleVal);
+			}
+			// Then turn each count into a percentage for each determinant
+			for(String possibleVal: determinedVals) {
+				double count = violations.get(d).get(possibleVal);
+				double percentage = 100 * count / total;
+				violations.get(d).put(possibleVal, percentage);
+			}
 		}
 		// Now divide each entry by the total
-		for(String s: keys) {
-			violations.put(s, 100 * violations.get(s) / total);
+		for(String d: determinants) {
+			Set<String> determinedVals = violations.get(d).keySet();
+			for(String possibleVal: determinedVals) {
+				violations.get(d).get(possibleVal);
+			}
 		}
-
 		return violations;
 	}
-	
+
 	/**
 	 * Applies all passed corrections to the softFd by ensuring that each key
 	 * of corrections<key, value> only corresponds with value in the database
@@ -604,6 +625,8 @@ public class DBHelper {
 		for(String s: corrections.keySet()) {
 			fixViolation(softFd, s, corrections.get(s));
 		}
+		// Make sure that source relation now knows that softFd is actually a hard fd
+		softFd.getFromAtt().getSourceTable().addFd(softFd);
 	}
 
 	/**
@@ -612,11 +635,22 @@ public class DBHelper {
 	 * with key
 	 * 
 	 * @param softFd
-	 * @param key
+	 * @param incorrect
 	 * @param correctVal
 	 */
-	private void fixViolation(SoftFD softFd, String key, String correctVal) {
-		
+	private void fixViolation(SoftFD softFd, String incorrect, String correctVal) {
+		// Side of the functional dependency that we're going to fix
+		Attribute attToFix = softFd.getToAtt();
+		if(attToFix.getAttType().isCharType()) {
+			incorrect = String.format("'%s'", incorrect);
+			correctVal = String.format("'%s'", correctVal);
+		}
+		// Relation of that functional dependency
+		Relation rel = softFd.getFromAtt().getSourceTable();
+		// Query to correct the old value to the new
+		String update = String.format("UPDATE %s SET %s=%s where %s=%s;",
+				rel.getName(), attToFix.getName(), correctVal, attToFix.getName(), incorrect);
+		executeUpdate(update);
 	}
 }
 

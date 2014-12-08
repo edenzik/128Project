@@ -12,6 +12,7 @@ import com.wrangler.constraint.ForeignKey;
 import com.wrangler.fd.FDDetector;
 import com.wrangler.fd.FDFactory;
 import com.wrangler.fd.FunctionalDependency;
+import com.wrangler.fd.SoftFD;
 
 /**
  * Represents a single relation within a database.
@@ -79,7 +80,9 @@ public class Relation {
 	 * @param fd
 	 */
 	public void addFd(FunctionalDependency fd) {
-		if(exists()) {
+		// Should break if table exists except if we're adding newly corrected
+		// Soft fd
+		if(exists() && !(fd instanceof SoftFD)) {
 			throw new AssertionError("Cannot add functional dependency to existing table!");
 		}
 
