@@ -574,7 +574,7 @@ public class DBHelper {
 		}
 		// Now divide each entry by the total
 		for(String s: keys) {
-			violations.put(s, violations.get(s) / total);
+			violations.put(s, 100 * violations.get(s) / total);
 		}
 
 		return violations;
