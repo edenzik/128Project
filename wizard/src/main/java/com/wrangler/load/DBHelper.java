@@ -638,22 +638,22 @@ public class DBHelper {
 	 * with key
 	 * 
 	 * @param softFd
-	 * @param incorrect
+	 * @param determinant
 	 * @param correctVal
 	 */
-	private void fixSingleViolation(SoftFD softFd, String incorrect, String correctVal) {
+	private void fixSingleViolation(SoftFD softFd, String determinant, String correctVal) {
 		// Side of the functional dependency that we're going to fix
 		Attribute leftSide = softFd.getFromAtt();
 		Attribute attToFix = softFd.getToAtt();
 		if(attToFix.getAttType().isCharType()) {
-			incorrect = String.format("'%s'", incorrect);
+			determinant = String.format("'%s'", determinant);
 			correctVal = String.format("'%s'", correctVal);
 		}
 		// Relation of that functional dependency
 		Relation rel = softFd.getFromAtt().getSourceTable();
 		// Query to correct the old value to the new
 		String update = String.format("UPDATE %s SET %s=%s where %s=%s;",
-				rel.getName(), attToFix.getName(), correctVal, leftSide.getName(), incorrect);
+				rel.getName(), attToFix.getName(), correctVal, leftSide.getName(), determinant);
 		executeUpdate(update);
 	}
 }
