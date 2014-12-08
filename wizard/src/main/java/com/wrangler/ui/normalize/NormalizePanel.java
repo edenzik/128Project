@@ -57,7 +57,7 @@ class NormalizePanel extends HorizontalSplitPanel {
 			public void valueChange(ValueChangeEvent event) {
 				if (event.getProperty().getValue()!=null){
 					final Relation selectedRelation = RelationFactory.createExistingRelation(event.getProperty().getValue().toString(), user.getDB());
-					fdTable.fill(selectedRelation.findAllHardFds());
+					fdTable.fill(selectedRelation);
 					Normalizer norm = Normalizer.newInstance(RelationFactory.createExistingRelation(event.getProperty().getValue().toString(), user.getDB()));
 					
 					final Set<Relation> normalizedRelations = norm.bcnf();

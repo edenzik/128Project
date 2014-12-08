@@ -96,7 +96,7 @@ class FDAddRemovePanel extends VerticalSplitPanel {
 					SoftFD softFD = FDFactory.createSoftFD((Attribute) selectFrom.getValue(), (Attribute) selectTo.getValue());
 					final Map<String, Map<String, Double>> valuePercent = softFD.getViolations();
 					if (!valuePercent.isEmpty()){
-						ui.addWindow(new FDViolationWindow(softFD.getFromAtt(), softFD.getToAtt(), valuePercent));
+						ui.addWindow(new FDViolationWindow(fdTable,softFD, softFD.getFromAtt(), softFD.getToAtt(), valuePercent, db));
 					} else {
 						Notification.show("Cannot add existing FD",
 								softFD.getFromAtt() + " -> " + softFD.getToAtt() + " is already a functional depdendency.",

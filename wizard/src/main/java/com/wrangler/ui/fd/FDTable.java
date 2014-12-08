@@ -12,6 +12,7 @@ import com.wrangler.load.Relation;
  *
  */
 public class FDTable extends Table {
+	private Relation rel = null;
 	private HashMap<Object, FunctionalDependency> fdSet;
 
 	/**
@@ -28,7 +29,9 @@ public class FDTable extends Table {
 		setSelectable(true);
 	}
 	
-	public void fill(Set<FunctionalDependency> functionalDependencies){
+	public void fill(Relation rel){
+		this.rel = rel;
+		Set<FunctionalDependency> functionalDependencies = rel.findAllHardFds();
 		removeAllItems();
 		fdSet = new HashMap<Object, FunctionalDependency>();
 		for (FunctionalDependency fd: functionalDependencies){
@@ -39,12 +42,14 @@ public class FDTable extends Table {
 	public void removeSelectedValue(){
 		Object currentValue = getValue();
 		removeItem(currentValue);
-		if (currentValue!=null) fdSet.remove(currentValue);
+		if (currentValue!=null) rel.removeFd(fdSet.remove(currentValue));
 	}
 	
 	public void insert(FunctionalDependency fd){
 		fdSet.put(addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null), fd);
 	}
+	
+	protected Relation getRel(){return rel;}
 	
 	protected HashMap<Object, FunctionalDependency> getFdSet(){return fdSet;}
 
