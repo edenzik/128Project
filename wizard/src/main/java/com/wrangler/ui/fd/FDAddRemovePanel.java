@@ -9,12 +9,15 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.wrangler.fd.FDDetector;
+import com.wrangler.fd.FDFactory;
 import com.wrangler.fd.FunctionalDependency;
 import com.wrangler.fd.HardFD;
+import com.wrangler.fd.SoftFD;
 import com.wrangler.load.Attribute;
 import com.wrangler.load.Database;
 import com.wrangler.load.Relation;
@@ -29,7 +32,7 @@ class FDAddRemovePanel extends VerticalSplitPanel {
 	/**
 	 * 
 	 */
-	FDAddRemovePanel(final FDTable fdTable, final TableSelection tableSelection, final Database db) {
+	FDAddRemovePanel(final FDTable fdTable, final TableSelection tableSelection, final Database db, final UI ui) {
 		initLayout();
 		Button removeFD = new Button("Remove FD");
 		removeFD.setSizeFull();
@@ -82,8 +85,13 @@ class FDAddRemovePanel extends VerticalSplitPanel {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
+				
 				if (selectFrom.getValue()!=null && selectTo.getValue() != null){
-					fdTable.insert(new HardFD((Attribute) selectFrom.getValue(), (Attribute) selectTo.getValue()));
+					//fdTable.getFdSet().keySet()
+					
+					//((Attribute) selectFrom.getValue());
+					ui.addWindow(new FDViolationWindow(FDFactory.createSoftFD((Attribute) selectFrom.getValue(), (Attribute) selectTo.getValue())));
+					//fdTable.insert(new HardFD((Attribute) selectFrom.getValue(), (Attribute) selectTo.getValue()));
 				}
 			}
 		});

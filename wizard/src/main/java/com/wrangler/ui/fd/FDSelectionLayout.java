@@ -3,6 +3,7 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.wrangler.load.Database;
 import com.wrangler.load.Relation;
@@ -21,13 +22,13 @@ public class FDSelectionLayout extends VerticalSplitPanel {
 	 * Enables the user to see all functional dependencies and add/remove some
 	 * 
 	 */
-	public FDSelectionLayout(FDTable fdTable, TableSelection tableSelection, Database db) {
+	public FDSelectionLayout(FDTable fdTable, TableSelection tableSelection, Database db, UI ui) {
 		initLayout();
 		HorizontalLayout hl = new HorizontalLayout(fdTable);
 		addComponent(hl);
 		hl.setSizeFull();
 		hl.setMargin(new MarginInfo(true, false, false, false));
-		addComponent(new FDAddRemovePanel(fdTable, tableSelection, db));
+		addComponent(new FDAddRemovePanel(fdTable, tableSelection, db, ui));
 	}
 	
 	private void initLayout(){
