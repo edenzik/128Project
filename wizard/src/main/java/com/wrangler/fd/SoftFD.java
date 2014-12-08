@@ -18,7 +18,7 @@ public class SoftFD extends FunctionalDependency {
 	/**
 	 * 
 	 */
-	public SoftFD(Attribute fromAtt, Attribute toAtt) {
+	protected SoftFD(Attribute fromAtt, Attribute toAtt) {
 		super(fromAtt, toAtt);
 	}
 
