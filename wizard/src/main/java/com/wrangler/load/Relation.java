@@ -98,7 +98,23 @@ public class Relation {
 		} else {
 			this.fds.add(newFd);
 		}
-
+	}
+	
+	/**
+	 * Removes the passed FunctionalDependency from the set of maintained FDs for
+	 * this relation. Returns true if the deletion was successful, false otherwise.
+	 * 
+	 * @param fd
+	 */
+	public boolean removeFd(FunctionalDependency fd) {
+		if(this.fds == null) {
+			LOG.warn("Tried to delete {} from non existing fd set for {}", fd, this);
+			return false;
+		}
+		else {
+			fds.remove(fd);
+			return true;
+		}
 	}
 
 	/**
