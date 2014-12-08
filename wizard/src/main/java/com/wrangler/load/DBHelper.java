@@ -42,7 +42,7 @@ public class DBHelper {
 	 * @throws ClassNotFoundException 
 	 */
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
-		Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
+		Database db = DatabaseFactory.createDatabase("test", HostFactory.createDefaultHost());
 		Relation rel = RelationFactory.createExistingRelation("kahlil2", db);
 		Set<Attribute> attrs = rel.getAttributes();
 		Attribute from = null, to = null;
@@ -545,7 +545,7 @@ public class DBHelper {
 		String violationRelName = rel + "_fdviolations";
 		// First store violating relations in temp table
 		String query1 = String.format(
-			"CREATE TEMP TABLE %s AS SELECT %s FROM (SELECT DISTINCT %s, %s FROM %s) AS foo GROUP BY school HAVING COUNT(*) > 1;",
+			"CREATE TEMP TABLE %s AS SELECT %s FROM (SELECT DISTINCT %s, %s FROM %s) AS foo GROUP BY %s HAVING COUNT(*) > 1;",
 			violationRelName, from, from, to, rel, from);
 		// Then join with that table to only get results for violating attributes
 		String query2 = String.format("SELECT %s,%s,count(*) FROM %s natural join %s GROUP BY %s, %s;",
