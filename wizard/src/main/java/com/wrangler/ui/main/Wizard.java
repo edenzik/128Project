@@ -18,7 +18,7 @@ import com.wrangler.ui.login.LoginWindow;
  *
  * Created by edenzik on 11/27/14.
  */
-@Title("Relational Data Wrangler")
+@Title("Schematic Fission")
 @Theme("mytheme")
 public class Wizard extends UI {
 	private static final long serialVersionUID = 8261547005973362262L;
