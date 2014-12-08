@@ -336,8 +336,9 @@ public class DBHelper {
 	 */
 	public Set<Attribute> getRelationAttributes(Relation rel) {
 		Set<Attribute> attrSet = new LinkedHashSet<Attribute>();
+		Connection conn = null;
 		try {
-			Connection conn = getConnection();
+			conn = getConnection();
 			DatabaseMetaData meta = conn.getMetaData();
 			ResultSet rs = meta.getColumns(null, null, rel.getName().toLowerCase(), null);
 			while(rs.next()) {
@@ -350,6 +351,8 @@ public class DBHelper {
 			}
 		} catch (SQLException e){
 			LOG.error("", e);
+		} finally {
+			pool.releaseConnection(conn);
 		}
 		return attrSet;
 
@@ -363,7 +366,7 @@ public class DBHelper {
 	 * @param relation
 	 * @return
 	 */
-	protected void findAndSetConstraints(Relation relation) {
+	public void findAndSetConstraints(Relation relation) {
 		Set<Attribute> attrs = relation.getAttributes();
 		Connection conn = null;
 		try {
@@ -413,6 +416,8 @@ public class DBHelper {
 			}
 		} catch(SQLException e) {
 			LOG.error("", e);
+		} finally {
+			pool.releaseConnection(conn);
 		}
 	}
 

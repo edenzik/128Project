@@ -104,6 +104,7 @@ public class Attribute {
 		} else {
 			this.constraints.add(c);
 		}
+		System.out.println("Now constraints = " + constraints + " for " + this.getSourceTable() + "." + this.getName());
 	}
 	
 	/**
@@ -118,8 +119,6 @@ public class Attribute {
 		}
 		
 		Constraint fkpk = Constraint.newForeignKey(this, pk);
-		LOG.debug("Adding fk constraint {} to {}.{}", fkpk, getSourceTable(), getName());
-		addConstraint(fkpk);
 	}
 
 
