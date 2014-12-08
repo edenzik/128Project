@@ -13,7 +13,7 @@ public class DDLMaker extends StatementMaker {
 		for (Attribute att : rel.getAttributes()){
 			statement.append(String.format("\t%s %s", att.getName(), att.getAttType()));
 			for (ForeignKey fkey : rel.getFks()){
-				statement.append(String.format("%s", att.getName(), att.getAttType()));
+				statement.append(String.format("%s ", fkey.asSql()));
 			}
 			statement.append(",");
 			statement.append("\n");
