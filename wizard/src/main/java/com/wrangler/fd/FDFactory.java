@@ -20,6 +20,12 @@ public final class FDFactory {
 	}
 	
 	public static FunctionalDependency createSoftFD(Attribute fromAtt, Attribute toAtt) {
+		if(!fromAtt.exists() || !toAtt.exists()) {
+			throw new AssertionError("Soft FDs on non-existing attributes not supported!");
+		}
+		if(!fromAtt.getSourceTable().exists() || !toAtt.getSourceTable().exists()) {
+			throw new AssertionError("Soft FDs on non-existing tables not supported!");
+		}
 		return new SoftFD(fromAtt, toAtt);
 	}
 

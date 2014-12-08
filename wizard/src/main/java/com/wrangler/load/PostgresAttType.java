@@ -85,6 +85,15 @@ public class PostgresAttType {
 	}
 	
 	/**
+	 * Returns true iff this type is a numeric data type
+	 * 
+	 * @return
+	 */
+	public boolean isNumeric() {
+		return type.toLowerCase().matches("numeric");
+	}
+	
+	/**
 	 * Returns a String representation ready for SQL create table statements
 	 * 
 	 */

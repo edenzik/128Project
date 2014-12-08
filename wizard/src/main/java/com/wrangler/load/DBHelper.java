@@ -523,13 +523,46 @@ public class DBHelper {
 	 * @return
 	 */
 	public Map<String, Double> getViolations(SoftFD softFD) {
+		// Generate query for finding violations
+		Map<String, Double> violations = new HashMap<String, Double>();
 		String from = softFD.getFromAtt().getName();
 		String to = softFD.getToAtt().getName();
 		String rel = softFD.getFromAtt().getSourceTable().getName();
-		String query = String.format("SELECT %s,%s,count(*) FROM (SELECT %s, %s FROM %s) AS temp GROUP BY %s, %s;",
-				from, to, from, to, rel, from, to);
+		String query = String.format("SELECT %s,count(*) FROM (SELECT %s, %s FROM %s) AS temp GROUP BY %s, %s;",
+				to, from, to, rel, from, to);
+		ResultSet rs = null;
+		try {
+			rs = executeQuery(query);
+		} catch (SQLException e) {
+			LOG.error("", e);
+			return violations;
+		}
 
-		return null;
+		// Iterate through results of query and build up violation map
+		String violation = null;
+		try {
+			while(rs.next()) {
+				violation = rs.getString(1);
+				int numViolations = rs.getInt(2);
+				violations.put(violation, Double.valueOf(numViolations));
+			}
+		} catch(SQLException e) {
+			LOG.error("", e);
+		}
+
+		// Normalize the values of the map so that each is a percentage, rather than a count
+		Set<String> keys = violations.keySet();
+		// First calculate the total sum
+		double total = 0.0;
+		for(String s: keys) {
+			total += violations.get(s);
+		}
+		// Now divide each entry by the total
+		for(String s: keys) {
+			violations.put(s, violations.get(s) / total);
+		}
+
+		return violations;
 	}
 }
 

@@ -19,6 +19,7 @@ public class Attribute {
 	private final PostgresAttType attType;
 	private boolean existing;
 	
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(Attribute.class);
 
 	private Attribute(String name, PostgresAttType attType, Relation sourceTable, boolean existing) {

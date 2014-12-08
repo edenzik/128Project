@@ -15,7 +15,6 @@ import com.wrangler.ui.login.UserNotFoundException;
 public class UserDatabase extends Database {
 
 	private static final String USER_DB_NAME = "postgres"; 
-	private static final String USER_TABLE_NAME = "users"; 
 	protected UserDatabase()
 			throws ClassNotFoundException, SQLException {
 		super(USER_DB_NAME, HostFactory.createDefaultHost());

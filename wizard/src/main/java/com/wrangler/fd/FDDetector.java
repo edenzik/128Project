@@ -150,6 +150,7 @@ public class FDDetector {
 //			
 			for(int i = 0; i < 100; ++i) {
 				long start = System.currentTimeMillis();
+				@SuppressWarnings("unused")
 				Set<FunctionalDependency> fds = rel.findAllHardFds();
 				long end = System.currentTimeMillis();
 				System.out.printf("%d:\t%d\n", i, (end - start));
