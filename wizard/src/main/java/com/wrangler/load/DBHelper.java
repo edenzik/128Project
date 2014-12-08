@@ -188,6 +188,17 @@ public class DBHelper {
 		pool.destroy();
 		LOG.info("Closed database connection!");
 	}
+	
+	public void open() {
+		LOG.info("Opened new database connection!");
+		String uri = "jdbc:postgresql://" + db.getHost().getIp() + "/" + db.getName();
+		try {
+			pool = new SimpleJDBCConnectionPool("org.postgresql.Driver", uri, db.getHost().getRole(), db.getHost().getPass());
+		} catch (SQLException e) {
+			LOG.error("", e);
+		}
+
+	}
 
 
 
