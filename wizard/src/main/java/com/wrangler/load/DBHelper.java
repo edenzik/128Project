@@ -105,6 +105,13 @@ public class DBHelper {
 			Statement stmt = conn.createStatement();
 			LOG.info("{}: {}", getDb(), query);
 			stmt.executeUpdate(query);
+			// Fix to protect against delayed commits (especially
+			// relevant for create table statements that cause later
+			// checks to fail.
+			conn.setAutoCommit(false);
+			conn.commit();
+			conn.setAutoCommit(true);
+			LOG.debug("executed {}", query);
 			return true;
 		} catch(SQLException e) {
 			LOG.error("", e);
