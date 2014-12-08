@@ -127,7 +127,6 @@ public class DBHelper {
 			conn.setAutoCommit(false);
 			conn.commit();
 			conn.setAutoCommit(true);
-			LOG.debug("executed {}", query);
 			return true;
 		} catch(SQLException e) {
 			LOG.error("", e);
@@ -549,7 +548,7 @@ public class DBHelper {
 			"CREATE TEMP TABLE %s AS SELECT %s FROM (SELECT DISTINCT %s, %s FROM %s) AS foo GROUP BY school HAVING COUNT(*) > 1;",
 			violationRelName, from, from, to, rel, from);
 		// Then join with that table to only get results for violating attributes
-		String query2 = String.format("SELECT %s,%s,count(*) FROM %s natural join %s GROUP BY %s, %s",
+		String query2 = String.format("SELECT %s,%s,count(*) FROM %s natural join %s GROUP BY %s, %s;",
 				from, to, rel, violationRelName, from, to);
 		// Then make sure to drop the temp table
 		String query3 = String.format("DROP TABLE %s;", violationRelName);
