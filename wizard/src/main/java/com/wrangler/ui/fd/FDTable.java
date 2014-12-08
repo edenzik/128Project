@@ -3,7 +3,6 @@ package com.wrangler.ui.fd;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.seleniumhq.jetty7.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
