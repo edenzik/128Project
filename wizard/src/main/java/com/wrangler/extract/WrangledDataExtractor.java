@@ -126,6 +126,9 @@ public class WrangledDataExtractor {
 		// Now we need to figure out a unique name for this new table
 		rel = RelationFactory.createExistingRelation(tableName, db);
 		int counter = 0;
+		if(tableName == null || tableName.isEmpty()) {
+			tableName = "table";
+		}
 		while(db.getDbHelper().tableExists(rel)) {
 			String newName = tableName + counter++;
 			rel = RelationFactory.createExistingRelation(newName, db);
