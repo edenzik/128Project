@@ -19,7 +19,7 @@ public final class FDFactory {
 		return new HardFD(fromAtt, toAtt);
 	}
 	
-	public static FunctionalDependency createSoftFD(Attribute fromAtt, Attribute toAtt) {
+	public static SoftFD createSoftFD(Attribute fromAtt, Attribute toAtt) {
 		if(!fromAtt.exists() || !toAtt.exists()) {
 			throw new AssertionError("Soft FDs on non-existing attributes not supported!");
 		}

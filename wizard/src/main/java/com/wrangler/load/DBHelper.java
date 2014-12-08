@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 import com.wrangler.constraint.ForeignKey;
 import com.wrangler.extract.CSVFormatException;
+import com.wrangler.fd.FDFactory;
 import com.wrangler.fd.SoftFD;
 import com.wrangler.normalization.Normalizer;
 
@@ -37,27 +38,41 @@ public class DBHelper {
 	 * Used only for unit testing
 	 * 
 	 * @param args
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
 	 */
-	public static void main(String[] args) {
-		try {
-			Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
-			Relation rel = RelationFactory.createExistingRelation("table157", db);
-			Normalizer norm = Normalizer.newInstance(rel);
-			Set<Relation> normalized = norm.bcnf();
-			for(Relation r: normalized) {
-				Set<ForeignKey> fks = r.getFks();
-				if(!fks.isEmpty()) {
-					LOG.debug("{} has fks {}", r, fks);
-				}
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+		Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
+		Relation rel = RelationFactory.createExistingRelation("kahlil3", db);
+		Set<Attribute> attrs = rel.getAttributes();
+		Attribute from = null, to = null;
+		for(Attribute a : attrs) {
+			if(a.getName().equals("school")) {
+				from = a;
+			} else if(a.getName().equals("city")) {
+				to = a;
 			}
-			rel.decomposeInto(normalized);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+		SoftFD soft = FDFactory.createSoftFD(from, to);
+		Map<String, Double> violations = soft.getViolations();
+		System.out.println("VIOLATIONS = " + violations);
+
+		//			Normalizer norm = Normalizer.newInstance(rel);
+		//			Set<Relation> normalized = norm.bcnf();
+		//			for(Relation r: normalized) {
+		//				Set<ForeignKey> fks = r.getFks();
+		//				if(!fks.isEmpty()) {
+		//					LOG.debug("{} has fks {}", r, fks);
+		//				}
+		//			}
+		//			rel.decomposeInto(normalized);
+		//		} catch (ClassNotFoundException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		} catch (SQLException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 	}
 
 	/**
