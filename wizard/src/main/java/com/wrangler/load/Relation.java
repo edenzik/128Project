@@ -135,11 +135,13 @@ public class Relation {
 			// Only look at tables that were actually created (i.e. not tables that
 			// already existed
 			if(succesfullyCompleted.contains(r)) {
+				r.getSourceDb().getDbHelper().findAndSetConstraints(r);
 				// Add primary key if it exists
 				if(r.getPrimaryKey() != null) {
 					LOG.debug("Adding {}.{} as pk...", r.getName(), r.getPrimaryKey().getName());
 					getSourceDb().getDbHelper().addPrimaryKey(r.getPrimaryKey(), r);
 				}
+				r.refreshConstraints();
 				Set<Attribute> attrs = r.getAttributes();
 				// Set up attribute specific constraints (i.e. fk or unique)
 				for(Attribute a: attrs) {
@@ -260,7 +262,6 @@ public class Relation {
 				throw new AssertionError("Database can't both be non-existant and not have attributes!");
 			}
 			this.attrs = sourceDb.getDbHelper().getRelationAttributes(this);
-			findAndSetConstraints();
 		}
 		return this.attrs;
 	}
@@ -268,7 +269,7 @@ public class Relation {
 	/**
 	 * Finds and sets all constraints (i.e. fks and pks) for this relation
 	 */
-	private void findAndSetConstraints() {
+	private void refreshConstraints() {
 		getSourceDb().getDbHelper().findAndSetConstraints(this);
 	}
 	/**

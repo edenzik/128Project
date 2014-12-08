@@ -6,6 +6,8 @@ package com.wrangler.ui.fd;
 import java.sql.SQLException;
 import java.util.Set;
 
+import org.seleniumhq.jetty7.util.log.Log;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.ComboBox;
@@ -45,6 +47,7 @@ class FDPanel extends HorizontalSplitPanel {
 		tableSelection.addValueChangeListener(new ComboBox.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
+				System.out.println("HERE I AM!");
 				if (event.getProperty().getValue()!=null){
 					attributeTable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createExistingRelation(event.getProperty().getValue().toString(), user.getDB())));
 					fdTable.fill(RelationFactory.createExistingRelation(event.getProperty().getValue().toString(), user.getDB()).findAllHardFds());
