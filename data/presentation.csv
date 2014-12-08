@@ -5,23 +5,23 @@ This data contains valuable information about schools across the US
 The format is the following:
 State
 <List of schools with the following information per school>:
-    School name, school mascot, city
+    School name, school mascot, mascot color, city
 
 MA
-Brandeis University, Ollie the Owl, Waltham
-Harvard University, John Harvard the Crimson, Cambridge
-MIT, Tim the Beaver, Cambridge
-Boston University, Rhett the Terrier, Boston
-Boston College, Baldwin the Eagle, Boston
-Amherst College, Lord Jeffery, Amherst
+Brandeis University, Ollie the Owl, brown, Waltham
+Harvard University, John Harvard the Crimson, red, Cambridge
+MIT, Tim the Beaver, brown, Cambridge
+Boston University, Rhett the Terrier, brown, Boston
+Boston College, Baldwin the Eagle, gold, Boston
+Amherst College, Lord Jeffery, red, Amherst
 
 NY
-New York University, Bobcat, New York City
-Columbia University, Lion, New York City
-Adelphi University, Panther, Garden City
-Bard College, Raptor, Annandale on Hudson
+New York University, Bobcat, yellow, New York City
+Columbia University, Lion, orange, New York City
+Adelphi University, Panther, purple, Garden City
+Bard College, Raptor, red, Annandale on Hudson
 
 OH
-Ohio University, Bobcat, Athens
+Ohio University, Bobcat, brown, Athens
 
-
+THIS IS THE END OF THE FILE
