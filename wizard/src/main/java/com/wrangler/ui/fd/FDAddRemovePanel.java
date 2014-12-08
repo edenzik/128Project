@@ -40,11 +40,7 @@ class FDAddRemovePanel extends VerticalSplitPanel {
 				fdTable.removeSelectedValue();
 			}
 		});
-		
-		addComponent(removeFD);
-		
 
-		
 		Button addFD = new Button("Add FD");
 		
 		

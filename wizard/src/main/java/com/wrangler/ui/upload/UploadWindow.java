@@ -68,9 +68,8 @@ public abstract class UploadWindow extends Window {
 			@Override
 			public void filenameChanged(ChangeEvent event) {
 				String[] fileNameDelimted = event.getFilename().split("\\\\");
-				String fileName = fileNameDelimted[fileNameDelimted.length-1].split(".")[0];
-				name.setValue(fileName);
-				
+				String fileName = fileNameDelimted[fileNameDelimted.length-1];
+				name.setValue(fileName.substring(0,fileName.indexOf(".")));
 			}
 		});
 		uploader.addFinishedListener(new Upload.FinishedListener() {
