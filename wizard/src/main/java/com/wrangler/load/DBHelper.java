@@ -55,6 +55,9 @@ public class DBHelper {
 		}
 		SoftFD soft = FDFactory.createSoftFD(from, to);
 		Map<String, Map<String, Double>> violations = soft.getViolations();
+		Map<String, String> corrections = new HashMap<String, String>();
+		corrections.put("Brandeis", "Waltham");
+		db.getDbHelper().fixAllViolations(soft, corrections);
 		System.out.println("VIOLATIONS = " + violations);
 
 		//			Normalizer norm = Normalizer.newInstance(rel);
@@ -623,7 +626,7 @@ public class DBHelper {
 	 */
 	public void fixAllViolations(SoftFD softFd, Map<String, String> corrections) {
 		for(String s: corrections.keySet()) {
-			fixViolation(softFd, s, corrections.get(s));
+			fixSingleViolation(softFd, s, corrections.get(s));
 		}
 		// Make sure that source relation now knows that softFd is actually a hard fd
 		softFd.getFromAtt().getSourceTable().addFd(softFd);
@@ -638,8 +641,9 @@ public class DBHelper {
 	 * @param incorrect
 	 * @param correctVal
 	 */
-	private void fixViolation(SoftFD softFd, String incorrect, String correctVal) {
+	private void fixSingleViolation(SoftFD softFd, String incorrect, String correctVal) {
 		// Side of the functional dependency that we're going to fix
+		Attribute leftSide = softFd.getFromAtt();
 		Attribute attToFix = softFd.getToAtt();
 		if(attToFix.getAttType().isCharType()) {
 			incorrect = String.format("'%s'", incorrect);
@@ -649,7 +653,7 @@ public class DBHelper {
 		Relation rel = softFd.getFromAtt().getSourceTable();
 		// Query to correct the old value to the new
 		String update = String.format("UPDATE %s SET %s=%s where %s=%s;",
-				rel.getName(), attToFix.getName(), correctVal, attToFix.getName(), incorrect);
+				rel.getName(), attToFix.getName(), correctVal, leftSide.getName(), incorrect);
 		executeUpdate(update);
 	}
 }
