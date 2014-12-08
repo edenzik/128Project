@@ -1,10 +1,9 @@
 package com.wrangler.load;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.wrangler.constraint.ForeignKey;
 
 
 /**
@@ -18,31 +17,19 @@ public class Attribute {
 	private final String name;
 	private final Relation sourceTable;
 	private final PostgresAttType attType;
-	private Set<Constraint> constraints;
+	private boolean existing;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Attribute.class);
 
-	private Attribute(String name, PostgresAttType attType, Relation sourceTable, Set<Constraint> constraints) {
+	private Attribute(String name, PostgresAttType attType, Relation sourceTable, boolean existing) {
 		this.name = name;
 		this.attType = attType;
 		this.sourceTable = sourceTable;
-		this.setConstraints(constraints);
+		this.existing = existing;
 	}
 
 	/**
-	 * Returns a new Attribute without any constraints (i.e. primary key or foreign key)
-	 * 
-	 * @param name
-	 * @param attType
-	 * @param sourceTable
-	 * @return
-	 */
-	public static Attribute withoutConstraints(String name, PostgresAttType attType, Relation sourceTable) {
-		return new Attribute(name, attType, sourceTable, new HashSet<Constraint>());
-	}
-
-	/**
-	 * Returns a new Attribute with specified constraints (i.e. primary key or foreign key)
+	 * Returns an Attribute object that represents an existing Attribute in a relation
 	 * 
 	 * @param name
 	 * @param attType
@@ -50,9 +37,21 @@ public class Attribute {
 	 * @param constraints
 	 * @return
 	 */
-	public static Attribute withConstraints(String name, PostgresAttType attType, 
-			Relation sourceTable, Set<Constraint> constraints) {
-		return new Attribute(name, attType, sourceTable, constraints);
+	public static Attribute existingAttribute(String name, PostgresAttType attType, 
+			Relation sourceTable){
+		return new Attribute(name, attType, sourceTable, true);
+	}
+	
+	/**
+	 * Returns an Attribute object that represents a newly created Attribute not actually
+	 * in a relation
+	 * 
+	 * @param name
+	 * @param attType
+	 * @return
+	 */
+	public static Attribute newAttribute(String name, PostgresAttType attType) {
+		return new Attribute(name, attType, null, false);
 	}
 
 	/**
@@ -76,37 +75,14 @@ public class Attribute {
 		return sourceTable;
 	}
 
-	/**
-	 * @return the constraints
-	 */
-	public Set<Constraint> getConstraints() {
-		return constraints;
-	}
 
 	/**
-	 * @param constraints the constraints to set
+	 * @return the existing
 	 */
-	public void setConstraints(Set<Constraint> constraints) {
-		this.constraints = constraints;
+	public boolean exists() {
+		return existing;
 	}
-	
-	/**
-	 * Adds the passed constraint to this attributes maintained set of
-	 * constraints. Creates the set if it did not exist before.
-	 * 
-	 * @param c
-	 */
-	public void addConstraint(Constraint c) {
-		if(this.constraints == null) {
-			Set<Constraint> cSet = new HashSet<Constraint>();
-			cSet.add(c);
-			setConstraints(cSet);
-		} else {
-			this.constraints.add(c);
-		}
-		System.out.println("Now constraints = " + constraints + " for " + this.getSourceTable() + "." + this.getName());
-	}
-	
+
 	/**
 	 * Adds a new foreign key constraint to this attribute to reference the passed
 	 * primary key
@@ -118,7 +94,8 @@ public class Attribute {
 			throw new IllegalArgumentException("Invalid pk: " + pk);
 		}
 		
-		Constraint fkpk = Constraint.newForeignKey(this, pk);
+		ForeignKey fkpk = ForeignKey.newInstance(this, pk);
+		getSourceTable().addFk(fkpk);
 	}
 
 
@@ -161,5 +138,6 @@ public class Attribute {
 	public String toString() {
 		return getName();
 	}
+
 
 }

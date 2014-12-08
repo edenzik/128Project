@@ -1,12 +1,14 @@
 package com.wrangler.load;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.wrangler.constraint.ForeignKey;
 import com.wrangler.fd.FDDetector;
 import com.wrangler.fd.FDFactory;
 import com.wrangler.fd.FunctionalDependency;
@@ -30,6 +32,8 @@ public class Relation {
 	// Set of functional dependencies for this relation
 	// (calculated the first time it's requested)
 	private Set<FunctionalDependency> fds = null;
+	// Set of constraints that this table has (i.e. foreign keys)
+	private Set<ForeignKey> fks;
 	// Represents this table's primary key
 	// (currently only one is supported)
 	private Attribute primaryKey;
@@ -49,7 +53,6 @@ public class Relation {
 		this.name = name;
 		this.sourceDb = sourceDb;
 		this.existing = true;
-
 	}
 	/**
 	 * Constructor for a Relation object that maps to a newly created Relation
@@ -65,9 +68,10 @@ public class Relation {
 
 		// Create new Attributes that actually refer to this table as their souce
 		for(Attribute a: attrs) {
-			copy.add(Attribute.withConstraints(a.getName(), a.getAttType(), this, a.getConstraints()));
+			copy.add(Attribute.existingAttribute(a.getName(), a.getAttType(), this));
 		}
 		this.attrs = copy;
+		this.fks = new HashSet<ForeignKey>();
 	}
 	/**
 	 * Adds a functional dependency to relations that do not already exist in a db
@@ -81,8 +85,8 @@ public class Relation {
 
 		Attribute oldFrom = fd.getFromAtt();
 		Attribute oldTo = fd.getToAtt();
-		Attribute newFrom = Attribute.withoutConstraints(oldFrom.getName(), oldFrom.getAttType(), this);
-		Attribute newTo = Attribute.withoutConstraints(oldTo.getName(), oldTo.getAttType(), this);
+		Attribute newFrom = Attribute.existingAttribute(oldFrom.getName(), oldFrom.getAttType(), this);
+		Attribute newTo = Attribute.existingAttribute(oldTo.getName(), oldTo.getAttType(), this);
 		FunctionalDependency newFd = FDFactory.createHardFD(newFrom, newTo);
 
 		if(this.fds == null) {
@@ -130,32 +134,29 @@ public class Relation {
 			}
 			return false;
 		}
-		// Set up constraints
+		// Set up primary keys
 		for(Relation r: rels) {
 			// Only look at tables that were actually created (i.e. not tables that
 			// already existed
 			if(succesfullyCompleted.contains(r)) {
-				r.getSourceDb().getDbHelper().findAndSetConstraints(r);
 				// Add primary key if it exists
 				if(r.getPrimaryKey() != null) {
 					LOG.debug("Adding {}.{} as pk...", r.getName(), r.getPrimaryKey().getName());
 					getSourceDb().getDbHelper().addPrimaryKey(r.getPrimaryKey(), r);
 				}
-				r.refreshConstraints();
-				Set<Attribute> attrs = r.getAttributes();
-				// Set up attribute specific constraints (i.e. fk or unique)
-				for(Attribute a: attrs) {
-					Set<Constraint> constraints = a.getConstraints();
-					LOG.debug("Found set of constraints {} for {}", constraints, a);
-					for(Constraint c : constraints) {
-						LOG.debug("Adding constraint {} {}", a.getName(), c.asSql());
-						getSourceDb().getDbHelper().addConstraint(r, a, c);
-					}
+			}
+		}
+		// Setup foreign keys
+		for(Relation r: rels) {
+			if(succesfullyCompleted.contains(r)) {
+				Set<ForeignKey> fks = r.getFks();
+				for(ForeignKey fk : fks) {
+					LOG.debug("Adding fk {}", fk);
+					getSourceDb().getDbHelper().addFk(r, fk);
 				}
 			}
 		}
 		return true;
-
 	}
 	/**
 	 * Creates a relation representing this object in the sourceDb, then populates it with the
@@ -267,12 +268,6 @@ public class Relation {
 	}
 
 	/**
-	 * Finds and sets all constraints (i.e. fks and pks) for this relation
-	 */
-	private void refreshConstraints() {
-		getSourceDb().getDbHelper().findAndSetConstraints(this);
-	}
-	/**
 	 * Returns the set of functional dependencies (FDs) for this Relation.
 	 * The FDs are cached after the first access, so subsequent accesses
 	 * are not expensive.
@@ -295,6 +290,36 @@ public class Relation {
 	 */
 	public Database getSourceDb() {
 		return sourceDb;
+	}
+	/**
+	 * @return the constraints
+	 */
+	public Set<ForeignKey> getFks() {
+		return fks;
+	}
+	/**
+	 * @return the primaryKey
+	 */
+	public Attribute getPrimaryKey() {
+		return primaryKey;
+	}
+	/**
+	 * @param pk the primaryKey to set
+	 */
+	public void setPrimaryKey(Attribute pk) {
+		if(this.primaryKey != null) {
+			LOG.warn("Replacing pk {} with {}", this.primaryKey, pk);
+		}
+		this.primaryKey = Attribute.existingAttribute(pk.getName(), pk.getAttType(), this);
+	}
+	/**
+	 * Adds the passed constraint to this relation's collection of maintained
+	 * constraints
+	 * 
+	 * @param fkpk
+	 */
+	public void addFk(ForeignKey fkpk) {
+		this.fks.add(fkpk);
 	}
 	/**
 	 * Returns true iff this relation exists in a database
@@ -346,22 +371,6 @@ public class Relation {
 		} else if (!sourceDb.equals(other.sourceDb))
 			return false;
 		return true;
-	}
-
-	/**
-	 * @return the primaryKey
-	 */
-	public Attribute getPrimaryKey() {
-		return primaryKey;
-	}
-	/**
-	 * @param pk the primaryKey to set
-	 */
-	public void setPrimaryKey(Attribute pk) {
-		if(this.primaryKey != null) {
-			LOG.warn("Replacing pk {} with {}", this.primaryKey, pk);
-		}
-		this.primaryKey = Attribute.withoutConstraints(pk.getName(), pk.getAttType(), this);
 	}
 
 }

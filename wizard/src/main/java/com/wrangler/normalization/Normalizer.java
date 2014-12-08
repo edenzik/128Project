@@ -11,6 +11,7 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.wrangler.constraint.ForeignKey;
 import com.wrangler.fd.FunctionalDependency;
 import com.wrangler.load.Attribute;
 import com.wrangler.load.Database;
@@ -202,9 +203,10 @@ public final class Normalizer {
 		rMinusYAtts.remove(fd.getToAtt());
 		Relation rMinusY = RelationFactory.createNewRelation(getNewName(), rMinusYAtts);
 		// Set foreign key between xMinusY.x and xy.x
-		Attribute fk = Attribute.withoutConstraints(fd.getFromAtt().getName(), 
-				fd.getFromAtt().getAttType(), rMinusY);
-		fk.addFK(xy.getPrimaryKey());
+		Attribute fk = fd.getFromAtt();
+		Attribute pk = Attribute.existingAttribute(fd.getFromAtt().getName(), fd.getFromAtt().getAttType(), xy);
+		ForeignKey fkpk = ForeignKey.newInstance(fk, pk);
+		rMinusY.addFk(fkpk);
 		// Make sure {r - y} inherits all the FDs x -> y iff {r - y} contains both x and y
 		for(FunctionalDependency f : rel.findAllHardFds()) {
 			if(rMinusYAtts.contains(f.getFromAtt()) && rMinusYAtts.contains(f.getToAtt())) {

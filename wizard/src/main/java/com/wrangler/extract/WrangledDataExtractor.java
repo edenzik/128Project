@@ -95,10 +95,10 @@ public class WrangledDataExtractor {
 	 * @return whether or not the operation was successful
 	 * 
 	 */
-	public boolean createAndPopulateInitialTable() {
+	public boolean createAndPopulateInitialTable(String tableName) {
 		Relation rel = null;
 		try {
-			rel = createInitialTable(this.wrangledData);
+			rel = createInitialTable(this.wrangledData, tableName);
 			populateInitialTable(rel);
 			LOG.info("Finished populating {}!", rel);
 			return true;
@@ -117,17 +117,18 @@ public class WrangledDataExtractor {
 	 * the name of the created table.
 	 * 
 	 * @param wrangledData
+	 * @param tableName 
 	 * @return
 	 * @throws CSVFormatException 
 	 */
-	private Relation createInitialTable(List<List<String>> wrangledData) throws CSVFormatException {
+	private Relation createInitialTable(List<List<String>> wrangledData, String tableName) throws CSVFormatException {
 		Relation rel = null;
 		// Now we need to figure out a unique name for this new table
-		try {
-			String tableName = QueryHelper.DEFAULT_TABLE_NAME + db.getDbHelper().countTables();
-			rel = RelationFactory.createExistingRelation(tableName, db);
-		} catch (SQLException e) {
-			LOG.error("Failed to count tables!", e);
+		rel = RelationFactory.createExistingRelation(tableName, db);
+		int counter = 0;
+		while(db.getDbHelper().tableExists(rel)) {
+			String newName = tableName + counter++;
+			rel = RelationFactory.createExistingRelation(newName, db);
 		}
 		Map<String, List<String>> headersToSampleValues = getSampleValues(this.headers, this.wrangledData);
 		inferredTypes = QueryHelper.inferTableTypes(headersToSampleValues);
