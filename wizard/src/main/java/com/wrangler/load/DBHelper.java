@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 import com.wrangler.constraint.ForeignKey;
 import com.wrangler.extract.CSVFormatException;
+import com.wrangler.fd.SoftFD;
 import com.wrangler.normalization.Normalizer;
 
 /**
@@ -506,6 +507,29 @@ public class DBHelper {
 	public void addFk(Relation r, ForeignKey c) {
 		String query = String.format("ALTER TABLE %s ADD FOREIGN KEY(%s) %s", r.getName(), c.getFk().getName(), c.asSql());
 		executeUpdate(query);
+	}
+
+	/**
+	 * Returns all violations of this soft fd in the given Relation paired with
+	 * the proportion of the result that they occupy. In other words, the following
+	 * data associated with this soft fd, a -> b
+	 * a 	->		b
+	 * Brandeis, Waltham
+	 * Brandeis, Waltham
+	 * Brandeis, Waltam
+	 * 
+	 * would return {Waltham -> 66.6, Waltam -> 33.3}
+	 * 
+	 * @return
+	 */
+	public Map<String, Double> getViolations(SoftFD softFD) {
+		String from = softFD.getFromAtt().getName();
+		String to = softFD.getToAtt().getName();
+		String rel = softFD.getFromAtt().getSourceTable().getName();
+		String query = String.format("SELECT %s,%s,count(*) FROM (SELECT %s, %s FROM %s) AS temp GROUP BY %s, %s;",
+				from, to, from, to, rel, from, to);
+
+		return null;
 	}
 }
 

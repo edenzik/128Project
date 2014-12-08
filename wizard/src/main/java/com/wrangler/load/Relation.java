@@ -295,7 +295,12 @@ public class Relation {
 	 * @return the constraints
 	 */
 	public Set<ForeignKey> getFks() {
-		return fks;
+		// If the table exists in a database but fks is not initialized
+		if(fks == null && exists()) {
+			return getSourceDb().getDbHelper().findFks(this);
+		} else {
+			return fks;
+		}
 	}
 	/**
 	 * @return the primaryKey
