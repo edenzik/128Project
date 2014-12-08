@@ -12,10 +12,22 @@ import com.wrangler.ui.login.User;
 
 public class DirectUploadWindow extends UploadWindow {
 
+	/**
+	 * This window supports direct uploads - which do not go through the Wrangler process
+	 * These get inputted directly into the database.
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public DirectUploadWindow(final UI ui, final User user, final Callback callback) {
 		super(ui, user, callback);
 		hasHeaders.setVisible(true);
 		uploader.addFinishedListener(new Upload.FinishedListener() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void uploadFinished(FinishedEvent event) {
 				WrangledDataExtractor wde;
@@ -29,8 +41,9 @@ public class DirectUploadWindow extends UploadWindow {
 						headerLine.deleteCharAt(headerLine.length()-1);
 						csvFile = headerLine.toString() + "\n" + csvFile;
 					}
-					wde = new WrangledDataExtractor(csvFile, user.getDB());
-					wde.createAndPopulateInitialTable();
+					if (csvFile.length()==0){throw new EmptyFileException();}
+					wde = new WrangledDataExtractor(csvFile.replace("'", "''"), user.getDB());
+					wde.createAndPopulateInitialTable(tableName);
 					Notification.show("Sucesss",
 			                  "CSV has been uploaded",
 			                  Notification.Type.TRAY_NOTIFICATION);
@@ -42,6 +55,10 @@ public class DirectUploadWindow extends UploadWindow {
 				} catch (AssertionError e) {
 					Notification.show("Oops",
 			                  "Does your file have headers?",
+			                  Notification.Type.ERROR_MESSAGE);
+				} catch (EmptyFileException e) {
+					Notification.show("Oops",
+			                  "No file was uploaded.",
 			                  Notification.Type.ERROR_MESSAGE);
 				}
 			}

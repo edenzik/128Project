@@ -13,7 +13,6 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.UI;
 import com.wrangler.extract.WrangledDataExtractor;
-import com.wrangler.extract.WrangledDataParser;
 import com.wrangler.ui.login.User;
 
 /**
@@ -36,7 +35,7 @@ public class DataWrangler extends BrowserFrame {
 	 * allDone -> Front end indicates its done submitting
 	 * 
 	 */
-	DataWrangler(UI ui, final User user) {
+	DataWrangler(UI ui, final User user, final String tableName) {
 		super("", new ExternalResource(URI));
 
 		RequestHandler handler = new RequestHandler(){
@@ -56,7 +55,7 @@ public class DataWrangler extends BrowserFrame {
 					return true;
 				} if ("/allDone".equals(request.getPathInfo())) {
 					WrangledDataExtractor wde = new WrangledDataExtractor(result.toString(), user.getDB());
-					wde.createAndPopulateInitialTable();
+					wde.createAndPopulateInitialTable(tableName);
 					done = true;
 					return true;
 				} else return false;

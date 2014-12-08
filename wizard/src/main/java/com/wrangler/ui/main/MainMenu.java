@@ -12,13 +12,13 @@ import com.wrangler.ui.fd.FDWindow;
 import com.wrangler.ui.login.LoginWindow;
 import com.wrangler.ui.login.User;
 import com.wrangler.ui.normalize.NormalizeWindow;
-import com.wrangler.ui.query.DatabaseBrowser;
 import com.wrangler.ui.upload.DirectUploadWindow;
-import com.wrangler.ui.upload.UploadWindow;
 import com.wrangler.ui.upload.WranglerUploadWindow;
 
 /**
  * @author edenzik
+ * MainMenu class deteremins the functionality of the top menu
+ * UI is the generalized UI super
  *
  */
 public class MainMenu extends MenuBar {
@@ -49,6 +49,7 @@ public class MainMenu extends MenuBar {
 	private Command importData(){
 		return new MenuBar.Command() {
 			public void menuSelected(MenuItem selectedItem) {
+				windowClose();
 				ui.addWindow(new DirectUploadWindow(ui, user, callback));
 			}
 		};
@@ -56,6 +57,7 @@ public class MainMenu extends MenuBar {
 	private Command wrangleData(){
 		return new MenuBar.Command() {
 			public void menuSelected(MenuItem selectedItem) {
+				windowClose();
 				WranglerUploadWindow upload = new WranglerUploadWindow(ui, user, callback);
 				ui.addWindow(upload);
 			}
@@ -64,6 +66,7 @@ public class MainMenu extends MenuBar {
 	private Command inferFD(){
 		return new MenuBar.Command() {
 			public void menuSelected(MenuItem selectedItem) {
+				windowClose();
 				ui.addWindow(new FDWindow(ui, user));
 			}
 		};
@@ -71,6 +74,7 @@ public class MainMenu extends MenuBar {
 	private Command normalizeTable(){
 		return new MenuBar.Command() {
 			public void menuSelected(MenuItem selectedItem) {
+				windowClose();
 				ui.addWindow(new NormalizeWindow(ui, user, callback));
 			}
 		};
@@ -78,6 +82,7 @@ public class MainMenu extends MenuBar {
 	private Command exportData(){
 		return new MenuBar.Command() {
 			public void menuSelected(MenuItem selectedItem) {
+				windowClose();
 				ui.addWindow(new ExportWindow(ui, user));
 			}
 		};}
@@ -89,6 +94,9 @@ public class MainMenu extends MenuBar {
 				ui.addWindow(new LoginWindow(ui));
 			}
 		};
+	}
+	private void windowClose(){
+		for (Window w : ui.getWindows()){w.close();}
 	}
 
 }

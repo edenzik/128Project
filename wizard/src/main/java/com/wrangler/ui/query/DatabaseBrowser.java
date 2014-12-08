@@ -23,9 +23,11 @@ public class DatabaseBrowser extends HorizontalSplitPanel {
 	 */
 	public DatabaseBrowser(User user){
 		initLayout();
-		tablesList = new TablesList(user.getDB());
+		
 		final QueryWindow window = new QueryWindow(user.getDB());
-		addComponent(tablesList);
+		TableListRemoveRename tableListRemoveRename = new TableListRemoveRename(user.getDB());
+		addComponent(tableListRemoveRename);
+		tablesList = tableListRemoveRename.getTablesList();
 		addComponent(window);
 		
 		tablesList.addItemClickListener(new ItemClickListener() {

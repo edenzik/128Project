@@ -4,6 +4,8 @@
 package com.wrangler.ui.upload;
 
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
@@ -22,8 +24,10 @@ import com.wrangler.ui.wranglertool.WranglerWindow;
 public abstract class UploadWindow extends Window {
 	protected final CSVUpload uploader;
 	protected final CheckBox hasHeaders;
+	protected String tableName = ""; 
 
 	/**
+	 * This is a superclass of all upload windows, whether wrangler or otherwise.
 	 * 
 	 * 
 	 */
@@ -31,20 +35,28 @@ public abstract class UploadWindow extends Window {
 		setCaption("Upload CSV here");
 		setDraggable(false);
 		setResizable(false);
-		setHeight("20%");
+		setHeight("25%");
 		setWidth("30%");
 		center();
 		VerticalLayout layout = new VerticalLayout();
+		
 		layout.setMargin(true);
 		uploader = new CSVUpload();
 		layout.addComponent(uploader);
+		final TextField name = new TextField("Table Name");
+		//layout.addComponent(name);
+		
 		hasHeaders = new CheckBox("Has headers?", true);
-		layout.addComponent(hasHeaders);
+		//layout.addComponent(hasHeaders);
 		hasHeaders.setVisible(false);
 		setContent(layout);
+		HorizontalLayout nameHeaders = new HorizontalLayout(name, hasHeaders);
+		layout.addComponent(nameHeaders);
+		layout.addComponent(name);
 		uploader.addFinishedListener(new Upload.FinishedListener() {
 			@Override
 			public void uploadFinished(FinishedEvent event) {
+				tableName = name.getValue();
 				close();
 			}
 		});

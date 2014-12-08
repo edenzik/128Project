@@ -14,7 +14,7 @@ public class WranglerUploadWindow extends UploadWindow {
 		uploader.addFinishedListener(new Upload.FinishedListener() {
 			@Override
 			public void uploadFinished(FinishedEvent event) {
-				WranglerWindow wrangler = new WranglerWindow(ui, user, callback);
+				WranglerWindow wrangler = new WranglerWindow(ui, user, callback, tableName);
 				ui.addWindow(wrangler);
 			}
 		});

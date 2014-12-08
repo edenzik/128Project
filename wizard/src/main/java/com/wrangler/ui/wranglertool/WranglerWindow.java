@@ -38,12 +38,12 @@ public class WranglerWindow extends Window {
 	 * Adds button to close this window when the CSV is done uploading
 	 * 
 	 */
-	public WranglerWindow(final UI ui, final User user, final Callback callback) {
+	public WranglerWindow(final UI ui, final User user, final Callback callback, String tableName) {
 		super("Data Wrangler");
 		initLayout();
 		
 		final Button submit = new Button("Load");
-		final DataWrangler wrangler = new DataWrangler(ui, user);
+		final DataWrangler wrangler = new DataWrangler(ui, user, tableName);
 		GridLayout buttonLayout = new GridLayout();
 		submit.setSizeFull();
 		submit.addClickListener(new Button.ClickListener() {

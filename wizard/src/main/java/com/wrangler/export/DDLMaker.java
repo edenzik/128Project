@@ -1,6 +1,7 @@
 package com.wrangler.export;
 
 import com.wrangler.load.Attribute;
+import com.wrangler.load.Constraint;
 import com.wrangler.load.Relation;
 
 public class DDLMaker extends StatementMaker {
@@ -11,9 +12,9 @@ public class DDLMaker extends StatementMaker {
 		statement.append("\n");
 		for (Attribute att : rel.getAttributes()){
 			statement.append(String.format("\t%s %s", att.getName(), att.getAttType()));
-			//for (Constraint con : att.getContraints()){
-			//	statement.append(String.format("%s", att.getName(), att.getAttType()));
-			//}
+			for (Constraint con : att.getConstraints()){
+				statement.append(String.format("%s", att.getName(), att.getAttType()));
+			}
 			statement.append(",");
 			statement.append("\n");
 		}
