@@ -3,12 +3,15 @@
  */
 package com.wrangler.ui.fd;
 
+import java.util.Map;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ListSelect;
@@ -37,7 +40,7 @@ class FDAddRemovePanel extends VerticalSplitPanel {
 		Button removeFD = new Button("Remove FD");
 		removeFD.setSizeFull();
 		removeFD.addClickListener(new Button.ClickListener() {
-			
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				fdTable.removeSelectedValue();
@@ -45,11 +48,11 @@ class FDAddRemovePanel extends VerticalSplitPanel {
 		});
 
 		Button addFD = new Button("Add FD");
-		
-		
+
+
 		final ComboBox selectFrom = new ComboBox();
 		selectFrom.setInputPrompt("From");
-		
+
 		final ComboBox selectTo = new ComboBox();
 		selectTo.setInputPrompt("To");
 		HorizontalSplitPanel attSelection = new HorizontalSplitPanel(selectFrom, selectTo);
@@ -58,11 +61,11 @@ class FDAddRemovePanel extends VerticalSplitPanel {
 		attSelection.setSplitPosition(50, Unit.PERCENTAGE);
 		HorizontalSplitPanel attSelectionAndButton = new HorizontalSplitPanel(attSelection, addFD);
 		attSelectionAndButton.setSizeFull();
-		
+
 		selectFrom.setSizeFull();
 		selectTo.setSizeFull();
 		addFD.setSizeFull();
-		
+
 		//VerticalSplitPanel addFDSplitPanel = new VerticalSplitPanel(FDSelectionLayout, addFD);
 		tableSelection.addValueChangeListener(new ComboBox.ValueChangeListener() {
 			@Override
@@ -78,26 +81,34 @@ class FDAddRemovePanel extends VerticalSplitPanel {
 
 			}
 		});
-		
+
 		addComponent(attSelectionAndButton);
 		addComponent(removeFD);
 		addFD.addClickListener(new Button.ClickListener() {
-			
+
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
+
 				if (selectFrom.getValue()!=null && selectTo.getValue() != null){
 					//fdTable.getFdSet().keySet()
-					
+
 					//((Attribute) selectFrom.getValue());
-					ui.addWindow(new FDViolationWindow(FDFactory.createSoftFD((Attribute) selectFrom.getValue(), (Attribute) selectTo.getValue())));
+					SoftFD softFD = FDFactory.createSoftFD((Attribute) selectFrom.getValue(), (Attribute) selectTo.getValue());
+					final Map<String, Map<String, Double>> valuePercent = softFD.getViolations();
+					if (!valuePercent.isEmpty()){
+						ui.addWindow(new FDViolationWindow(softFD.getFromAtt(), softFD.getToAtt(), valuePercent));
+					} else {
+						Notification.show("Cannot add existing FD",
+								softFD.getFromAtt() + " -> " + softFD.getToAtt() + " is already a functional depdendency.",
+								Notification.Type.WARNING_MESSAGE);
+					}
 					//fdTable.insert(new HardFD((Attribute) selectFrom.getValue(), (Attribute) selectTo.getValue()));
 				}
 			}
 		});
-		
+
 	}
-	
+
 	private void initLayout(){
 		setSizeFull();
 		setSplitPosition(50, Unit.PERCENTAGE);

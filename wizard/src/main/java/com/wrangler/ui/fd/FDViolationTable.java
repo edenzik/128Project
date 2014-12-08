@@ -9,17 +9,22 @@ import com.wrangler.load.Attribute;
 
 class FDViolationTable extends Table {
 	//private HashMap<Object, Attribute> fdSet;
+	private final Attribute fdTo;
 	protected FDViolationTable(Attribute fdTo){
+		this.fdTo = fdTo;
 		initLayout();
-		addContainerProperty("Violating Value of " + fdTo.getName(), String.class, null);
+		addContainerProperty("Violating Values", String.class, null);
 		addContainerProperty("Percent", String.class, null);
 	}
 	
 	protected void fill(Map<String, Double> valuePercent){
+		this.removeAllItems();
 		for (String fdToValue: valuePercent.keySet()){
 			insert(fdToValue, valuePercent.get(fdToValue));
 		}
 	}
+	
+	Attribute getFdTo(){return fdTo;}
 	
 	private void insert(String value, Double percent){
 		addItem(new String[]{value, percent + "%"}, null);
