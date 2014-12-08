@@ -24,7 +24,7 @@ import com.wrangler.load.RelationFactory;
  * @author edenzik
  *
  */
-class FDAddRemovePanel extends HorizontalSplitPanel {
+class FDAddRemovePanel extends VerticalSplitPanel {
 
 	/**
 	 * 
@@ -57,7 +57,7 @@ class FDAddRemovePanel extends HorizontalSplitPanel {
 		attSelection.setSizeFull();
 		attSelection.setLocked(true);
 		attSelection.setSplitPosition(50, Unit.PERCENTAGE);
-		VerticalSplitPanel attSelectionAndButton = new VerticalSplitPanel(attSelection, addFD);
+		HorizontalSplitPanel attSelectionAndButton = new HorizontalSplitPanel(attSelection, addFD);
 		attSelectionAndButton.setSizeFull();
 		
 		selectFrom.setSizeFull();
@@ -79,7 +79,9 @@ class FDAddRemovePanel extends HorizontalSplitPanel {
 
 			}
 		});
+		
 		addComponent(attSelectionAndButton);
+		addComponent(removeFD);
 		addFD.addClickListener(new Button.ClickListener() {
 			
 			@Override

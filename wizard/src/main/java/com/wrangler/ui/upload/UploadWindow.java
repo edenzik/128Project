@@ -10,6 +10,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Upload.ChangeEvent;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FinishedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
@@ -22,6 +23,10 @@ import com.wrangler.ui.wranglertool.WranglerWindow;
  *
  */
 public abstract class UploadWindow extends Window {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected final CSVUpload uploader;
 	protected final CheckBox hasHeaders;
 	protected String tableName = ""; 
@@ -53,7 +58,27 @@ public abstract class UploadWindow extends Window {
 		HorizontalLayout nameHeaders = new HorizontalLayout(name, hasHeaders);
 		layout.addComponent(nameHeaders);
 		layout.addComponent(name);
+		uploader.addChangeListener(new Upload.ChangeListener() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void filenameChanged(ChangeEvent event) {
+				String[] fileNameDelimted = event.getFilename().split("\\\\");
+				String fileName = fileNameDelimted[fileNameDelimted.length-1].split(".")[0];
+				name.setValue(fileName);
+				
+			}
+		});
 		uploader.addFinishedListener(new Upload.FinishedListener() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void uploadFinished(FinishedEvent event) {
 				tableName = name.getValue();
