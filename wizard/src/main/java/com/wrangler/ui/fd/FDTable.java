@@ -45,5 +45,7 @@ public class FDTable extends Table {
 	public void insert(FunctionalDependency fd){
 		fdSet.put(addItem(new String[]{fd.getFromAtt().getName(), fd.getToAtt().getName()}, null), fd);
 	}
+	
+	protected HashMap<Object, FunctionalDependency> getFdSet(){return fdSet;}
 
 }
