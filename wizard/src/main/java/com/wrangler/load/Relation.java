@@ -112,6 +112,7 @@ public class Relation {
 			return false;
 		}
 		else {
+			LOG.info("Removing functional dependency {} from {}", fd, this);
 			fds.remove(fd);
 			return true;
 		}
