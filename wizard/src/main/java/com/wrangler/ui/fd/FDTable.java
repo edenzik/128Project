@@ -3,6 +3,10 @@ package com.wrangler.ui.fd;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.seleniumhq.jetty7.util.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.ui.Table;
 import com.wrangler.fd.FunctionalDependency;
 import com.wrangler.load.Relation;
@@ -14,6 +18,8 @@ import com.wrangler.load.Relation;
 public class FDTable extends Table {
 	private Relation rel = null;
 	private HashMap<Object, FunctionalDependency> fdSet;
+	
+	private static final Logger LOG = LoggerFactory.getLogger(FDTable.class);
 
 	/**
 	 * 
@@ -41,8 +47,11 @@ public class FDTable extends Table {
 	
 	public void removeSelectedValue(){
 		Object currentValue = getValue();
-		removeItem(currentValue);
-		if (currentValue!=null) rel.removeFd(fdSet.remove(currentValue));
+		if (currentValue!=null) {
+			LOG.debug(getValue().toString());
+			rel.removeFd(fdSet.remove(currentValue));
+			removeItem(currentValue);
+		}
 	}
 	
 	public void insert(FunctionalDependency fd){
