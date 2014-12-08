@@ -43,7 +43,7 @@ public class DBHelper {
 	 */
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
 		Database db = DatabaseFactory.createDatabase("kahliloppenheimer", HostFactory.createDefaultHost());
-		Relation rel = RelationFactory.createExistingRelation("kahlil3", db);
+		Relation rel = RelationFactory.createExistingRelation("kahlil2", db);
 		Set<Attribute> attrs = rel.getAttributes();
 		Attribute from = null, to = null;
 		for(Attribute a : attrs) {
@@ -543,11 +543,24 @@ public class DBHelper {
 		String from = softFD.getFromAtt().getName();
 		String to = softFD.getToAtt().getName();
 		String rel = softFD.getFromAtt().getSourceTable().getName();
-		String query = String.format("SELECT %s,count(*) FROM (SELECT %s, %s FROM %s) AS temp GROUP BY %s, %s;",
-				to, from, to, rel, from, to);
+		String violationRelName = rel + "_fdviolations";
+		// First store violating relations in temp table
+		String query1 = String.format(
+			"CREATE TEMP TABLE %s AS SELECT %s FROM (SELECT DISTINCT %s, %s FROM %s) AS foo GROUP BY school HAVING COUNT(*) > 1;",
+			violationRelName, from, from, to, rel, from);
+		// Then join with that table to only get results for violating attributes
+		String query2 = String.format("SELECT %s,%s,count(*) FROM %s natural join %s GROUP BY %s, %s",
+				from, to, rel, violationRelName, from, to);
+		// Then make sure to drop the temp table
+		String query3 = String.format("DROP TABLE %s;", violationRelName);
 		ResultSet rs = null;
 		try {
-			rs = executeQuery(query);
+			// Create temp table
+			executeUpdate(query1);
+			// Query violating fds
+			rs = executeQuery(query2);
+			// Destroy temp table
+			executeUpdate(query3);
 		} catch (SQLException e) {
 			LOG.error("", e);
 			return violations;
@@ -557,8 +570,8 @@ public class DBHelper {
 		String violation = null;
 		try {
 			while(rs.next()) {
-				violation = rs.getString(1);
-				int numViolations = rs.getInt(2);
+				violation = rs.getString(2);
+				int numViolations = rs.getInt(3);
 				violations.put(violation, Double.valueOf(numViolations));
 			}
 		} catch(SQLException e) {
@@ -578,6 +591,33 @@ public class DBHelper {
 		}
 
 		return violations;
+	}
+	
+	/**
+	 * Applies all passed corrections to the softFd by ensuring that each key
+	 * of corrections<key, value> only corresponds with value in the database
+	 * 
+	 * @param softFd
+	 * @param key
+	 * @param correctedVal
+	 */
+	public void fixAllViolations(SoftFD softFd, Map<String, String> corrections) {
+		for(String s: corrections.keySet()) {
+			fixViolation(softFd, s, corrections.get(s));
+		}
+	}
+
+	/**
+	 * Fixes a single instance of a violated soft functional dependency key -> correctVal
+	 * within the database where correctVal is the only value that should be associated
+	 * with key
+	 * 
+	 * @param softFd
+	 * @param key
+	 * @param correctVal
+	 */
+	private void fixViolation(SoftFD softFd, String key, String correctVal) {
+		
 	}
 }
 
