@@ -48,7 +48,6 @@ class FDPanel extends HorizontalSplitPanel {
 				if (event.getProperty().getValue()!=null){
 					attributeTable.fill(user.getDB().getDbHelper().getRelationAttributes(RelationFactory.createExistingRelation(event.getProperty().getValue().toString(), user.getDB())));
 					fdTable.fill(RelationFactory.createExistingRelation(event.getProperty().getValue().toString(), user.getDB()).findAllHardFds());
-
 				}
 
 			}

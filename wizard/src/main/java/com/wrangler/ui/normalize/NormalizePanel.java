@@ -66,7 +66,7 @@ class NormalizePanel extends HorizontalSplitPanel {
 						
 						@Override
 						public void buttonClick(ClickEvent event) {
-							//selectedRelation.decomposeInto(normalizedRelations);
+							selectedRelation.decomposeInto(normalizedRelations);
 							callback.execute();
 							Notification.show("Done!",
 					                  "Tables have been updated",
