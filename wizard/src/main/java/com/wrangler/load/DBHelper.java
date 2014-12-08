@@ -29,6 +29,7 @@ public class DBHelper {
 	private SimpleJDBCConnectionPool pool;
 	private final Logger LOG = LoggerFactory.getLogger(DBHelper.class);
 	private final Database db;
+	private final Connection DEFAULT_CONNECTION;
 
 	/**
 	 * Used only for unit testing
@@ -66,6 +67,7 @@ public class DBHelper {
 		LOG.info("Connecting to {}...", uri);
 		pool = new SimpleJDBCConnectionPool("org.postgresql.Driver", uri, db.getHost().getRole(), db.getHost().getPass());
 		LOG.info("Connected to {}!", db);
+		(DEFAULT_CONNECTION = pool.reserveConnection()).setAutoCommit(true);
 	}
 
 	/**
@@ -76,9 +78,10 @@ public class DBHelper {
 	 * @throws SQLException
 	 */
 	private Connection getConnection() throws SQLException {
-		Connection conn = pool.reserveConnection();
-		conn.setAutoCommit(true);
-		return conn;
+		return DEFAULT_CONNECTION;
+//		Connection conn = pool.reserveConnection();
+//		conn.setAutoCommit(true);
+//		return conn;
 	}
 
 	/**
