@@ -68,7 +68,7 @@ public abstract class UploadWindow extends Window {
 			@Override
 			public void filenameChanged(ChangeEvent event) {
 				String fileName = event.getFilename();
-				name.setValue(fileName.substring(fileName.lastIndexOf("\\\\"),fileName.length()-1).replace(".csv", ""));
+				name.setValue(fileName.substring(fileName.lastIndexOf("\\\\"),fileName.length()).replace(".csv", ""));
 			}
 		});
 		uploader.addFinishedListener(new Upload.FinishedListener() {
