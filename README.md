@@ -5,7 +5,7 @@
 
 [Current Application](http://edenzik.github.io/128Project/wrangler/index.html)
 
-Preliminary relevant files
+Preliminary 
 
 [Proposal](https://www.sharelatex.com/github/repos/edenzik/128Project/builds/latest/output.pdf)
 
