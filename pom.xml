@@ -128,7 +128,7 @@
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.0</version>
 				<configuration>
-					<url>http://localhost:7070/app</url>
+					<url>http://localhost:8080/app</url>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -190,7 +190,7 @@
 				<version>9.2.3.v20140905</version>
 				<configuration>
 					<httpConnector>
-						<port>9999</port>
+						<port>8888</port>
 					</httpConnector>
 					<stopPort>9966</stopPort>
 					<stopKey>stopKey</stopKey>

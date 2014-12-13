@@ -23,8 +23,8 @@ import com.wrangler.ui.login.LoginWindow;
 public class Wizard extends UI {
 	private static final long serialVersionUID = 8261547005973362262L;
 
-	@WebServlet(value = "/app", asyncSupported = true)
-	@VaadinServletConfiguration(productionMode = false, ui = Wizard.class)
+	@WebServlet(value = {"/app/*","/VAADIN/*","/wrangler/*"}, asyncSupported = true)
+	@VaadinServletConfiguration(productionMode = true, ui = Wizard.class)
 	public static class Servlet extends VaadinServlet {
 		private static final long serialVersionUID = 7869620340268929564L;
 	}
