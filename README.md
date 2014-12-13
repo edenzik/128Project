@@ -3,7 +3,9 @@
 [![PDF Status](https://www.sharelatex.com/github/repos/edenzik/128Project/builds/latest/badge.svg)](https://www.sharelatex.com/github/repos/edenzik/128Project/builds/latest/output.pdf)
 ==========
 
-[Current Application](http://edenzik.github.io/128Project/wrangler/index.html)
+[Current Application](http://schematicfission.github.io)
+
+[Manual](https://github.com/schematicfission/manual)
 
 Preliminary 
 
