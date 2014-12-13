@@ -134,7 +134,7 @@
                  <version>3.2</version>
                  <configuration>
                      <source>1.7</source>
-                     <target>1.</target>
+                     <target>1.7</target>
                      <compilerArgument></compilerArgument>
                  </configuration>
              </plugin>
