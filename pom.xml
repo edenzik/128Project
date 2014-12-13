@@ -6,7 +6,7 @@
 	<artifactId>wizard</artifactId>
 	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>Vaadin Web Application</name>
+	<name>Schematic Fission</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -80,12 +80,6 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-testbench-api</artifactId>
-			<version>RELEASE</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -103,28 +97,19 @@
 			<version>1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-compiler-plugin</artifactId>
-			<version>2.5.1</version>
-			<type>maven-plugin</type>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.tomcat.maven</groupId>
 			<artifactId>tomcat7-maven-plugin</artifactId>
 			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client-compiler</artifactId>
+			<version>7.3.6</version>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
 			<!-- As we are doing "inplace" GWT compilation, ensure the widgetset -->
 			<!-- directory is cleaned properly -->
 			<plugin>
@@ -139,13 +124,13 @@
 				</configuration>
 			</plugin>
 			<plugin>
-        <groupId>org.apache.tomcat.maven</groupId>
-        <artifactId>tomcat7-maven-plugin</artifactId>
-        <version>2.0</version>
-        <configuration>
-          <url>http://localhost:9999/app</url>
-        </configuration>
-      </plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+					<url>http://localhost:7070/app</url>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
@@ -179,7 +164,7 @@
 
 					<style>OBF</style>
 					<strict>true</strict>
-					<runTarget>http://localhost:9999/app</runTarget>
+					<runTarget>http://localhost:8787/app</runTarget>
 				</configuration>
 				<executions>
 					<execution>
@@ -207,43 +192,11 @@
 					<httpConnector>
 						<port>9999</port>
 					</httpConnector>
-					 <stopPort>9966</stopPort>
-                <stopKey>stopKey</stopKey>
-                <stopWait>20</stopWait>
+					<stopPort>9966</stopPort>
+					<stopKey>stopKey</stopKey>
+					<stopWait>20</stopWait>
 				</configuration>
 			</plugin>
-
-
-<plugin>
-   <groupId>org.mortbay.jetty</groupId>
-   <artifactId>maven-jetty-plugin</artifactId>
-   <version>6.1.17</version>
-   <configuration>
-       <scanIntervalSeconds>0</scanIntervalSeconds>
-       <stopPort>9999</stopPort>
-       <stopKey>foo</stopKey>
-   </configuration>
-   <executions>
-     <execution>
-        <id>start-jetty</id>
-        <phase>pre-integration-test</phase>
-        <goals>
-          <goal>run</goal>
-        </goals>
-        <configuration>
-          <daemon>true</daemon>
-        </configuration>
-     </execution>
-     <execution>
-        <id>stop-jetty</id>
-        <phase>post-integration-test</phase>
-        <goals>
-          <goal>stop</goal>
-        </goals>
-     </execution>
-   </executions>
-</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -315,4 +268,5 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<url>schematicfission.github.io</url>
 </project>
