@@ -106,6 +106,12 @@
 			<artifactId>vaadin-client-compiler</artifactId>
 			<version>7.3.6</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.2</version>
+			<type>maven-plugin</type>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -124,12 +130,19 @@
 				</configuration>
 			</plugin>
 			<plugin>
+                 <artifactId>maven-compiler-plugin</artifactId>
+                 <version>3.2</version>
+                 <configuration>
+                     <source>1.7</source>
+                     <target>1.</target>
+                     <compilerArgument></compilerArgument>
+                 </configuration>
+             </plugin>
+			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.0</version>
 				<configuration>
-					<source>1.7</source>
-                     <target>1.7</target>
 					<url>http://localhost:8080/app</url>
 				</configuration>
 			</plugin>
