@@ -6,6 +6,7 @@ com/wrangler/ui/upload/EmptyFileException.class
 com/wrangler/fd/SoftFD.class
 com/wrangler/ui/upload/CSVUpload$2.class
 com/wrangler/ui/upload/DirectUploadWindow.class
+com/wrangler/ui/viz/VizualizeWindow.class
 com/wrangler/ui/fd/TableSelection.class
 com/wrangler/ui/login/LoginWindow.class
 com/wrangler/ui/fd/FDViolationTable.class
@@ -21,6 +22,7 @@ com/wrangler/ui/query/TableListRemoveRename$1.class
 com/wrangler/fd/FDDetector.class
 com/wrangler/ui/query/TableListRemoveRename.class
 com/wrangler/ui/login/LoginManager.class
+com/wrangler/ui/main/MainMenu$7.class
 com/wrangler/ui/fd/FDViolationWindow$2.class
 com/wrangler/ui/query/QueryWindow$1.class
 com/wrangler/ui/fd/FDAddRemovePanel$2.class
@@ -50,6 +52,7 @@ com/wrangler/fd/FunctionalDependency.class
 com/wrangler/ui/normalize/NormalizePanel.class
 com/wrangler/fd/FDFactory.class
 com/wrangler/ui/main/MainMenu$6.class
+com/wrangler/ui/viz/BasicColumn.class
 com/wrangler/ui/query/DatabaseBrowser$1.class
 com/wrangler/ui/fd/FDViolationWindow$1.class
 com/wrangler/ui/export/ExportWindow.class
@@ -80,6 +83,7 @@ com/wrangler/ui/fd/FDSelectionLayout.class
 com/wrangler/ui/query/QueryExecutionField.class
 com/wrangler/ui/main/MainMenu$1.class
 com/wrangler/ui/upload/UploadWindow$1.class
+com/wrangler/ui/viz/TableViz.class
 com/wrangler/export/ContentMaker.class
 com/wrangler/ui/fd/FDWindow.class
 com/wrangler/ui/fd/FDTable.class

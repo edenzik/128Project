@@ -62,7 +62,7 @@ public class WrangledDataExtractor {
 			// Add header row to header collection
 			if(tuple.getRecordNumber() == 1) {
 				for(String attName : tuple) {
-					colNames.add(attName);
+					colNames.add(attName.replaceAll(" ", "_").replaceAll("-", ""));
 				}
 				continue;
 			}

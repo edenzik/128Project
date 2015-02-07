@@ -14,6 +14,7 @@ import com.wrangler.ui.login.User;
 import com.wrangler.ui.normalize.NormalizeWindow;
 import com.wrangler.ui.upload.DirectUploadWindow;
 import com.wrangler.ui.upload.WranglerUploadWindow;
+import com.wrangler.ui.viz.VizualizeWindow;
 
 /**
  * @author edenzik
@@ -41,6 +42,7 @@ public class MainMenu extends MenuBar {
 		addItem("Infer Functional Dependencies", inferFD());
 		addItem("Normalize Table", normalizeTable());
 		addItem("Export Relational Data", exportData());
+		addItem("Vizualize Table", vizualizeTable());
 		addItem("Save Project and Logout", saveLogout());
 		setSizeFull();
 	}
@@ -76,6 +78,14 @@ public class MainMenu extends MenuBar {
 			public void menuSelected(MenuItem selectedItem) {
 				windowClose();
 				ui.addWindow(new NormalizeWindow(ui, user, callback));
+			}
+		};
+	}
+	private Command vizualizeTable(){
+		return new MenuBar.Command() {
+			public void menuSelected(MenuItem selectedItem) {
+				windowClose();
+				ui.addWindow(new VizualizeWindow(ui, user, callback));
 			}
 		};
 	}

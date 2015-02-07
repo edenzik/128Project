@@ -24,7 +24,7 @@ public class Wizard extends UI {
 	private static final long serialVersionUID = 8261547005973362262L;
 
 	@WebServlet(value = {"/app/*","/VAADIN/*","/wrangler/*"}, asyncSupported = true)
-	@VaadinServletConfiguration(productionMode = true, ui = Wizard.class)
+	@VaadinServletConfiguration(productionMode = true, ui = Wizard.class, widgetset="com.wrangler.ui.main.AppWidgetSet")
 	public static class Servlet extends VaadinServlet {
 		private static final long serialVersionUID = 7869620340268929564L;
 	}
