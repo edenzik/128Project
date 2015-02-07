@@ -15,7 +15,7 @@ public class Host {
 	private final String ROLE;
 	private final String PASS;
 	
-	private static final String DEFAULT_IP = "wrangler.cqt8za2u22th.us-east-1.rds.amazonaws.com";
+	private static final String DEFAULT_IP = "schematicfission.cqt8za2u22th.us-east-1.rds.amazonaws.com";
 	private static final String DEFAULT_PORT = "5432";
 	private static final String DEFAULT_ROLE = "edenzik";
 	private static final String DEFAULT_PASS = "superglue1994";
