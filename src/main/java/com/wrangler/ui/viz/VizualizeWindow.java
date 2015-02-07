@@ -23,7 +23,7 @@ public class VizualizeWindow extends Window {
 	public VizualizeWindow(UI ui, User user, Callback callback) {
 		super("Vizualization Window");
 		initLayout();
-		setContent((new BasicColumn()).getChart());
+		setContent(new VizPanel(ui, user));
 	}
 	
 	private void initLayout(){
