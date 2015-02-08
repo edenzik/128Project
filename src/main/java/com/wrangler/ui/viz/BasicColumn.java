@@ -28,7 +28,7 @@ public class BasicColumn{
 
         Configuration conf = chart.getConfiguration();
 
-        conf.setTitle("Net Absorbtion");
+        conf.setTitle("Net Absorption");
         //conf.setSubTitle("Source: WorldClimate.com");
 
         XAxis x = new XAxis();
@@ -38,7 +38,7 @@ public class BasicColumn{
 
         YAxis y = new YAxis();
         y.setMin(0);
-        y.setTitle("Net Absorbtion (Thousands)");
+        y.setTitle("Net Absorption (Thousands)");
         conf.addyAxis(y);
 
         Legend legend = new Legend();
@@ -63,9 +63,9 @@ public class BasicColumn{
         DataSeries series = new DataSeries();
         
 
-        conf.addSeries(new ListSeries("Atlanta", 49.9, 71.5, 106.4, 129.2, 144.0,
+        conf.addSeries(new ListSeries("New York", 49.9, 71.5, 106.4, 129.2, 144.0,
                 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4));
-        conf.addSeries(new ListSeries("New York", 83.6, 78.8, 98.5, 93.4,
+        conf.addSeries(new ListSeries("Chicago", 83.6, 78.8, 98.5, 93.4,
                 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3));
         conf.addSeries(new ListSeries("Boston", 48.9, 38.8, 39.3, 41.4, 47.0,
                 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2));
