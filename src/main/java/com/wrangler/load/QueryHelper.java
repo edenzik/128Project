@@ -93,7 +93,7 @@ public class QueryHelper {
 		}
 		StringBuilder attList = new StringBuilder();
 		attList.append("(");
-		attList.append(headers[0].replaceAll(" ", "_").replaceAll("-", "_") + " " + inferredTypes.get(headers[0]));
+		attList.append(headers[0].replaceAll(" ", "_").replaceAll("-", "") + " " + inferredTypes.get(headers[0]));
 		for(int i = 1; i < headers.length; ++i) {
 			attList.append(", " + headers[i] + " " + inferredTypes.get(headers[i]));
 		}

@@ -3,11 +3,13 @@ package com.wrangler.ui.viz;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.HorizontalAlign;
 import com.vaadin.addon.charts.model.LayoutDirection;
 import com.vaadin.addon.charts.model.Legend;
 import com.vaadin.addon.charts.model.ListSeries;
 import com.vaadin.addon.charts.model.PlotOptionsColumn;
+import com.vaadin.addon.charts.model.Series;
 import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.addon.charts.model.VerticalAlign;
 import com.vaadin.addon.charts.model.XAxis;
@@ -21,7 +23,7 @@ public class BasicColumn{
         return "Basic column";
     }
 
-    protected Component getChart() {
+    protected Chart getChart() {
         Chart chart = new Chart(ChartType.COLUMN);
 
         Configuration conf = chart.getConfiguration();
@@ -57,6 +59,9 @@ public class BasicColumn{
         PlotOptionsColumn plot = new PlotOptionsColumn();
         plot.setPointPadding(0.2);
         plot.setBorderWidth(0);
+        
+        DataSeries series = new DataSeries();
+        
 
         conf.addSeries(new ListSeries("Tokyo", 49.9, 71.5, 106.4, 129.2, 144.0,
                 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4));

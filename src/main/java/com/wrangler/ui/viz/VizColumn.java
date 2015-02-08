@@ -15,7 +15,8 @@ import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.ui.Component;
 
 @SuppressWarnings("serial")
-public class CopyOfBasicColumn{
+public class VizColumn{
+	
 
     public String getDescription() {
         return "Basic column";

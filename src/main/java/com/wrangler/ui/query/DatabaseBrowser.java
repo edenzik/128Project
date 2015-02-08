@@ -39,6 +39,7 @@ public class DatabaseBrowser extends HorizontalSplitPanel {
 		setSizeFull();
 	}
 	
+
 	private void initLayout(){
 		setSplitPosition(20, Unit.PERCENTAGE);
 		setLocked(true);
